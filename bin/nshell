@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+# The command of the shell. NSHELL_PATH is the folder of the shell, set by the package, or by hand to run one from a checkout
+#
+#   nshell                  starts the shell
+#   nshell center [dnd]     opens and closes the history of the notifications, or toggles do not disturb
+#   nshell bar              shows and hides the bar
+set -eu
+: "${NSHELL_PATH:?NSHELL_PATH is not set}"
+
+case "${1:-}" in
+"") exec quickshell -p "$NSHELL_PATH" ;;
+center) exec quickshell -p "$NSHELL_PATH" ipc call center "${2:-toggle}" ;;
+bar) exec quickshell -p "$NSHELL_PATH" ipc call bar toggle ;;
+*)
+	echo "usage: nshell [center [dnd] | bar]" >&2
+	exit 1
+	;;
+esac
