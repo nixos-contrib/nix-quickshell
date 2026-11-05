@@ -58,12 +58,12 @@ Scope {
             const strips = kids.map(k => k.deco_rect).filter(d => d && d.height > 0);
             const hidden = kids.some(k => (k.fullscreen_mode ?? 0) !== 0 || (node.fullscreen_mode ?? 0) !== 0);
             if (strips.length > 0 && !hidden) {
-                const x0 = Math.min(...strips.map(d => d.x));
-                const x1 = Math.max(...strips.map(d => d.x + d.width));
                 const front = node.focus && node.focus.length > 0 ? node.focus[0] : kids[0].id;
+                // the strip is at the top of the container, as wide as it: the rectangle of the container, with the height of the tabs.
+                // The deco_rect of i3 is not in the same coordinates in x and in y
                 out.push({
                     id: node.id,
-                    x: x0, y: strips[0].y, w: x1 - x0, h: strips[0].height,
+                    x: node.rect.x, y: node.rect.y, w: node.rect.width, h: strips[0].height,
                     active: root.holdsFocus(node),
                     tabs: kids.map(k => root.tabOf(k, k.id === front))
                 });
@@ -115,8 +115,26 @@ Scope {
     }
     Process {
         running: true
-        command: ["i3-msg", "-t", "subscribe", "-m", "[\"window\",\"workspace\",\"binding\"]"]
+        command: ["i3-msg", "-t", "subscribe", "-m", "[\"window\",\"workspace\"]"]
         stdout: SplitParser { onRead: refresh.restart() }
+    }
+    // i3 sends no event when the layout of a container changes, tabbed or split: the tree is read again from time to time, which a
+    // key that changes the layout also waits for, as the binding comes before its command is done
+    Timer {
+        interval: 1000
+        running: true
+        repeat: true
+        onTriggered: if (!tree.running) tree.running = true
+    }
+    Process {
+        running: true
+        command: ["i3-msg", "-t", "subscribe", "-m", "[\"binding\"]"]
+        stdout: SplitParser { onRead: later.restart() }
+    }
+    Timer {
+        id: later
+        interval: 120
+        onTriggered: if (!tree.running) tree.running = true
     }
     Component.onCompleted: refresh.restart()
 
