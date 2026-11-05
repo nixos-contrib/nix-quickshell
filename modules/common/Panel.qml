@@ -28,7 +28,7 @@ Rectangle {
     readonly property real chromeHeight: padding * 2 + (hasHeader ? headerBox.implicitHeight + 1 + Theme.spaceMd * 2 : 0) + (footer !== "" ? footerLabel.implicitHeight + Theme.spaceMd : 0)
 
     implicitHeight: col.implicitHeight + padding * 2
-    radius: Theme.radiusPanel
+    radius: Theme.radiusLg
     color: Theme.bg
     border { width: 1; color: Theme.border }
 

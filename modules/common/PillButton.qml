@@ -10,7 +10,7 @@ Rectangle {
 
     implicitWidth: label.implicitWidth + 24
     implicitHeight: 28
-    radius: 14
+    radius: height / 2
     color: area.pressed ? Theme.accent : (active ? Theme.primary : (area.containsMouse ? Theme.surfaceHigh : Theme.surface))
     border { width: 1; color: active ? Theme.primary : Theme.border }
 

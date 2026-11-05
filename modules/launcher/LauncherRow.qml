@@ -13,7 +13,7 @@ Rectangle {
 
     width: ListView.view ? ListView.view.width : 600
     height: 52
-    radius: Theme.tileRadius + 3
+    radius: Theme.radiusMd
     color: current ? Theme.surfaceHigh : "transparent"
 
     RowLayout {

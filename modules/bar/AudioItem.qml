@@ -20,7 +20,7 @@ Rectangle {
     visible: sink !== null
     Layout.preferredWidth: Theme.statusIcon + Theme.tilePad * 2
     Layout.preferredHeight: Theme.slot
-    radius: Theme.tileRadius
+    radius: Theme.radiusSm
     color: area.pressed || (popover && popover.visible) ? Theme.barFocus : "transparent"
     Behavior on color { ColorAnimation { duration: 120 } }
 

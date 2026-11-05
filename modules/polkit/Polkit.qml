@@ -58,7 +58,7 @@ Scope {
                         visible: root.onePassword
                         Layout.preferredWidth: 56
                         Layout.preferredHeight: 56
-                        radius: Theme.radius
+                        radius: Theme.radiusMd
                         color: Theme.surface
                         border { width: 1; color: Theme.border }
                         Image {
@@ -79,7 +79,7 @@ Scope {
                     Rectangle {
                         Layout.preferredWidth: 56
                         Layout.preferredHeight: 56
-                        radius: Theme.radius
+                        radius: Theme.radiusMd
                         color: Theme.surface
                         border { width: 1; color: Theme.border }
                         Image {
@@ -96,7 +96,7 @@ Scope {
                 Rectangle {
                     Layout.fillWidth: true
                     Layout.preferredHeight: 48
-                    radius: Theme.radius - 4
+                    radius: Theme.radiusMd
                     color: Theme.surface
                     border { width: 1; color: root.flow && root.flow.supplementaryIsError ? Theme.critical : Theme.border }
 

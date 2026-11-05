@@ -29,7 +29,7 @@ RowLayout {
             Layout.preferredWidth: Theme.statusIcon + Theme.tilePad * 2
             Layout.preferredHeight: Theme.slot
             visible: modelData.status !== Status.Passive
-            radius: Theme.tileRadius
+            radius: Theme.radiusSm
             color: area.pressed || tray.openItem === slot.modelData ? Theme.barFocus : "transparent"
             Behavior on color { ColorAnimation { duration: 120 } }
 

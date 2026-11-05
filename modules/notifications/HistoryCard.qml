@@ -18,7 +18,7 @@ Rectangle {
     width: ListView.view ? ListView.view.width : 340
     implicitHeight: content.implicitHeight + Theme.spacing * 2
     height: implicitHeight
-    radius: Theme.radius
+    radius: Theme.radiusMd
     color: Theme.surface
     border { width: 1; color: card.hovered ? Theme.primary : Theme.border }
     Behavior on border.color { ColorAnimation { duration: 120 } }

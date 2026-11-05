@@ -22,7 +22,7 @@ Rectangle {
     visible: present
     Layout.preferredWidth: row.implicitWidth + Theme.tilePad * 2 - Theme.textBearing
     Layout.preferredHeight: Theme.slot
-    radius: Theme.tileRadius
+    radius: Theme.radiusSm
     color: area.pressed || (popover && popover.visible) ? Theme.barFocus : "transparent"
     Behavior on color { ColorAnimation { duration: 120 } }
 

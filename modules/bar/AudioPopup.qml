@@ -26,7 +26,7 @@ Popover {
             Rectangle {
                 Layout.preferredWidth: Theme.slot
                 Layout.preferredHeight: Theme.slot
-                radius: Theme.tileRadius
+                radius: Theme.radiusSm
                 color: muteArea.pressed ? Theme.barFocus : "transparent"
                 SpeakerIcon {
                     anchors.centerIn: parent
@@ -63,7 +63,7 @@ Popover {
                 readonly property bool current: win.sink !== null && modelData.id === win.sink.id
                 Layout.fillWidth: true
                 Layout.preferredHeight: 32
-                radius: Theme.tileRadius + 1
+                radius: Theme.radiusMd
                 color: rowArea.containsMouse && !current ? Theme.surfaceHigh : "transparent"
                 RowLayout {
                     anchors { fill: parent; leftMargin: Theme.spaceSm; rightMargin: Theme.spaceSm }

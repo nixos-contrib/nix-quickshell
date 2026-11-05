@@ -41,7 +41,7 @@ ColumnLayout {
                 visible: !entry.modelData.isSeparator
                 Layout.fillWidth: true
                 Layout.preferredHeight: 30
-                radius: 8
+                radius: Theme.radiusMd
                 color: area.containsMouse && entry.modelData.enabled && !entry.modelData.hasChildren ? Theme.surfaceHigh : "transparent"
 
                 RowLayout {

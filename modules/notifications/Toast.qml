@@ -19,7 +19,7 @@ Rectangle {
     width: parent ? parent.width : 400
     implicitHeight: content.implicitHeight + Theme.spacing * 2
     height: implicitHeight
-    radius: Theme.radius
+    radius: Theme.radiusLg
     color: Theme.surface
     border.width: 1
     border.color: root.hovered ? Theme.primary : Theme.border
@@ -162,7 +162,7 @@ Rectangle {
                         visible: modelData.identifier !== "default"
                         implicitWidth: label.implicitWidth + 24
                         implicitHeight: 30
-                        radius: 8
+                        radius: Theme.radiusMd
                         color: press.pressed ? Theme.accent : (btn.hovered ? Theme.surfaceHigh : Theme.bg)
                         border { width: 1; color: Theme.border }
                         HoverHandler { id: btn }

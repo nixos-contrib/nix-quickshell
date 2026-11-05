@@ -1,4 +1,5 @@
 import QtQuick
+import QtQuick.Effects
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Io
@@ -84,7 +85,7 @@ Scope {
             anchors { fill: parent; leftMargin: Theme.edge; rightMargin: Theme.edge }
             spacing: 0
 
-            // The logo of NixOS in its two blues, as the one of Apple in the menu bar, and the workspaces
+            // The logo of NixOS in the color of the text of the bar, as the one of Apple in the menu bar, and the workspaces
             RowLayout {
                 spacing: Theme.spaceSm
                 // The logo is an item like the others, as the Apple of the menu bar: the same size, and it fills while it is pressed.
@@ -92,16 +93,23 @@ Scope {
                 Rectangle {
                     Layout.preferredWidth: Theme.slot
                     Layout.preferredHeight: Theme.slot
-                    radius: Theme.tileRadius
+                    radius: Theme.radiusSm
                     color: logoArea.pressed ? Theme.barFocus : "transparent"
                     Behavior on color { ColorAnimation { duration: 120 } }
+                    // a white drawing that the effect paints in the color of the text: white in dark, black in light
                     Image {
+                        id: logo
                         anchors.centerIn: parent
-                        source: Qt.resolvedUrl("../../assets/nix-snowflake.svg")
+                        source: Qt.resolvedUrl("../../assets/nix-snowflake-mono.svg")
                         sourceSize: Qt.size(Theme.statusIcon * 2, Theme.statusIcon * 2)
                         width: Theme.statusIcon
                         height: Theme.statusIcon
                         fillMode: Image.PreserveAspectFit
+                        layer.enabled: true
+                        layer.effect: MultiEffect {
+                            colorization: 1
+                            colorizationColor: Theme.barText
+                        }
                     }
                     MouseArea {
                         id: logoArea
@@ -143,7 +151,7 @@ Scope {
                 Rectangle {
                     Layout.preferredHeight: Theme.slot
                     Layout.preferredWidth: bell.implicitWidth + Theme.tilePad * 2 - Theme.textBearing
-                    radius: Theme.tileRadius
+                    radius: Theme.radiusSm
                     color: bellArea.pressed || root.notifications.centerOpen ? Theme.barFocus : "transparent"
                     Behavior on color { ColorAnimation { duration: 120 } }
                     Row {
@@ -185,7 +193,7 @@ Scope {
                 Rectangle {
                     Layout.preferredHeight: Theme.slot
                     Layout.preferredWidth: clock.implicitWidth + Theme.tilePad * 2 - Theme.textBearing
-                    radius: Theme.tileRadius
+                    radius: Theme.radiusSm
                     color: clockArea.pressed || root.notifications.centerOpen ? Theme.barFocus : "transparent"
                     Behavior on color { ColorAnimation { duration: 120 } }
                     Text {

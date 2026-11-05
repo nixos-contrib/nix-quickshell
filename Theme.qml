@@ -11,7 +11,8 @@ Singleton {
     readonly property color bg: "#0b0d10"
     readonly property color surface: "#14171c"
     readonly property color surfaceHigh: "#222730"
-    readonly property color border: "#2a303a"
+    // the edge of a card: a hairline of white, so that it is the same on any surface and any wallpaper
+    readonly property color border: Qt.rgba(1, 1, 1, 0.10)
     readonly property color text: "#e8eef5"
     readonly property color muted: "#8b95a3"
     readonly property color primary: "#7ebae4"
@@ -48,11 +49,13 @@ Singleton {
     readonly property int spaceLg: 16
     readonly property int spaceXl: 24
 
-    // Shape. A window of the shell, the launcher, the history, the popups, is a panel, and what it holds, the entries of the history
-    // and the toasts, are cards, a step smaller
+    // Shape. Three radii from one, the inside smaller than the outside so that the corners nest: sm for the tiles of the bar, the
+    // chips and the tracks, md for the rows, the buttons and the cards inside a panel, lg for what floats: the panels, the
+    // popups, the toasts, the launcher, the polkit card and the OSD. A theme changes the one, and the others follow
     readonly property int spacing: 10
-    readonly property int radius: 14
-    readonly property int radiusPanel: 18
+    readonly property int radiusLg: 16
+    readonly property int radiusMd: Math.round(radiusLg * 0.625)
+    readonly property int radiusSm: Math.round(radiusLg * 0.375)
     readonly property int panelPadding: 16
     readonly property int popupWidth: 320
     // the track of a slider and of a meter: the same height, and the same colors
@@ -82,9 +85,8 @@ Singleton {
     // a piece of text has a little room of its own at its edges, so a tile of text is that much further from the next than a tile of
     // an icon: its padding is smaller on the side where the text ends or starts
     readonly property int textBearing: 1
-    // The corner of a tile of the bar, and of the filled tile of an item that is pressed or whose menu is open: the same for the
-    // workspaces, the tray, the bell and the logo. The bar has no highlight for the pointer over an item, as the menu bar of macOS
-    readonly property int tileRadius: 7
+    // The corner of a tile of the bar, radiusSm, is the same for the workspaces, the tray, the bell and the logo, and for the filled tile
+    // of an item that is pressed or whose menu is open. The bar has no highlight for the pointer over an item, as the menu bar of macOS
     // The icons of the status area, the tray and the bell alike, have one size in their slot, as in the menu bar of macOS: no
     // item is bigger or further from the next for what it is
     readonly property int statusIcon: 20

@@ -83,7 +83,7 @@ Scope {
         Rectangle {
             id: card
             anchors.fill: parent
-            radius: Theme.radiusPanel
+            radius: Theme.radiusLg
             color: Theme.bg
             border { width: 1; color: Theme.border }
             opacity: root.active && win.placed ? 1 : 0
