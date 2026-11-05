@@ -11,7 +11,9 @@ It is a work in progress. So far:
 - bar: the logo, the workspaces of i3, the tray (StatusNotifierItem) with menus in the style of the shell, the bell with
   the count of the history, and the clock
 
-Planned: polkit agent, launcher, volume OSD.
+- polkit agent: a card for the touch of the key or the password, with its own layout for 1Password unlocking with the system
+
+Planned: launcher, volume OSD.
 
 ## Try it
 

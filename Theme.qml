@@ -26,6 +26,8 @@ Singleton {
     readonly property int fontBody: 12
     readonly property int fontTitle: 13
     readonly property int fontBar: 14
+    // the title of a dialog, as the polkit card
+    readonly property int fontHeading: 17
     readonly property int iconBar: 18
 
     // Space: a scale on a grid of 4. Items of a group are an xs to a md apart, and groups are lg to xl apart, so that the
