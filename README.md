@@ -14,7 +14,10 @@ It is a work in progress. So far:
 
 - polkit agent: a card for the touch of the key or the password, with its own layout for 1Password unlocking with the system
 
-Planned: launcher, volume OSD. Not done: network and Bluetooth in the bar.
+- launcher: apps (ordered by how often they are run) and the windows of i3, Tab goes from one to the other (`nshell launcher`,
+  `nshell launcher windows`)
+
+Planned: `nshell pick` for scripts, volume OSD. Not done: network and Bluetooth in the bar.
 
 ## Try it
 
