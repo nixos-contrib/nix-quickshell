@@ -29,12 +29,19 @@ FloatingWindow {
 
     function place() {
         const w = Math.round(spec.w), h = Math.round(spec.h + spec.ear), x = Math.round(spec.x), y = Math.round(spec.y);
-        I3.dispatch(`[title="^${win.name}$"] resize set ${w}px ${h}px, move absolute position ${x}px ${y}px`);
+        // the window is on the workspace of its container, which i3 hides with it: a window that is on every workspace is seen for a
+        // moment on the next one
+        I3.dispatch(`[title="^${win.name}$"] move container to workspace "${spec.ws}", resize set ${w}px ${h}px, move absolute position ${x}px ${y}px`);
     }
     // i3 shows a floating window in the middle first, and does what it is told a moment later
     Timer { id: placeTimer; interval: 50; running: true; onTriggered: { win.place(); revealTimer.restart(); } }
     Timer { id: revealTimer; interval: 50; onTriggered: win.placed = true }
-    onSpecChanged: placeTimer.restart()
+    // a strip that moves is not drawn until it is in its place
+    readonly property string geometry: spec.x + "," + spec.y + "," + spec.w + "," + spec.h + "," + spec.ear + "," + spec.ws
+    onGeometryChanged: {
+        placed = false;
+        placeTimer.restart();
+    }
 
     readonly property real pad: spec.attached ? 4 : 6
     // the height of the row, in points: what the tiles and the button are made from, and not from what they are in
@@ -55,11 +62,14 @@ FloatingWindow {
     // The window is as high as the row and a little more, and the input is the row and the two corners under it: they are the corners of the
     // window below the row, which are round and show what is behind them, and are filled with the color of the row, so that the row and the
     // window are one shape
+    // the row goes a little under the top of the window, so that there is no line between them, and the corners are a little wider than
+    // the ones of the window, for the same reason
+    readonly property real overlap: spec.attached ? 1.5 : 0
     readonly property real earSize: spec.ear / scale
     mask: Region {
-        Region { x: 0; y: 0; width: win.width; height: spec.h / scale }
-        Region { x: 0; y: spec.h / scale; width: win.earSize; height: win.earSize }
-        Region { x: win.width - win.earSize; y: spec.h / scale; width: win.earSize; height: win.earSize }
+        Region { x: 0; y: 0; width: win.width; height: spec.h / scale + win.overlap }
+        Region { x: 0; y: spec.h / scale; width: win.earSize + 1; height: win.earSize + 1 }
+        Region { x: win.width - win.earSize - 1; y: spec.h / scale; width: win.earSize + 1; height: win.earSize + 1 }
     }
     Shape {
         visible: win.spec.attached && win.earSize > 0
@@ -70,22 +80,22 @@ FloatingWindow {
             fillColor: Theme.base
             strokeColor: "transparent"
             startX: 0; startY: spec.h / scale
-            PathLine { x: win.earSize; y: spec.h / scale }
-            PathArc { x: 0; y: spec.h / scale + win.earSize; radiusX: win.earSize; radiusY: win.earSize; direction: PathArc.Counterclockwise }
+            PathLine { x: win.earSize + 1; y: spec.h / scale }
+            PathArc { x: 0; y: spec.h / scale + win.earSize + 1; radiusX: win.earSize + 1; radiusY: win.earSize + 1; direction: PathArc.Counterclockwise }
         }
         ShapePath {
             fillColor: Theme.base
             strokeColor: "transparent"
             startX: win.width; startY: spec.h / scale
-            PathLine { x: win.width - win.earSize; y: spec.h / scale }
-            PathArc { x: win.width; y: spec.h / scale + win.earSize; radiusX: win.earSize; radiusY: win.earSize; direction: PathArc.Clockwise }
+            PathLine { x: win.width - win.earSize - 1; y: spec.h / scale }
+            PathArc { x: win.width; y: spec.h / scale + win.earSize + 1; radiusX: win.earSize + 1; radiusY: win.earSize + 1; direction: PathArc.Clockwise }
         }
     }
 
     // the track: the color of the bar, so that the strip is part of it, and the tabs are in it
     Rectangle {
         anchors { left: parent.left; right: parent.right; top: parent.top }
-        height: win.rowH
+        height: win.rowH + win.overlap
         radius: spec.attached ? 0 : (spec.full ? 0 : Theme.radiusMd)
         topLeftRadius: spec.attached ? Theme.radiusMd : (spec.full ? 0 : Theme.radiusMd)
         topRightRadius: spec.attached ? Theme.radiusMd : (spec.full ? 0 : Theme.radiusMd)
@@ -96,7 +106,7 @@ FloatingWindow {
         Behavior on opacity { NumberAnimation { duration: 100 } }
 
         // the hairline between the bar and a strip that is a row of it
-        Rectangle { visible: win.spec.full || win.spec.attached; anchors { left: parent.left; right: parent.right; bottom: parent.bottom } height: 1; color: Theme.border }
+        Rectangle { visible: win.spec.full || win.spec.attached; anchors { left: parent.left; right: parent.right; top: parent.top; topMargin: win.rowH - 1 } height: 1; color: Theme.border }
 
         // a click where there is no tab
         MouseArea { anchors.fill: parent; onPressed: win.blankClicked() }

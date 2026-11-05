@@ -92,7 +92,7 @@ in
   '';
 
   # i3: `include` it from the config. The tabs of the tabbed containers are drawn by the shell (modules/tabs), over the strip that i3
-  # reserves: i3 draws nothing in it, no colors, no title and no icon, and the window of a strip is floated and takes no focus. The
+  # reserves: i3 draws nothing in it, no colors, no title and no icon, and the window of a strip is floated and takes no focus, and is not sticky: i3 hides it with the workspace of its container. The
   # minimum size of a floating window is lowered, as the strip is lower than the default 50 px. The same for both modes
   i3 = ''
     client.focused          #00000000 #00000000 #00000000 #00000000 #00000000
@@ -104,7 +104,7 @@ in
     for_window [all] title_format " "
     for_window [all] title_window_icon off
     floating_minimum_size 1 x 1
-    for_window [title="^nshell-tabs-"] floating enable, border none, sticky enable
+    for_window [title="^nshell-tabs-"] floating enable, border none
     no_focus [title="^nshell-tabs-"]
   '';
 }

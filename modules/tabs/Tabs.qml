@@ -57,7 +57,7 @@ Scope {
             urgent: root.anyUrgent(child)
         };
     }
-    function collect(node, out, output) {
+    function collect(node, out, output, ws, inView) {
         if (node.type === "con" && node.layout === "tabbed" && (node.nodes ?? []).length > 0) {
             const kids = node.nodes;
             const strips = kids.map(k => k.deco_rect).filter(d => d && d.height > 0);
@@ -77,6 +77,8 @@ Scope {
                 const ear = attached ? Math.round(Theme.windowRadius * scale) : 0;
                 out.push({
                     id: node.id,
+                    ws: ws,
+                    inView: inView,
                     attached: attached,
                     full: flush,
                     // the window of the strip, and how far in from its left edge the tabs start
@@ -94,9 +96,10 @@ Scope {
             }
         }
         for (const c of (node.nodes ?? []).concat(node.floating_nodes ?? []))
-            root.collect(c, out, output);
+            root.collect(c, out, output, ws, inView);
     }
-    // only the workspace that each output shows has strips: the tree has the others too
+    // every workspace has the strips of its containers, in windows that i3 hides with the workspace, so that they are not seen for a
+    // moment on the next one when it changes. The ones of the workspace in view are the ones that count for the focus
     function build(tree) {
         const out = [];
         for (const output of tree.nodes ?? []) {
@@ -108,8 +111,8 @@ Scope {
                 // the workspace in view is the first of the focus of the content of the output
                 const shown = content.focus && content.focus.length > 0 ? content.focus[0] : -1;
                 for (const ws of content.nodes ?? [])
-                    if (ws.id === shown)
-                        root.collect(ws, out, output);
+                    if (ws.type === "workspace" && !ws.name.startsWith("__i3"))
+                        root.collect(ws, out, output, ws.name, ws.id === shown);
             }
         }
         return out;
@@ -120,7 +123,7 @@ Scope {
         // the same value does not rebuild the windows
         if (JSON.stringify(built) !== JSON.stringify(root.containers))
             root.containers = built;
-        root.focusedContainer = built.find(c => c.active) ?? null;
+        root.focusedContainer = built.find(c => c.active && c.inView) ?? null;
     }
 
     Process {
