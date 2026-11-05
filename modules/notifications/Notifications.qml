@@ -55,6 +55,9 @@ Scope {
         }
     }
 
+    // The chat apps play their pings themselves: they are muted while do not disturb is on
+    QuietSound { active: root.dnd }
+
     IpcHandler {
         target: "center"
         function toggle(): void { root.toggleCenter(); }
