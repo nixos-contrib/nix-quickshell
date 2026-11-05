@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
+import QtQuick.Shapes
 import Quickshell
 import Quickshell.I3
 import qs
@@ -22,12 +23,12 @@ FloatingWindow {
     color: "transparent"
     visible: true
     implicitWidth: Math.max(1, spec.w / scale)
-    implicitHeight: Math.max(1, spec.h / scale)
+    implicitHeight: Math.max(1, (spec.h + spec.ear) / scale)
     // the window does not draw before i3 has put it in its place, or it showed in the middle of the screen
     property bool placed: false
 
     function place() {
-        const w = Math.round(spec.w), h = Math.round(spec.h), x = Math.round(spec.x), y = Math.round(spec.y);
+        const w = Math.round(spec.w), h = Math.round(spec.h + spec.ear), x = Math.round(spec.x), y = Math.round(spec.y);
         I3.dispatch(`[title="^${win.name}$"] resize set ${w}px ${h}px, move absolute position ${x}px ${y}px`);
     }
     // i3 shows a floating window in the middle first, and does what it is told a moment later
@@ -36,6 +37,8 @@ FloatingWindow {
     onSpecChanged: placeTimer.restart()
 
     readonly property real pad: spec.attached ? 4 : 6
+    // the height of the row, in points: what the tiles and the button are made from, and not from what they are in
+    readonly property real rowH: spec.h / scale
     // the strip that is a row of the bar is as wide as the output, and the tabs start where the container does
     readonly property real inset: spec.inset / scale
     readonly property int count: spec.tabs.length
@@ -49,9 +52,40 @@ FloatingWindow {
         return Quickshell.iconPath(entry ? entry.icon : cls.toLowerCase(), "application-x-executable");
     }
 
+    // The window is as high as the row and a little more, and the input is the row and the two corners under it: they are the corners of the
+    // window below the row, which are round and show what is behind them, and are filled with the color of the row, so that the row and the
+    // window are one shape
+    readonly property real earSize: spec.ear / scale
+    mask: Region {
+        Region { x: 0; y: 0; width: win.width; height: spec.h / scale }
+        Region { x: 0; y: spec.h / scale; width: win.earSize; height: win.earSize }
+        Region { x: win.width - win.earSize; y: spec.h / scale; width: win.earSize; height: win.earSize }
+    }
+    Shape {
+        visible: win.spec.attached && win.earSize > 0
+        anchors.fill: parent
+        opacity: win.placed ? 1 : 0
+        preferredRendererType: Shape.CurveRenderer
+        ShapePath {
+            fillColor: Theme.base
+            strokeColor: "transparent"
+            startX: 0; startY: spec.h / scale
+            PathLine { x: win.earSize; y: spec.h / scale }
+            PathArc { x: 0; y: spec.h / scale + win.earSize; radiusX: win.earSize; radiusY: win.earSize; direction: PathArc.Counterclockwise }
+        }
+        ShapePath {
+            fillColor: Theme.base
+            strokeColor: "transparent"
+            startX: win.width; startY: spec.h / scale
+            PathLine { x: win.width - win.earSize; y: spec.h / scale }
+            PathArc { x: win.width; y: spec.h / scale + win.earSize; radiusX: win.earSize; radiusY: win.earSize; direction: PathArc.Clockwise }
+        }
+    }
+
     // the track: the color of the bar, so that the strip is part of it, and the tabs are in it
     Rectangle {
-        anchors.fill: parent
+        anchors { left: parent.left; right: parent.right; top: parent.top }
+        height: win.rowH
         radius: spec.attached ? 0 : (spec.full ? 0 : Theme.radiusMd)
         topLeftRadius: spec.attached ? Theme.radiusMd : (spec.full ? 0 : Theme.radiusMd)
         topRightRadius: spec.attached ? Theme.radiusMd : (spec.full ? 0 : Theme.radiusMd)
@@ -69,9 +103,10 @@ FloatingWindow {
 
         Flickable {
             id: scroller
-            anchors { left: parent.left; right: listButton.left; top: parent.top; bottom: parent.bottom; leftMargin: win.inset + win.pad; rightMargin: Theme.spaceXs }
+            anchors { left: parent.left; right: listButton.left; top: parent.top; leftMargin: win.inset + win.pad; rightMargin: Theme.spaceXs }
+            height: win.rowH
             contentWidth: row.width
-            contentHeight: height
+            contentHeight: win.rowH
             clip: true
             boundsBehavior: Flickable.StopAtBounds
             interactive: false
@@ -83,7 +118,7 @@ FloatingWindow {
             }
             Row {
                 id: row
-                height: parent.height
+                height: win.rowH
                 spacing: 2
                 Repeater {
                     model: ScriptModel { values: win.spec.tabs; objectProp: "id" }
@@ -93,8 +128,8 @@ FloatingWindow {
                         required property int index
                         readonly property bool front: modelData.current
                         width: win.tabWidth
-                        anchors.verticalCenter: parent.verticalCenter
-                        height: parent.height - win.pad * 2
+                        y: win.pad
+                        height: win.rowH - win.pad * 2
                         radius: Theme.radiusSm + 2
                         // the tab in front is a raised tile, and lighter when the focus is in this container
                         color: front ? (win.spec.active ? Theme.surfaceHigh : Theme.surface) : (area.containsMouse ? Qt.alpha(Theme.surface, 0.7) : "transparent")
@@ -156,8 +191,8 @@ FloatingWindow {
         // the button of the list: the windows of the container, to choose from when there are many
         Rectangle {
             id: listButton
-            anchors { right: parent.right; rightMargin: win.inset + win.pad; verticalCenter: parent.verticalCenter }
-            width: win.button; height: parent.height - win.pad * 2
+            anchors { right: parent.right; rightMargin: win.inset + win.pad; top: parent.top; topMargin: win.pad }
+            width: win.button; height: win.rowH - win.pad * 2
             radius: Theme.radiusSm + 2
             color: listArea.containsMouse ? Theme.surface : "transparent"
             Behavior on color { ColorAnimation { duration: 110 } }

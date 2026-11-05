@@ -115,6 +115,9 @@ Singleton {
     readonly property int offsetHigh: 14
     readonly property int marginLow: 32
     readonly property int marginHigh: 64
+    // The radius that the compositor gives to the windows of the apps, in points: 12 pixels of picom on a screen of twice the pixels. The
+    // tabs fill the corners of the window under them with it. It is the one of the picom of the user, not a choice of the shell
+    readonly property int windowRadius: 6
     // The room between the edge of the screen and the bar, the toasts, the history and the menus: what lines them up
     readonly property int edge: 20
     // The room under the bar before the first card

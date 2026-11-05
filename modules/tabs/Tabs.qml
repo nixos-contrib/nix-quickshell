@@ -15,7 +15,7 @@ Scope {
 
     // The look of a strip that has the width of the workspace and is under the bar: flush, square, as a second row of the bar, or card,
     // the width of its container, rounded. Any other strip is a card. `nshell tabs style` changes it
-    property string look: "flush"
+    property string look: "attached"
     property var lastTree: null
 
     // The tabbed containers in view, each { id, x, y, w, h (the strip, in pixels of the screen), active (the focus is in it), tabs }, and
@@ -74,16 +74,19 @@ Scope {
                 // attached: lower, against the window, and lower than the reserved strip: a row of 32 points on top of the window
                 const attached = root.look === "attached";
                 const frontKid = kids.find(k => k.id === front) ?? kids[0];
-                const attachedH = Math.round(32 * scale);
+                const ear = attached ? Math.round(Theme.windowRadius * scale) : 0;
                 out.push({
                     id: node.id,
                     attached: attached,
                     full: flush,
                     // the window of the strip, and how far in from its left edge the tabs start
                     x: flush ? output.rect.x : node.rect.x,
-                    y: attached ? frontKid.rect.y - attachedH : node.rect.y,
+                    // the strip is the height of the strip that i3 keeps, and the window is under it with the gap between them: the
+                    // attached row is moved down to the window, which leaves the gap above it, the same as the one under the window
+                    y: attached ? frontKid.rect.y - strips[0].height : node.rect.y,
+                    ear: ear,
                     w: flush ? output.rect.width : node.rect.width,
-                    h: attached ? attachedH : strips[0].height,
+                    h: strips[0].height,
                     inset: flush ? left : 0,
                     active: root.holdsFocus(node),
                     tabs: kids.map(k => root.tabOf(k, k.id === front))
