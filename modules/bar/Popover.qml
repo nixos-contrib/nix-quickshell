@@ -40,17 +40,29 @@ FloatingWindow {
         I3.dispatch(`[title="^nshell-menu$"] move absolute position ${x}px ${y}px, focus`);
     }
     property double openedAt: 0
-    onVisibleChanged: if (visible) {
-        openedAt = Date.now();
-        placeTimer.restart();
+    // i3 shows a floating window in the middle of the screen, and it is moved to its place a moment later: the panel is not drawn
+    // until it is there, or it showed for a moment where it does not belong
+    property bool placed: false
+    onVisibleChanged: {
+        placed = false;
+        if (visible) {
+            openedAt = Date.now();
+            placeTimer.restart();
+        }
     }
     Timer {
         id: placeTimer
-        interval: 80
+        interval: 60
         onTriggered: {
             win.place();
             panel.forceActiveFocus();
+            revealTimer.restart();
         }
+    }
+    Timer {
+        id: revealTimer
+        interval: 60
+        onTriggered: win.placed = true
     }
 
     Panel {
@@ -62,6 +74,7 @@ FloatingWindow {
         title: win.heading
         value: win.headerValue
         padding: win.padding
+        opacity: win.placed ? 1 : 0
         focus: true
         Keys.onEscapePressed: win.visible = false
         onActiveFocusChanged: if (!activeFocus && win.visible && Date.now() - win.openedAt > 600) win.visible = false

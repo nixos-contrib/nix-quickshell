@@ -199,17 +199,32 @@ Scope {
             const y = Math.round(Theme.barHeight * scale);
             I3.dispatch(`[title="^nshell-toast$"] move absolute position ${x}px ${y}px`);
         }
-        onVisibleChanged: if (visible) placeTimer.restart()
+        // drawn when it is in its place, see Popover
+        property bool placed: false
+        onVisibleChanged: {
+            placed = false;
+            if (visible)
+                placeTimer.restart();
+        }
         onWidthChanged: placeTimer.restart()
         Timer {
             id: placeTimer
-            interval: 80
-            onTriggered: win.place()
+            interval: 60
+            onTriggered: {
+                win.place();
+                revealTimer.restart();
+            }
+        }
+        Timer {
+            id: revealTimer
+            interval: 60
+            onTriggered: win.placed = true
         }
 
         // The cards scroll when they do not fit the height of the screen, and the buttons under them stay in place
         Column {
             id: panel
+            opacity: win.placed ? 1 : 0
             width: 372 - 24
             x: 12
             y: 12

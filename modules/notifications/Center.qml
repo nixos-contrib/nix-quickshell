@@ -29,17 +29,28 @@ FloatingWindow {
         I3.dispatch(`[title="^nshell-center$"] move absolute position ${x}px ${y}px, focus`);
     }
     property double openedAt: 0
-    onVisibleChanged: if (visible) {
-        openedAt = Date.now();
-        placeTimer.restart();
+    // drawn when it is in its place, see Popover
+    property bool placed: false
+    onVisibleChanged: {
+        placed = false;
+        if (visible) {
+            openedAt = Date.now();
+            placeTimer.restart();
+        }
     }
     Timer {
         id: placeTimer
-        interval: 80
+        interval: 60
         onTriggered: {
             win.place();
             panel.forceActiveFocus();
+            revealTimer.restart();
         }
+    }
+    Timer {
+        id: revealTimer
+        interval: 60
+        onTriggered: win.placed = true
     }
 
     Panel {
@@ -49,6 +60,7 @@ FloatingWindow {
         width: 400 - 24
         height: Math.min(win.height - 24, implicitHeight)
         title: "Notifications"
+        opacity: win.placed ? 1 : 0
         focus: true
         Keys.onEscapePressed: win.visible = false
         // a click anywhere else closes it, as the popups of the bar
