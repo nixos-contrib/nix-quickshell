@@ -8,6 +8,8 @@
 #   nshell launch ID        an app by the id of its desktop entry (brave-browser): its window is focused when it has one, and it is
 #                           started when it has none
 #   nshell theme [dark|light|auto|toggle]  the mode of the theme, auto follows the hours of the day. Without an argument, says it
+#   nshell apps [dark|light]  puts the files of a mode where the apps read them, and tells the GTK apps, xterm and i3 to read them again.
+#                           The shell runs it when the mode changes, and the session at its start. Without a mode it takes the saved one
 #   nshell pick [--prompt TEXT]  a choice for a script: it reads the lines on stdin, a line is "title", "title<TAB>subtitle" or
 #                           "title<TAB>subtitle<TAB>icon", shows them in the style of the shell, and prints the line that was
 #                           chosen. The exit status is 0 for a choice and 1 when it was cancelled, 2 when the shell is not running
@@ -30,8 +32,36 @@ case "${1:-}" in
 center | bar | launcher | launch | theme) same_press && exit 0 ;;
 esac
 
+# The apps follow the mode: nix-shell (the Nix module) writes the files of both modes in ~/.config/nix-shell, and this copies the ones
+# of a mode into the state folder, which the configs of the apps include, and asks the apps to read them again: xsettingsd (the GTK
+# apps change themselves, live), xrdb (xterm, at its next start) and i3 (the colors of the tabs)
+apply_apps() {
+	local mode="${1:-}" cfg="${XDG_CONFIG_HOME:-$HOME/.config}/nix-shell" state="${XDG_STATE_HOME:-$HOME/.local/state}/nix-shell" changed=0
+	if [ -z "$mode" ]; then
+		mode="$(grep -o '"mode" *: *"[a-z]*"' "$state/theme.json" 2>/dev/null | head -n1 | grep -o '"[a-z]*"$' | tr -d '"' || true)"
+	fi
+	# auto, or nothing saved: the start is dark, and the shell says the mode of the hour as soon as it runs
+	[ "$mode" = light ] || mode=dark
+	mkdir -p "$state"
+	copy() {
+		[ -f "$cfg/$1-$mode$2" ] || return 0
+		if ! cmp -s "$cfg/$1-$mode$2" "$state/$3"; then
+			install -m644 "$cfg/$1-$mode$2" "$state/$3"
+			return 0
+		fi
+		return 1
+	}
+	copy xsettings .conf xsettings.conf && pkill -HUP -x xsettingsd 2>/dev/null || true
+	copy zathurarc "" zathurarc || true
+	if copy i3 .conf i3.conf; then changed=1; fi
+	[ -f "$cfg/xresources-$mode" ] && xrdb -merge "$cfg/xresources-$mode" 2>/dev/null || true
+	# the tabs of i3 are drawn again with the colors of the mode
+	if [ "$changed" = 1 ]; then i3-msg reload >/dev/null 2>&1 || true; fi
+}
+
 case "${1:-}" in
 "") exec quickshell -p "$NSHELL_PATH" ;;
+apps) apply_apps "${2:-}" ;;
 center) exec quickshell -p "$NSHELL_PATH" ipc call center "${2:-toggle}" ;;
 bar) exec quickshell -p "$NSHELL_PATH" ipc call bar "${2:-toggle}" ;;
 launcher) exec quickshell -p "$NSHELL_PATH" ipc call launcher "${2:-apps}" ;;
@@ -72,7 +102,7 @@ pick)
 	exit 1
 	;;
 *)
-	echo "usage: nshell [center [dnd] | bar | launcher [windows] | launch ID | theme [dark|light|auto|toggle] | pick [--prompt TEXT]]" >&2
+	echo "usage: nshell [center [dnd] | bar | launcher [windows] | launch ID | theme [dark|light|auto|toggle] | apps [dark|light] | pick [--prompt TEXT]]" >&2
 	exit 1
 	;;
 esac

@@ -56,7 +56,15 @@ Scope {
             }
         }
     }
-    Component.onCompleted: Quickshell.execDetached(["mkdir", "-p", root.statePath.substring(0, root.statePath.lastIndexOf("/"))])
+    // The apps follow the mode: `nshell apps` puts the colors of the mode where they read them, and tells them to read them again
+    function apply() {
+        Quickshell.execDetached([Quickshell.env("NSHELL_BIN") || "nshell", "apps", root.resolved]);
+    }
+    onResolvedChanged: apply()
+    Component.onCompleted: {
+        Quickshell.execDetached(["mkdir", "-p", root.statePath.substring(0, root.statePath.lastIndexOf("/"))]);
+        apply();
+    }
 
     // nshell theme [dark|light|auto|toggle]: toggle flips what is shown, and an auto becomes the choice it showed
     IpcHandler {

@@ -13,15 +13,37 @@ let
   inherit (lib) mkEnableOption mkOption mkIf types;
 
   variant = builtins.fromJSON (builtins.readFile ../themes/${cfg.theme.variant}.json);
-  # The apps follow the mode when it is dark or light. When it is auto, the shell changes during the day and the apps do not,
-  # so they have the dark palette
-  mode = if cfg.theme.mode == "light" then "light" else "dark";
-  palette = variant.${mode} // cfg.theme.${mode};
-  files = import ./generators.nix palette;
-  # the colors are in a file of their own, which the apps that cannot be written by the module also import
-  gtkCss = ''
-    @import url("file://${config.xdg.configHome}/nix-shell/gtk.css");
-${cfg.integration.gtk.extraCss}'';
+  modes = [
+    "dark"
+    "light"
+  ];
+  palettes = lib.genAttrs modes (m: variant.${m} // cfg.theme.${m});
+  files = lib.mapAttrs (_: import ./generators.nix) palettes;
+  # The mode the apps have until the shell says its own: the files that the shell copies when the mode changes, see `nshell apps`.
+  # Dark, unless the theme is light
+  startMode = if cfg.theme.mode == "light" then "light" else "dark";
+  stateDir = "${config.xdg.stateHome}/nix-shell";
+
+  gtkTheme = m: "nix-shell-${m}";
+  iconName = m: if m == "light" then cfg.integration.gtk.iconTheme.lightName else cfg.integration.gtk.iconTheme.name;
+  # The GTK theme of a mode: adw-gtk3 in that mode, with the named colors of the palette after it, which win over its own, and the
+  # rules of the user
+  gtkThemeCss = m: ''
+    @import url("file://${pkgs.adw-gtk3}/share/themes/${if m == "light" then "adw-gtk3" else "adw-gtk3-dark"}/gtk-3.0/gtk.css");
+    ${files.${m}.gtk}
+    ${cfg.integration.gtk.extraCss}
+  '';
+  # What xsettingsd tells the GTK apps, which then draw themselves again: the theme of the mode, and the rest of the look
+  xsettings = m: ''
+    Net/ThemeName "${gtkTheme m}"
+    Net/IconThemeName "${iconName m}"
+    Gtk/FontName "${font} ${fontSize}"
+    Gtk/ApplicationPreferDarkTheme ${if m == "light" then "0" else "1"}
+    ${lib.optionalString cursor.enable ''
+      Gtk/CursorThemeName "${cursor.name}"
+      Gtk/CursorThemeSize ${toString cursor.size}
+    ''}${cfg.integration.gtk.xsettings}
+  '';
 
   roles = mkOption {
     type = types.attrsOf types.str;
@@ -110,13 +132,18 @@ in
       gtk = {
         enable = enableOption ''
           The look of the GTK apps: the settings (adw-gtk3 in the mode of the theme, the icons, the font), and gtk-3.0/gtk.css and
-          gtk-4.0/gtk.css with the named colors of the palette, which adw-gtk3 and libadwaita read. Owns those files
+          gtk-4.0/gtk.css with the named colors of the palette, which adw-gtk3 and libadwaita read. Owns those files, and two GTK themes in ~/.local/share/themes: nix-shell-dark and nix-shell-light
         '';
         iconTheme = {
           name = mkOption {
             type = types.str;
             default = "Papirus-Dark";
-            description = "The name of the icon theme.";
+            description = "The name of the icon theme in the dark mode.";
+          };
+          lightName = mkOption {
+            type = types.str;
+            default = "Papirus-Light";
+            description = "The name of the icon theme in the light mode.";
           };
           package = mkOption {
             type = types.package;
@@ -128,7 +155,13 @@ in
         extraCss = mkOption {
           type = types.lines;
           default = "";
-          description = "Rules added to gtk.css after the colors: the layout of the apps. They can use the named colors, as @window_bg_color.";
+          description = "Rules added to the two GTK themes after the colors: the layout of the apps. They can use the named colors, as @window_bg_color.";
+        };
+        xsettings = mkOption {
+          type = types.lines;
+          default = "";
+          example = ''Xft/DPI 196608'';
+          description = "Lines added to what xsettingsd tells the GTK apps, as the dpi of the screen, see xsettingsd.conf(5).";
         };
       };
 
@@ -176,9 +209,10 @@ in
     ]
     ++ lib.optionals cfg.integration.gtk.enable [
       pkgs.adw-gtk3
+      pkgs.xsettingsd
       cfg.integration.gtk.iconTheme.package
     ]
-    ++ lib.optional cfg.integration.cursor.enable cfg.integration.cursor.package;
+    ++ lib.optional cursor.enable cursor.package;
 
     xdg.configFile = {
       "nix-shell/theme.json".text = builtins.toJSON (
@@ -190,52 +224,84 @@ in
         }
       );
     }
-    // lib.optionalAttrs cfg.integration.gtk.enable {
-      "nix-shell/gtk.css".text = files.gtk;
-      "gtk-3.0/gtk.css".text = gtkCss;
-      "gtk-4.0/gtk.css".text = gtkCss;
-      "gtk-3.0/settings.ini".text = ''
-        [Settings]
-        gtk-theme-name=${if mode == "light" then "adw-gtk3" else "adw-gtk3-dark"}
-        gtk-icon-theme-name=${cfg.integration.gtk.iconTheme.name}
-        gtk-font-name=${font} ${fontSize}
-        gtk-application-prefer-dark-theme=${if mode == "light" then "0" else "1"}
-      '' + lib.optionalString cfg.integration.cursor.enable ''
-        gtk-cursor-theme-name=${cursor.name}
-        gtk-cursor-theme-size=${toString cursor.size}
-      '';
-    }
-    // lib.optionalAttrs (cfg.integration.xresources.enable || cursor.enable) {
-      "nix-shell/Xresources".text =
-        lib.optionalString cfg.integration.xresources.enable files.xresources
+    // lib.optionalAttrs cfg.integration.gtk.enable (
+      {
+        # for the GTK apps that do not ask xsettingsd, and the apps of GTK 4, which take no theme: the mode of the start
+        "gtk-3.0/settings.ini".text = ''
+          [Settings]
+          gtk-theme-name=${gtkTheme startMode}
+          gtk-icon-theme-name=${iconName startMode}
+          gtk-font-name=${font} ${fontSize}
+          gtk-application-prefer-dark-theme=${if startMode == "light" then "0" else "1"}
+        ''
         + lib.optionalString cursor.enable ''
-          Xcursor.theme: ${cursor.name}
-          Xcursor.size: ${toString cursor.size}
+          gtk-cursor-theme-name=${cursor.name}
+          gtk-cursor-theme-size=${toString cursor.size}
         '';
-    }
+        "gtk-4.0/gtk.css".text = ''
+          ${files.${startMode}.gtk}
+          ${cfg.integration.gtk.extraCss}
+        '';
+      }
+      // lib.listToAttrs (
+        map (m: lib.nameValuePair "nix-shell/xsettings-${m}.conf" { text = xsettings m; }) modes
+      )
+    )
+    // lib.optionalAttrs cfg.integration.xresources.enable (
+      lib.listToAttrs (map (m: lib.nameValuePair "nix-shell/xresources-${m}" { text = files.${m}.xresources; }) modes)
+    )
     // lib.optionalAttrs cursor.enable {
+      # mode-free, for `xrdb -merge` once, and the session
+      "nix-shell/Xresources".text = ''
+        Xcursor.theme: ${cursor.name}
+        Xcursor.size: ${toString cursor.size}
+      '';
       "nix-shell/session.sh".text = ''
         export XCURSOR_THEME=${cursor.name}
         export XCURSOR_SIZE=${toString cursor.size}
         export XCURSOR_PATH=${config.home.profileDirectory}/share/icons:/run/current-system/sw/share/icons
       '';
     }
-    // lib.optionalAttrs cfg.integration.zathura.enable {
-      "zathura/zathurarc".text = ''
-        ${files.zathura}
-        set font "${font} ${fontSize}"
-        ${cfg.integration.zathura.extraConfig}
-      '';
-    }
-    // lib.optionalAttrs cfg.integration.i3.enable { "nix-shell/i3.conf".text = files.i3; };
+    // lib.optionalAttrs cfg.integration.zathura.enable (
+      {
+        "zathura/zathurarc".text = ''
+          include ${stateDir}/zathurarc
+          set font "${font} ${fontSize}"
+          ${cfg.integration.zathura.extraConfig}
+        '';
+      }
+      // lib.listToAttrs (map (m: lib.nameValuePair "nix-shell/zathurarc-${m}" { text = files.${m}.zathura; }) modes)
+    )
+    // lib.optionalAttrs cfg.integration.i3.enable (
+      lib.listToAttrs (map (m: lib.nameValuePair "nix-shell/i3-${m}.conf" { text = files.${m}.i3; }) modes)
+    );
 
-    xdg.dataFile = lib.optionalAttrs cursor.enable {
-      "icons/default/index.theme".text = ''
-        [Icon Theme]
-        Name=Default
-        Comment=The default cursor theme
-        Inherits=${cursor.name}
-      '';
-    };
+    xdg.dataFile =
+      lib.optionalAttrs cursor.enable {
+        "icons/default/index.theme".text = ''
+          [Icon Theme]
+          Name=Default
+          Comment=The default cursor theme
+          Inherits=${cursor.name}
+        '';
+      }
+      // lib.optionalAttrs cfg.integration.gtk.enable (
+        lib.listToAttrs (
+          lib.concatMap (m: [
+            (lib.nameValuePair "themes/${gtkTheme m}/index.theme" {
+              text = ''
+                [Desktop Entry]
+                Type=X-GNOME-Metatheme
+                Name=${gtkTheme m}
+                Comment=adw-gtk3 in the palette of nix-shell, ${m}
+
+                [X-GNOME-Metatheme]
+                GtkTheme=${gtkTheme m}
+              '';
+            })
+            (lib.nameValuePair "themes/${gtkTheme m}/gtk-3.0/gtk.css" { text = gtkThemeCss m; })
+          ]) modes
+        )
+      );
   };
 }

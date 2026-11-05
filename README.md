@@ -91,15 +91,25 @@ programs.nix-shell = {
 
 | Option | Writes | Yours to add |
 |---|---|---|
-| `integration.gtk` | `gtk-3.0/settings.ini` (adw-gtk3 in the mode, the icon theme, the font), `gtk-3.0/gtk.css` and `gtk-4.0/gtk.css` with the named colors of the palette | `gtk.extraCss`, rules of layout that can use the colors (`@window_bg_color`), `gtk.iconTheme` |
-| `integration.zathura` | `zathura/zathurarc`, with the colors and the font | `zathura.extraConfig` |
-| `integration.cursor` | the cursor theme (capitaine-cursors, the arrow of macOS, by default): its package, `icons/default/index.theme`, the cursor in `gtk-3.0/settings.ini` and in `nix-shell/Xresources`, and `nix-shell/session.sh` | `. ~/.config/nix-shell/session.sh` in `xinitrc`, and `cursor.size`: 24 by default, 48 on a screen with twice the pixels |
-| `integration.xresources` | `nix-shell/Xresources`, the colors of xterm, and its sixteen: the hues of the NixOS palette, light on dark and darker on light | `xrdb -merge ~/.config/nix-shell/Xresources` in the session |
-| `integration.i3` | `nix-shell/i3.conf`, the colors of the tabs | `include ~/.config/nix-shell/i3.conf` in the config of i3 |
+| `integration.gtk` | two GTK themes in `~/.local/share/themes`, `nix-shell-dark` and `nix-shell-light` (adw-gtk3 with the named colors of the palette after it), `gtk-3.0/settings.ini` and `gtk-4.0/gtk.css`, and `xsettings-<mode>.conf` for xsettingsd | `gtk.extraCss` (layout rules that can use the colors, as `@window_bg_color`), `gtk.xsettings` (as `Xft/DPI`), `gtk.iconTheme` |
+| `integration.zathura` | `zathura/zathurarc`, which includes the colors of the mode from the state folder, and the font | `zathura.extraConfig` |
+| `integration.xresources` | `xresources-<mode>`, the colors of xterm and its sixteen: the hues of the NixOS palette, light on dark and darker on light | |
+| `integration.i3` | `i3-<mode>.conf`, the colors of the tabs | `include ~/.local/state/nix-shell/i3.conf` in the config of i3 |
+| `integration.cursor` | the cursor theme (capitaine-cursors, the arrow of macOS, by default): its package, `icons/default/index.theme`, the cursor of GTK and `Xresources`, and `session.sh` | `. ~/.config/nix-shell/session.sh` in the session, and `cursor.size`: 24 by default, 48 on a screen with twice the pixels |
 
-`integration.fontSize` is the size of the text of GTK and zathura, 11 by default. The apps have the palette of the `mode` when it
-is `dark` or `light`, and the dark one when it is `auto`: they take their colors when they start, and do not change with the shell.
+### The apps follow the mode
 
+The module writes the files of both modes into `~/.config/nix-shell`. `nshell apps [dark|light]` copies the ones of a mode into
+`~/.local/state/nix-shell` (where the configs of zathura and i3 include them), and the shell runs it when it starts and each time the
+mode changes. Then:
+
+- **GTK 3 apps** change live: `xsettingsd` tells them the theme changed from `nix-shell-dark` to `nix-shell-light`. Start it in the
+  session after `nshell apps`: `xsettingsd -c ~/.local/state/nix-shell/xsettings.conf &`, and do not set `GTK_THEME`, which GTK
+  puts before everything.
+- **i3** reads its include again (`i3-msg reload`), so the tabs change.
+- **xterm** and **zathura** take the colors when they start.
+
+`integration.fontSize` is the size of the text of GTK and zathura, 11 by default. 
 ## License
 
 GPL-3.0-or-later. Parts are adapted from other shells, see `CREDITS.md` when it lists any.

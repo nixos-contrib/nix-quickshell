@@ -35,6 +35,7 @@ stdenvNoCC.mkDerivation {
     install -Dm755 bin/nshell $out/bin/nshell
     wrapProgram $out/bin/nshell \
       --set-default NSHELL_PATH $out/share/nshell \
+      --set-default NSHELL_BIN $out/bin/nshell \
       --prefix PATH : ${lib.makeBinPath [ quickshell ]}
 
     runHook postInstall
