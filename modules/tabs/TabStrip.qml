@@ -1,6 +1,5 @@
 import QtQuick
 import QtQuick.Layouts
-import QtQuick.Shapes
 import Quickshell
 import Quickshell.I3
 import qs
@@ -48,7 +47,7 @@ FloatingWindow {
         placeTimer.restart();
     }
 
-    readonly property real pad: spec.attached ? 4 : 6
+    readonly property real pad: 3
     // the height of the row, in points: what the tiles and the button are made from, and not from what they are in
     readonly property real rowH: spec.h / scale
     // the strip that is a row of the bar is as wide as the output, and the tabs start where the container does
@@ -64,43 +63,10 @@ FloatingWindow {
         return Quickshell.iconPath(entry ? entry.icon : cls.toLowerCase(), "application-x-executable");
     }
 
-    // The window is as high as the row and a little more, and the input is the row and the two corners under it: they are the corners of the
-    // window below the row, which are round and show what is behind them, and are filled with the color of the row, so that the row and the
-    // window are one shape
-    // the row goes a little under the top of the window, so that there is no line between them, and the corners are a little wider than
-    // the ones of the window, for the same reason
-    readonly property real overlap: spec.attached ? 1.5 : 0
-    readonly property real earSize: spec.ear / scale
-    mask: Region {
-        Region { x: 0; y: 0; width: win.width; height: spec.h / scale + win.overlap }
-        Region { x: 0; y: spec.h / scale; width: win.earSize + 1; height: win.earSize + 1 }
-        Region { x: win.width - win.earSize - 1; y: spec.h / scale; width: win.earSize + 1; height: win.earSize + 1 }
-    }
-    Shape {
-        visible: win.spec.attached && win.earSize > 0
-        anchors.fill: parent
-        opacity: win.placed ? 1 : 0
-        preferredRendererType: Shape.CurveRenderer
-        ShapePath {
-            fillColor: Theme.base
-            strokeColor: "transparent"
-            startX: 0; startY: spec.h / scale
-            PathLine { x: win.earSize + 1; y: spec.h / scale }
-            PathArc { x: 0; y: spec.h / scale + win.earSize + 1; radiusX: win.earSize + 1; radiusY: win.earSize + 1; direction: PathArc.Counterclockwise }
-        }
-        ShapePath {
-            fillColor: Theme.base
-            strokeColor: "transparent"
-            startX: win.width; startY: spec.h / scale
-            PathLine { x: win.width - win.earSize - 1; y: spec.h / scale }
-            PathArc { x: win.width; y: spec.h / scale + win.earSize + 1; radiusX: win.earSize + 1; radiusY: win.earSize + 1; direction: PathArc.Clockwise }
-        }
-    }
-
     // the track: the color of the bar, so that the strip is part of it, and the tabs are in it
     Rectangle {
         anchors { left: parent.left; right: parent.right; top: parent.top }
-        height: win.rowH + win.overlap
+        height: win.rowH
         radius: spec.attached ? 0 : (spec.full ? 0 : Theme.radiusMd)
         topLeftRadius: spec.attached ? Theme.radiusMd : (spec.full ? 0 : Theme.radiusMd)
         topRightRadius: spec.attached ? Theme.radiusMd : (spec.full ? 0 : Theme.radiusMd)
@@ -157,8 +123,8 @@ FloatingWindow {
                             Image {
                                 source: win.iconFor(tab.modelData.cls)
                                 sourceSize: Qt.size(48, 48)
-                                Layout.preferredWidth: 20
-                                Layout.preferredHeight: 20
+                                Layout.preferredWidth: win.rowH > 32 ? 20 : 16
+                                Layout.preferredHeight: win.rowH > 32 ? 20 : 16
                                 fillMode: Image.PreserveAspectFit
                             }
                             Label {

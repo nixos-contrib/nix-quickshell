@@ -15,7 +15,7 @@ Scope {
 
     // The look of a strip that has the width of the workspace and is under the bar: flush, square, as a second row of the bar, or card,
     // the width of its container, rounded. Any other strip is a card. `nshell tabs style` changes it
-    property string look: "attached"
+    property string look: "flush"
     property var lastTree: null
 
     // The tabbed containers in view, each { id, x, y, w, h (the strip, in pixels of the screen), active (the focus is in it), tabs }, and
@@ -71,10 +71,9 @@ Scope {
                 const left = node.rect.x - output.rect.x;
                 const right = output.rect.x + output.rect.width - node.rect.x - node.rect.width;
                 const flush = root.look === "flush" && Math.abs(node.rect.y - (output.rect.y + Theme.barHeight * scale)) <= 2 && Math.abs(left - right) <= 2 && left < output.rect.width / 8;
-                // attached: lower, against the window, and lower than the reserved strip: a row of 32 points on top of the window
+                // attached (experimental): moved down against the window, which leaves the corners of the window round under its corners
                 const attached = root.look === "attached";
                 const frontKid = kids.find(k => k.id === front) ?? kids[0];
-                const ear = attached ? Math.round(Theme.windowRadius * scale) : 0;
                 out.push({
                     id: node.id,
                     ws: ws,
@@ -86,7 +85,7 @@ Scope {
                     // the strip is the height of the strip that i3 keeps, and the window is under it with the gap between them: the
                     // attached row is moved down to the window, which leaves the gap above it, the same as the one under the window
                     y: attached ? frontKid.rect.y - strips[0].height : node.rect.y,
-                    ear: ear,
+                    ear: 0,
                     w: flush ? output.rect.width : node.rect.width,
                     h: strips[0].height,
                     inset: flush ? left : 0,
