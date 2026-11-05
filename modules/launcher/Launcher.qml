@@ -19,10 +19,38 @@ Scope {
     // how many times each app was run, by the id of its desktop entry
     property var usage: ({})
 
+    // A pick: a script asked for a choice among its lines, see `nshell pick`. The folder holds the lines and the pipe where the
+    // answer goes, and the prompt takes the place of the modes
+    property string pickDir: ""
+    property string pickPrompt: ""
+    property var pickLines: []
+
     readonly property string statePath: (Quickshell.env("XDG_STATE_HOME") || Quickshell.env("HOME") + "/.local/state") + "/nix-shell/launcher.json"
 
+    function openPick(dir: string, prompt: string) {
+        // one at a time: a pick that is still open is cancelled
+        if (root.pickDir !== "")
+            root.answer("CANCEL", "");
+        root.pickDir = dir;
+        root.pickPrompt = prompt;
+        pickFile.path = dir + "/items";
+        pickFile.reload();
+    }
+    // the answer to the script, through the pipe that it waits on: OK and the line, or CANCEL
+    function answer(status: string, line: string) {
+        if (root.pickDir === "")
+            return;
+        const pipe = root.pickDir + "/result";
+        root.pickDir = "";
+        Quickshell.execDetached(["sh", "-c", 'printf "%s\n%s" "$1" "$2" > "$3"', "sh", status, line, pipe]);
+    }
+
     function show(m) {
-        if (win.visible && root.mode === m) {
+        // the launcher opened by hand takes the place of a pick that was waiting, which is cancelled
+        const wasPick = root.pickDir !== "";
+        if (wasPick)
+            root.answer("CANCEL", "");
+        if (win.visible && root.mode === m && !wasPick) {
             win.visible = false;
             return;
         }
@@ -46,7 +74,7 @@ Scope {
     }
 
     // what the list shows, best first
-    readonly property var items: root.mode === "apps" ? root.appItems() : root.windowItems()
+    readonly property var items: root.pickDir !== "" ? root.pickItems() : (root.mode === "apps" ? root.appItems() : root.windowItems())
 
     function appItems() {
         const q = root.query.trim().toLowerCase();
@@ -70,6 +98,31 @@ Scope {
         }
         out.sort((a, b) => b.score - a.score || a.title.localeCompare(b.title));
         return out.slice(0, 60);
+    }
+
+    function pickItems() {
+        const q = root.query.trim().toLowerCase();
+        const out = [];
+        for (const line of root.pickLines) {
+            const f = line.split("\t");
+            const s = q === "" ? 1 : Math.max(Search.score(q, f[0], true), 0.6 * Search.score(q, f[1] ?? "", false));
+            if (s <= 0)
+                continue;
+            out.push({
+                title: f[0],
+                subtitle: f[1] ?? "",
+                icon: root.iconUrl(f[2] ?? ""),
+                score: s,
+                run: () => {
+                    root.answer("OK", line);
+                    win.visible = false;
+                }
+            });
+        }
+        // the order of the script when nothing is typed, the best match first when it is
+        if (q !== "")
+            out.sort((a, b) => b.score - a.score);
+        return out;
     }
 
     function windowItems() {
@@ -134,6 +187,17 @@ Scope {
     }
 
     FileView {
+        id: pickFile
+        printErrors: false
+        onLoaded: {
+            root.pickLines = text().split("\n").filter(l => l !== "");
+            root.query = "";
+            win.visible = true;
+        }
+        onLoadFailed: root.answer("CANCEL", "")
+    }
+
+    FileView {
         id: store
         path: root.statePath
         printErrors: false
@@ -151,6 +215,7 @@ Scope {
         target: "launcher"
         function apps(): void { root.show("apps"); }
         function windows(): void { root.show("windows"); }
+        function pick(dir: string, prompt: string): void { root.openPick(dir, prompt); }
     }
 
     FloatingWindow {
@@ -162,10 +227,15 @@ Scope {
         implicitHeight: 480
 
         property double openedAt: 0
-        onVisibleChanged: if (visible) {
-            openedAt = Date.now();
-            search.text = "";
-            focusTimer.restart();
+        onVisibleChanged: {
+            if (visible) {
+                openedAt = Date.now();
+                search.text = "";
+                focusTimer.restart();
+            } else if (root.pickDir !== "") {
+                // closed without a choice: the script is waiting, and gets a cancel
+                root.answer("CANCEL", "");
+            }
         }
         Timer {
             id: focusTimer
@@ -208,7 +278,7 @@ Scope {
                         Text {
                             visible: search.text === ""
                             anchors.verticalCenter: parent.verticalCenter
-                            text: root.mode === "apps" ? "Search apps" : "Search windows"
+                            text: root.pickDir !== "" ? root.pickPrompt : (root.mode === "apps" ? "Search apps" : "Search windows")
                             color: Theme.muted
                             font: search.font
                         }
@@ -221,7 +291,8 @@ Scope {
                                 list.currentIndex = Math.max(0, list.currentIndex - 1);
                                 event.accepted = true;
                             } else if (event.key === Qt.Key_Tab) {
-                                root.cycle();
+                                if (root.pickDir === "")
+                                    root.cycle();
                                 search.text = "";
                                 event.accepted = true;
                             } else if (event.key === Qt.Key_Escape) {
@@ -231,9 +302,9 @@ Scope {
                         }
                         onAccepted: if (list.currentItem) list.currentItem.modelData.run()
                     }
-                    // the modes: the one in use is filled
+                    // the modes: the one in use is filled. A pick has none
                     Repeater {
-                        model: root.modes
+                        model: root.pickDir !== "" ? [] : root.modes
                         delegate: PillButton {
                             required property string modelData
                             text: modelData === "apps" ? "Apps" : "Windows"
@@ -278,7 +349,7 @@ Scope {
                 }
 
                 Text {
-                    text: "↵ open     ⇥ " + (root.mode === "apps" ? "windows" : "apps") + "     esc close"
+                    text: root.pickDir !== "" ? "↵ choose     esc cancel" : "↵ open     ⇥ " + (root.mode === "apps" ? "windows" : "apps") + "     esc close"
                     color: Theme.muted
                     font { family: Theme.font; pixelSize: Theme.fontSmall }
                 }
