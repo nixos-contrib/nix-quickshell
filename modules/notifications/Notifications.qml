@@ -23,21 +23,112 @@ Scope {
 
     // Do not disturb: the toasts stay away, critical ones excepted, and the history still has them
     property bool dnd: false
+    onDndChanged: save()
 
-    // What came, kept after the toast is gone: the newest first, the last hundred
-    ListModel { id: history }
-    function record(n) {
-        history.insert(0, {
+    // A popup of the bar is open: the toasts wait, and come when it closes, so that they do not cover what is being used
+    property bool popupOpen: false
+
+    // What came: the newest first, the last hundred. It follows the notification while the app has it: when the app updates it
+    // the entry says the new text, and when the app takes it back the entry goes. What is dismissed or expires stays. And it is
+    // kept in a file, so that the history is the same after the shell starts again
+    ListModel {
+        id: history
+        onCountChanged: root.save()
+    }
+
+    function fields(n) {
+        return {
             appName: n.appName,
             summary: n.summary,
             body: n.body,
             picture: Pictures.of(n.image, n.appIcon, n.appName, n.desktopEntry),
-            critical: n.urgency === NotificationUrgency.Critical,
-            time: Math.floor(Date.now() / 1000)
-        });
+            iconName: Pictures.iconName(n.image, n.appIcon, n.appName, n.desktopEntry),
+            critical: n.urgency === NotificationUrgency.Critical
+        };
+    }
+    function indexOfId(nid) {
+        for (let i = 0; i < history.count; i++)
+            if (history.get(i).nid === nid)
+                return i;
+        return -1;
+    }
+    function record(n) {
+        const entry = root.fields(n);
+        entry.nid = n.id;
+        entry.time = Math.floor(Date.now() / 1000);
+        history.insert(0, entry);
         while (history.count > 100)
             history.remove(history.count - 1);
+        // the app may update it, and may take it back
+        const refresh = () => root.refresh(n);
+        n.summaryChanged.connect(refresh);
+        n.bodyChanged.connect(refresh);
+        n.imageChanged.connect(refresh);
+        n.appIconChanged.connect(refresh);
+        n.urgencyChanged.connect(refresh);
+        n.closed.connect(reason => {
+            if (reason === NotificationCloseReason.CloseRequested)
+                root.withdraw(n.id);
+        });
     }
+    function refresh(n) {
+        const i = root.indexOfId(n.id);
+        if (i < 0)
+            return;
+        const f = root.fields(n);
+        for (const key in f)
+            history.setProperty(i, key, f[key]);
+        root.save();
+    }
+    function withdraw(nid) {
+        const i = root.indexOfId(nid);
+        if (i >= 0)
+            history.remove(i);
+    }
+
+    // the file, in the state folder of the user: the entries without their raw pictures, which do not last, and do not disturb
+    readonly property string statePath: (Quickshell.env("XDG_STATE_HOME") || Quickshell.env("HOME") + "/.local/state") + "/nix-shell/history.json"
+    function save() {
+        saver.restart();
+    }
+    Timer {
+        id: saver
+        interval: 400
+        onTriggered: {
+            const entries = [];
+            for (let i = 0; i < history.count; i++) {
+                const e = history.get(i);
+                entries.push({ appName: e.appName, summary: e.summary, body: e.body, iconName: e.iconName, critical: e.critical, time: e.time });
+            }
+            store.setText(JSON.stringify({ dnd: root.dnd, entries: entries }));
+        }
+    }
+    FileView {
+        id: store
+        path: root.statePath
+        printErrors: false
+        onLoaded: {
+            try {
+                const saved = JSON.parse(text());
+                root.dnd = saved.dnd === true;
+                // older than anything that came since the shell started
+                for (const e of saved.entries ?? [])
+                    history.append({
+                        nid: -1,
+                        appName: e.appName,
+                        summary: e.summary,
+                        body: e.body,
+                        iconName: e.iconName ?? "",
+                        picture: Pictures.of("", e.iconName ?? "", e.appName, ""),
+                        critical: e.critical === true,
+                        time: e.time
+                    });
+            } catch (err) {
+                console.log("notifications: the saved history could not be read:", err);
+            }
+        }
+    }
+    Component.onCompleted: Quickshell.execDetached(["mkdir", "-p", root.statePath.substring(0, root.statePath.lastIndexOf("/"))])
 
     // The image that came with a notification is served under a URL that is gone when it closes. Each entry of the history
     // keeps its picture loaded here, at the size the cards ask for, and the cards find it in the cache of Qt
@@ -81,7 +172,7 @@ Scope {
     FloatingWindow {
         id: win
         title: "nshell-toast"
-        visible: server.trackedNotifications.values.length > 0 && !center.visible
+        visible: server.trackedNotifications.values.length > 0 && !center.visible && !root.popupOpen
         color: "transparent"
         implicitWidth: 372
         // i3 does not follow a floating window that grows, so it is as tall as it will need and only the cards take
@@ -137,6 +228,7 @@ Scope {
                             required property Notification modelData
                             required property int index
                             notification: modelData
+                            paused: root.popupOpen
                             visible: root.expanded || index < Theme.toastLimit
                         }
                     }

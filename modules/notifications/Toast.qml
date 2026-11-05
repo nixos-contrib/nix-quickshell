@@ -8,6 +8,8 @@ import qs
 Rectangle {
     id: root
     required property Notification notification
+    // a popup of the bar is open and the toast waits: its time starts when it is shown
+    property bool paused: false
     // The close button has a hover area of its own, which takes the pointer from the one of the card: the card counts
     // as hovered over either, or it would hide the button the pointer is on, and blink
     readonly property bool hovered: hover.containsMouse || closeArea.containsMouse
@@ -43,7 +45,7 @@ Rectangle {
     // Time to live: stops while the pointer is over the card, and critical ones do not run out
     Timer {
         interval: root.timeout
-        running: root.visible && !root.critical && !root.hovered
+        running: root.visible && !root.paused && !root.critical && !root.hovered
         onTriggered: root.notification.expire()
     }
 

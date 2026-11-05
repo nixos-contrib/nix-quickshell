@@ -21,6 +21,11 @@ Scope {
     }
 
     TrayMenu { id: trayMenu }
+    Binding {
+        target: root.notifications
+        property: "popupOpen"
+        value: trayMenu.visible || audioPopup.visible || batteryPopup.visible
+    }
     AudioPopup { id: audioPopup }
     BatteryPopup { id: batteryPopup }
 
