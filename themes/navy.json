@@ -1,7 +1,7 @@
 {
   "name": "nixos-navy",
   "dark": {
-    "base": "#000000",
+    "base": "#050b18",
     "bg": "#050b18",
     "surface": "#15213a",
     "surfaceHigh": "#28395f",

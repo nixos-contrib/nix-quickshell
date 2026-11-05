@@ -4,8 +4,9 @@ import Quickshell
 import Quickshell.Io
 
 // The design system of the shell: every color, size and space comes from here, and nothing else has a number of its own.
-// The base is black, the black of the menu bar of macOS above the screen, so that the two read as one band. Every surface is
-// a step up from it, and the blues of nixos.org are only for what is active or can be pressed
+// The base is the bar, and it is the color of the windows in both modes (white, and the navy that is nearly black), so that it is not
+// an element of its own. The cards are a step up from the windows, and the blues of nixos.org are only for what is active or can be
+// pressed
 Singleton {
     // The theme is data. A variant of the package, themes/<name>.json, has the roles of a dark and of a light palette: nixos-navy is the
     // default, the dark blues of nixos.org and its white, and graphite is the same with greys. The file of the user is over it,
@@ -46,7 +47,7 @@ Singleton {
     property string mode: "dark"
     readonly property bool dark: mode !== "light"
 
-    // Color: the base (the bar), three steps of surface, the edge, the text, and the accents. textOnPrimary is the text on a fill of
+    // Color: the base (the bar, the color of the windows), three steps of surface, the edge, the text, and the accents. textOnPrimary is the text on a fill of
     // primary, and textOnAccent the text on a fill of accent, as a pressed button. Not named on...: QML reads that as a signal handler
     readonly property var palette: Object.assign({}, variant[dark ? "dark" : "light"] || {}, user[dark ? "dark" : "light"] || {})
 

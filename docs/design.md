@@ -20,8 +20,8 @@ they have the large radius and a shadow. What is selected or pressed is `surface
 
 ## Color and mode (`Theme.qml`)
 
-Two palettes with the same roles, dark and light, and the roles follow `Theme.mode`, live. Dark is **nixos-navy**: the black bar over
-the blues of nixos.org (`#050b18` panels, `#15213a` cards, `#28395f` for what is selected, `#87adfa` for what is active). Light is the
+Two palettes with the same roles, dark and light, and the roles follow `Theme.mode`, live. Dark is **nixos-navy**: the bar and the windows
+in the blues of nixos.org (`#050b18` both, `#15213a` cards, `#28395f` for what is selected, `#87adfa` for what is active). Light is the
 white of nixos.org with the same blue, darker so that it reads on white (`#3b5487`): `#ffffff` panels, `#e8effc` cards, `#cfdefd` for
 what is selected. Text on both is above 7:1, and the edge is a hairline of white on dark and of black on light. Status colors are
 the lighter step on dark and the darker step on light.

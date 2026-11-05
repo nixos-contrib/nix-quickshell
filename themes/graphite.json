@@ -1,7 +1,7 @@
 {
   "name": "graphite",
   "dark": {
-    "base": "#000000",
+    "base": "#0b0b0b",
     "bg": "#0b0b0b",
     "surface": "#222222",
     "surfaceHigh": "#3a3a3a",
