@@ -43,17 +43,19 @@ Rectangle {
     // Time to live: stops while the pointer is over the card, and critical ones do not run out
     Timer {
         interval: root.timeout
-        running: !root.critical && !root.hovered
+        running: root.visible && !root.critical && !root.hovered
         onTriggered: root.notification.expire()
     }
 
-    // A click does what the app asks for by default, such as focusing the chat, and then closes the card. The middle
-    // button only closes it
+    // A click does what the app asks for by default, such as focusing the chat, and the card goes with it: invoking an
+    // action closes a notification, unless the app marks it as resident. Without a default action it only closes. The
+    // middle button only closes
     function activate() {
         const action = root.notification.actions.find(a => a.identifier === "default");
         if (action)
             action.invoke();
-        root.notification.dismiss();
+        else
+            root.notification.dismiss();
     }
 
     // The hover is a MouseArea: the HoverHandler kept its state when the pointer left the window

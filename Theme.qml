@@ -17,6 +17,8 @@ Singleton {
 
     readonly property string font: "SF Pro Text"
     readonly property int radius: 14
+    // the most toasts on the screen at once, the rest wait behind
+    readonly property int toastLimit: 4
     readonly property int spacing: 10
     readonly property int fontSmall: 10
     readonly property int fontBody: 12
