@@ -27,11 +27,16 @@ FloatingWindow {
     // the window does not draw before i3 has put it in its place, or it showed in the middle of the screen
     property bool placed: false
 
+    // the workspace that the window was sent to: it is sent again only when its container changes workspace, as a command of i3 that moves
+    // a window makes it lay out the workspace again, which the apps feel as a resize
+    property string sentTo: ""
     function place() {
         const w = Math.round(spec.w), h = Math.round(spec.h + spec.ear), x = Math.round(spec.x), y = Math.round(spec.y);
         // the window is on the workspace of its container, which i3 hides with it: a window that is on every workspace is seen for a
         // moment on the next one
-        I3.dispatch(`[title="^${win.name}$"] move container to workspace "${spec.ws}", resize set ${w}px ${h}px, move absolute position ${x}px ${y}px`);
+        const send = win.sentTo !== spec.ws ? `move container to workspace "${spec.ws}", ` : "";
+        win.sentTo = spec.ws;
+        I3.dispatch(`[title="^${win.name}$"] ${send}resize set ${w}px ${h}px, move absolute position ${x}px ${y}px`);
     }
     // i3 shows a floating window in the middle first, and does what it is told a moment later
     Timer { id: placeTimer; interval: 50; running: true; onTriggered: { win.place(); revealTimer.restart(); } }
