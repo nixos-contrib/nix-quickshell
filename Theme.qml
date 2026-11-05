@@ -27,9 +27,6 @@ Singleton {
     readonly property int fontTitle: 13
     readonly property int fontBar: 14
     readonly property int iconBar: 18
-    // the glyphs of the status are thin lines in a box of white, so they are a size up from the box of the font to weigh as much
-    // as the colored icons of the tray
-    readonly property int iconStatus: 20
 
     // Space: a scale on a grid of 4. Items of a group are an xs to a md apart, and groups are lg to xl apart, so that the
     // eye reads the groups by their distance
@@ -52,7 +49,6 @@ Singleton {
     readonly property color barText: text
     readonly property color barMuted: "#a8a8ac"
     readonly property color barFocus: surfaceHigh
-    readonly property color barHover: Qt.rgba(1, 1, 1, 0.08)
     // the text on the filled tile of the focused workspace, and on the red of an urgent one
     readonly property color onFill: "#ffffff"
     // Every item of the bar sits in a slot of the same size, centered: the workspaces, the icons of the tray, the bell. The
@@ -60,9 +56,12 @@ Singleton {
     readonly property int slot: 24
     readonly property int barHeight: 40
     readonly property int tile: slot
-    readonly property int trayIcon: slot
-    // the logo is a little bigger than a slot, as the logos of the menu bars are, to weigh as much as the rest
-    readonly property int logo: 26
+    // The corner of a tile of the bar, and of the filled tile of an item that is pressed or whose menu is open: the same for the
+    // workspaces, the tray, the bell and the logo. The bar has no highlight for the pointer over an item, as the menu bar of macOS
+    readonly property int tileRadius: 7
+    // The icons of the status area, the tray and the bell alike, have one size in their slot, as in the menu bar of macOS: no
+    // item is bigger or further from the next for what it is
+    readonly property int statusIcon: 20
 
     // The most toasts on the screen at once, the rest wait behind
     readonly property int toastLimit: 4

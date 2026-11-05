@@ -16,6 +16,7 @@ Scope {
 
     // For the bar: how many are in the history, and the two things its bell does
     readonly property int unread: history.count
+    readonly property bool centerOpen: center.visible
     function toggleCenter() { center.visible = !center.visible; }
     function toggleDnd() { root.dnd = !root.dnd; }
 
