@@ -40,7 +40,7 @@ esac
 # builds a new bar with the icon of the mode. The property is not set unless the user changed the bar, so it is removed again
 refresh_thunar() {
 	command -v xfconf-query >/dev/null 2>&1 || return 0
-	pgrep -f 'bin/\.?thunar' >/dev/null 2>&1 || return 0
+	pgrep -f '(^|/)\.?[Tt]hunar(-wrapped)?( |$)' >/dev/null 2>&1 || return 0
 	local prop=/last-location-bar current other
 	current="$(xfconf-query -c thunar -p "$prop" 2>/dev/null || true)"
 	other=ThunarLocationButtons
