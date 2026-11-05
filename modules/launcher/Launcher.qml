@@ -1,0 +1,288 @@
+import QtQuick
+import QtQuick.Layouts
+import Quickshell
+import Quickshell.I3
+import Quickshell.Io
+import qs
+import qs.modules.common
+import "search.js" as Search
+
+// The launcher: a card in the middle of the screen with a search field and a list. Two modes, the apps and the windows, and Tab
+// goes from one to the other. The apps are ordered by how well they match and by how often they are run
+Scope {
+    id: root
+    property string mode: "apps"
+    property string query: ""
+    readonly property var modes: ["apps", "windows"]
+    // the windows of i3, read when the launcher opens in that mode
+    property var windows: []
+    // how many times each app was run, by the id of its desktop entry
+    property var usage: ({})
+
+    readonly property string statePath: (Quickshell.env("XDG_STATE_HOME") || Quickshell.env("HOME") + "/.local/state") + "/nix-shell/launcher.json"
+
+    function show(m) {
+        if (win.visible && root.mode === m) {
+            win.visible = false;
+            return;
+        }
+        root.setMode(m);
+        win.visible = true;
+    }
+    function setMode(m) {
+        root.mode = m;
+        root.query = "";
+        if (m === "windows")
+            tree.running = true;
+    }
+    function cycle() {
+        root.setMode(root.modes[(root.modes.indexOf(root.mode) + 1) % root.modes.length]);
+    }
+
+    function iconUrl(name: string): string {
+        if (!name)
+            return "";
+        return name.startsWith("/") ? "file://" + name : Quickshell.iconPath(name, true);
+    }
+
+    // what the list shows, best first
+    readonly property var items: root.mode === "apps" ? root.appItems() : root.windowItems()
+
+    function appItems() {
+        const q = root.query.trim().toLowerCase();
+        const out = [];
+        for (const e of DesktopEntries.applications.values) {
+            if (e.noDisplay)
+                continue;
+            let s = 1;
+            if (q !== "") {
+                s = Math.max(Search.score(q, e.name, true), 0.6 * Search.score(q, e.genericName, false), 0.5 * Search.score(q, e.keywords.join(" "), false), 0.2 * Search.score(q, e.comment, false));
+                if (s <= 0)
+                    continue;
+            }
+            out.push({
+                title: e.name,
+                subtitle: e.genericName !== "" ? e.genericName : e.comment,
+                icon: root.iconUrl(e.icon),
+                score: s + Math.log(1 + (root.usage[e.id] ?? 0)) * 0.6,
+                run: () => root.launch(e)
+            });
+        }
+        out.sort((a, b) => b.score - a.score || a.title.localeCompare(b.title));
+        return out.slice(0, 60);
+    }
+
+    function windowItems() {
+        const q = root.query.trim().toLowerCase();
+        const out = [];
+        for (const w of root.windows) {
+            const s = q === "" ? 1 : Math.max(Search.score(q, w.title, true), 0.6 * Search.score(q, w.cls, true));
+            if (s <= 0)
+                continue;
+            const entry = DesktopEntries.heuristicLookup(w.cls);
+            out.push({
+                title: w.title !== "" ? w.title : w.cls,
+                subtitle: w.cls + (w.ws !== "" ? " · workspace " + w.ws : ""),
+                icon: entry ? root.iconUrl(entry.icon) : "",
+                score: s,
+                run: () => {
+                    win.visible = false;
+                    I3.dispatch("[con_id=" + w.id + "] focus");
+                }
+            });
+        }
+        out.sort((a, b) => b.score - a.score);
+        return out;
+    }
+
+    function launch(entry) {
+        win.visible = false;
+        entry.execute();
+        const u = root.usage;
+        u[entry.id] = (u[entry.id] ?? 0) + 1;
+        root.usage = u;
+        store.setText(JSON.stringify(u));
+    }
+
+    // the windows, from the tree of i3, without the ones of the shell itself
+    function parseTree(text) {
+        const out = [];
+        const walk = (n, ws) => {
+            if (n.type === "workspace")
+                ws = n.name;
+            const name = n.name ?? "";
+            const cls = n.window_properties ? (n.window_properties.class ?? "") : "";
+            // only the windows of a workspace: the bar of the shell is in the dock area, and the popups and cards of the shell have
+            // the class of Quickshell
+            if (n.window !== null && n.window !== undefined && ws !== "" && cls !== "quickshell")
+                out.push({ id: n.id, title: name, cls: cls, ws: ws.startsWith("__i3") ? "scratchpad" : ws });
+            for (const c of (n.nodes ?? []).concat(n.floating_nodes ?? []))
+                walk(c, ws);
+        };
+        try {
+            walk(JSON.parse(text), "");
+        } catch (e) {
+            console.log("launcher: the tree of i3 could not be read:", e);
+        }
+        root.windows = out;
+    }
+
+    Process {
+        id: tree
+        command: ["i3-msg", "-t", "get_tree"]
+        stdout: StdioCollector { onStreamFinished: root.parseTree(text) }
+    }
+
+    FileView {
+        id: store
+        path: root.statePath
+        printErrors: false
+        onLoaded: {
+            try {
+                root.usage = JSON.parse(text());
+            } catch (e) {
+                root.usage = {};
+            }
+        }
+    }
+    Component.onCompleted: Quickshell.execDetached(["mkdir", "-p", root.statePath.substring(0, root.statePath.lastIndexOf("/"))])
+
+    IpcHandler {
+        target: "launcher"
+        function apps(): void { root.show("apps"); }
+        function windows(): void { root.show("windows"); }
+    }
+
+    FloatingWindow {
+        id: win
+        title: "nshell-launcher"
+        visible: false
+        color: "transparent"
+        implicitWidth: 680
+        implicitHeight: 480
+
+        property double openedAt: 0
+        onVisibleChanged: if (visible) {
+            openedAt = Date.now();
+            search.text = "";
+            focusTimer.restart();
+        }
+        Timer {
+            id: focusTimer
+            interval: 80
+            onTriggered: {
+                I3.dispatch('[title="^nshell-launcher$"] focus');
+                search.forceActiveFocus();
+            }
+        }
+
+        Rectangle {
+            id: card
+            anchors.fill: parent
+            radius: Theme.radius + 4
+            color: Theme.bg
+            border { width: 1; color: Theme.border }
+            focus: true
+            onActiveFocusChanged: if (!activeFocus && !search.activeFocus && win.visible && Date.now() - win.openedAt > 600) win.visible = false
+
+            ColumnLayout {
+                anchors { fill: parent; margins: Theme.spaceLg }
+                spacing: Theme.spaceMd
+
+                RowLayout {
+                    Layout.fillWidth: true
+                    spacing: Theme.spaceMd
+
+                    Text {
+                        text: "󰍉"
+                        color: Theme.muted
+                        font { family: Theme.iconFont; pixelSize: Theme.iconBar }
+                    }
+                    TextInput {
+                        id: search
+                        Layout.fillWidth: true
+                        color: Theme.text
+                        selectionColor: Theme.accent
+                        font { family: Theme.font; pixelSize: Theme.fontHeading }
+                        onTextChanged: root.query = text
+                        Text {
+                            visible: search.text === ""
+                            anchors.verticalCenter: parent.verticalCenter
+                            text: root.mode === "apps" ? "Search apps" : "Search windows"
+                            color: Theme.muted
+                            font: search.font
+                        }
+                        Keys.onPressed: event => {
+                            const ctrl = (event.modifiers & Qt.ControlModifier) !== 0;
+                            if (event.key === Qt.Key_Down || (ctrl && event.key === Qt.Key_N)) {
+                                list.currentIndex = Math.min(list.count - 1, list.currentIndex + 1);
+                                event.accepted = true;
+                            } else if (event.key === Qt.Key_Up || (ctrl && event.key === Qt.Key_P)) {
+                                list.currentIndex = Math.max(0, list.currentIndex - 1);
+                                event.accepted = true;
+                            } else if (event.key === Qt.Key_Tab) {
+                                root.cycle();
+                                search.text = "";
+                                event.accepted = true;
+                            } else if (event.key === Qt.Key_Escape) {
+                                win.visible = false;
+                                event.accepted = true;
+                            }
+                        }
+                        onAccepted: if (list.currentItem) list.currentItem.modelData.run()
+                    }
+                    // the modes: the one in use is filled
+                    Repeater {
+                        model: root.modes
+                        delegate: PillButton {
+                            required property string modelData
+                            text: modelData === "apps" ? "Apps" : "Windows"
+                            active: root.mode === modelData
+                            onClicked: {
+                                root.setMode(modelData);
+                                search.text = "";
+                                search.forceActiveFocus();
+                            }
+                        }
+                    }
+                }
+
+                Rectangle {
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: 1
+                    color: Theme.border
+                }
+
+                ListView {
+                    id: list
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    clip: true
+                    spacing: 2
+                    model: root.items
+                    boundsBehavior: Flickable.StopAtBounds
+                    highlightMoveDuration: 0
+                    onModelChanged: currentIndex = 0
+                    onCurrentIndexChanged: positionViewAtIndex(currentIndex, ListView.Contain)
+                    delegate: LauncherRow {
+                        onChosen: modelData.run()
+                    }
+
+                    Text {
+                        anchors.centerIn: parent
+                        visible: list.count === 0
+                        text: "No results"
+                        color: Theme.muted
+                        font { family: Theme.font; pixelSize: Theme.fontBody + 1 }
+                    }
+                }
+
+                Text {
+                    text: "↵ open     ⇥ " + (root.mode === "apps" ? "windows" : "apps") + "     esc close"
+                    color: Theme.muted
+                    font { family: Theme.font; pixelSize: Theme.fontSmall }
+                }
+            }
+        }
+    }
+}

@@ -11,6 +11,8 @@ import qs.modules.notifications
 Scope {
     id: root
     required property Notifications notifications
+    // the launcher, which the logo opens
+    required property var launcher
     property bool shown: true
 
     IpcHandler {
@@ -52,7 +54,7 @@ Scope {
             RowLayout {
                 spacing: Theme.spaceLg
                 // The logo is an item like the others, as the Apple of the menu bar: the same size, and it fills while it is pressed.
-                // It opens the launcher, until the shell has its own
+                // It opens the launcher
                 Rectangle {
                     Layout.preferredWidth: Theme.slot
                     Layout.preferredHeight: Theme.slot
@@ -72,7 +74,7 @@ Scope {
                         anchors.fill: parent
                         hoverEnabled: true
                         cursorShape: Qt.PointingHandCursor
-                        onClicked: Quickshell.execDetached(["rofi", "-show", "drun"])
+                        onClicked: root.launcher.show("apps")
                     }
                 }
                 Workspaces {}
