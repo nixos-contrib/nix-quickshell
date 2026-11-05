@@ -15,14 +15,14 @@ Item {
     Rectangle {
         id: track
         anchors { left: parent.left; right: parent.right; verticalCenter: parent.verticalCenter }
-        height: 6
-        radius: 3
+        height: Theme.trackHeight
+        radius: Theme.trackHeight / 2
         color: Theme.surfaceHigh
 
         Rectangle {
             width: Math.max(0, Math.min(1, slider.value)) * parent.width
             height: parent.height
-            radius: 3
+            radius: Theme.trackHeight / 2
             color: slider.enabled ? Theme.primary : Theme.muted
         }
     }

@@ -9,8 +9,8 @@ Rectangle {
     signal clicked
 
     implicitWidth: label.implicitWidth + 24
-    implicitHeight: 26
-    radius: 13
+    implicitHeight: 28
+    radius: 14
     color: area.pressed ? Theme.accent : (active ? Theme.primary : (area.containsMouse ? Theme.surfaceHigh : Theme.surface))
     border { width: 1; color: active ? Theme.primary : Theme.border }
 
@@ -19,7 +19,7 @@ Rectangle {
         anchors.centerIn: parent
         text: button.text
         color: button.active ? Theme.bg : Theme.primary
-        font { family: Theme.font; pixelSize: Theme.fontSmall; weight: Font.Medium }
+        font { family: Theme.font; pixelSize: Theme.textCaption; weight: Font.Medium }
     }
     MouseArea {
         id: area

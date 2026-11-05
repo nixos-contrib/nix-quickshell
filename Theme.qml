@@ -31,6 +31,15 @@ Singleton {
     readonly property int fontHeading: 17
     readonly property int iconBar: 18
 
+    // The five roles of text. Everything that is read in a window of the shell has one of them, through the Label component, and
+    // nothing has a size of its own: a heading (the search field, the title of a dialog), a title (the header of a panel), the body
+    // (rows, descriptions), a caption (a value, a subtitle, a hint) and a label (a section, the name of the app of a card)
+    readonly property int textHeading: 17
+    readonly property int textTitle: 14
+    readonly property int textBody: 13
+    readonly property int textCaption: 12
+    readonly property int textLabel: 10
+
     // Space: a scale on a grid of 4. Items of a group are an xs to a md apart, and groups are lg to xl apart, so that the
     // eye reads the groups by their distance
     readonly property int spaceXs: 4
@@ -39,9 +48,15 @@ Singleton {
     readonly property int spaceLg: 16
     readonly property int spaceXl: 24
 
-    // Shape
+    // Shape. A window of the shell, the launcher, the history, the popups, is a panel, and what it holds, the entries of the history
+    // and the toasts, are cards, a step smaller
     readonly property int spacing: 10
     readonly property int radius: 14
+    readonly property int radiusPanel: 18
+    readonly property int panelPadding: 16
+    readonly property int popupWidth: 320
+    // the track of a slider and of a meter: the same height, and the same colors
+    readonly property int trackHeight: 6
     // The room between the edge of the screen and the bar, the toasts, the history and the menus: what lines them up
     readonly property int edge: 20
     // The room under the bar before the first card
