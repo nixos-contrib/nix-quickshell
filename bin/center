@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+# Opens or closes the history of the notifications. NSHELL_PATH is the folder of the shell when it runs from one
+exec quickshell ${NSHELL_PATH:+-p "$NSHELL_PATH"} ipc call center "${1:-toggle}"
