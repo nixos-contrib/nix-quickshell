@@ -22,7 +22,10 @@ ShellRoot {
         sourceComponent: Bar { notifications: center; launcher: appLauncher }
     }
     // The tabs of the tabbed containers of i3
-    Tabs { id: containerTabs }
+    Tabs {
+        id: containerTabs
+        onRemapBar: if (barLoader.item) barLoader.item.remap()
+    }
     // A popup closes on a click anywhere outside of it, the wallpaper too, see ClickAway
     ClickAway {
         active: center.popupOpen || center.centerOpen || appLauncher.open || containerTabs.listOpen

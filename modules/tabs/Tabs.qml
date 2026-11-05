@@ -17,6 +17,12 @@ Scope {
     // the width of its container, rounded. Any other strip is a card. `nshell tabs style` changes it
     property string look: "flush"
     property var lastTree: null
+    // Windows that i3 moved when the screen changed, which is what leaving full screen in the window of the VM does: the strip is put in
+    // its place again. The number of times it was, by container
+    property var nonces: ({})
+    // The bar is not a dock of i3: the output has none at the top while the shell runs. The shell shows its bar again
+    property bool dockMissing: false
+    signal remapBar
 
     // The tabbed containers in view, each { id, x, y, w, h (the strip, in pixels of the screen), active (the focus is in it), tabs }, and
     // a tab { id, name, cls, current (the tab in front), urgent }
@@ -86,6 +92,7 @@ Scope {
                     // attached row is moved down to the window, which leaves the gap above it, the same as the one under the window
                     y: attached ? frontKid.rect.y - strips[0].height : node.rect.y,
                     ear: 0,
+                    nonce: root.nonces[node.id] ?? 0,
                     w: flush ? output.rect.width : node.rect.width,
                     h: strips[0].height,
                     inset: flush ? left : 0,
@@ -116,9 +123,45 @@ Scope {
         }
         return out;
     }
+    // where the windows of the strips are, by the id of their container: x, y, w, h in pixels of the screen
+    function actualStrips(tree) {
+        const found = {};
+        const walk = n => {
+            const m = /^nshell-tabs-(\d+)$/.exec(n.name ?? "");
+            if (m && n.window)
+                found[m[1]] = n.rect;
+            for (const c of (n.nodes ?? []).concat(n.floating_nodes ?? []))
+                walk(c);
+        };
+        walk(tree);
+        return found;
+    }
+    function docked(tree) {
+        for (const output of tree.nodes ?? [])
+            if (output.name !== "__i3" && (output.nodes ?? []).some(c => c.type === "dockarea" && c.name === "topdock" && (c.nodes ?? []).length === 0))
+                return false;
+        return true;
+    }
+    property int dockStrikes: 0
+    property double lastRemap: 0
     function apply(tree) {
         root.lastTree = tree;
+        // two reads in a row without a dock, and not more often than every ten seconds
+        root.dockStrikes = root.docked(tree) ? 0 : root.dockStrikes + 1;
+        if (root.dockStrikes >= 2 && Date.now() - root.lastRemap > 10000) {
+            root.lastRemap = Date.now();
+            root.dockStrikes = 0;
+            root.remapBar();
+        }
+        const actual = root.actualStrips(tree);
         const built = root.build(tree);
+        for (const c of built) {
+            const a = actual[String(c.id)];
+            if (c.inView && a && (Math.abs(a.x - c.x) > 2 || Math.abs(a.y - c.y) > 2 || Math.abs(a.width - c.w) > 2 || Math.abs(a.height - (c.h + c.ear)) > 2)) {
+                root.nonces[c.id] = (root.nonces[c.id] ?? 0) + 1;
+                c.nonce = root.nonces[c.id];
+            }
+        }
         // the same value does not rebuild the windows
         if (JSON.stringify(built) !== JSON.stringify(root.containers))
             root.containers = built;

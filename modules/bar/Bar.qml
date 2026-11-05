@@ -55,6 +55,14 @@ Scope {
 
     // One popup at a time, the history of the notifications among them: the others close when one opens, and a click on the item
     // of the one that is open closes it
+    // the bar is shown again, for i3 to take it as a dock again
+    function remap() {
+        if (!root.shown)
+            return;
+        root.shown = false;
+        remapTimer.restart();
+    }
+    Timer { id: remapTimer; interval: 300; onTriggered: root.shown = true }
     function closePopups() {
         trayMenu.visible = false;
         audioPopup.visible = false;

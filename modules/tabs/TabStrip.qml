@@ -41,7 +41,7 @@ FloatingWindow {
     Timer { id: placeTimer; interval: 50; running: true; onTriggered: { win.place(); revealTimer.restart(); } }
     Timer { id: revealTimer; interval: 50; onTriggered: win.placed = true }
     // a strip that moves is not drawn until it is in its place
-    readonly property string geometry: spec.x + "," + spec.y + "," + spec.w + "," + spec.h + "," + spec.ear + "," + spec.ws
+    readonly property string geometry: spec.x + "," + spec.y + "," + spec.w + "," + spec.h + "," + spec.ear + "," + spec.ws + "," + spec.nonce
     onGeometryChanged: {
         placed = false;
         placeTimer.restart();
