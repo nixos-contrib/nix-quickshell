@@ -1,6 +1,8 @@
 import QtQuick
+import QtQml.Models
 import Quickshell
 import Quickshell.I3
+import Quickshell.Io
 import Quickshell.Services.Notifications
 import qs
 
@@ -12,20 +14,48 @@ Scope {
     property bool expanded: false
     onCountChanged: if (count <= Theme.toastLimit) expanded = false
 
+    // Do not disturb: the toasts stay away, critical ones excepted, and the history still has them
+    property bool dnd: false
+
+    // What came, kept after the toast is gone: the newest first, the last hundred
+    ListModel { id: history }
+    function record(n) {
+        history.insert(0, {
+            appName: n.appName,
+            summary: n.summary,
+            body: n.body,
+            picture: n.image !== "" ? n.image : (n.appIcon !== "" ? Quickshell.iconPath(n.appIcon, "dialog-information") : ""),
+            critical: n.urgency === NotificationUrgency.Critical,
+            time: Math.floor(Date.now() / 1000)
+        });
+        while (history.count > 100)
+            history.remove(history.count - 1);
+    }
+
+    IpcHandler {
+        target: "center"
+        function toggle(): void { center.visible = !center.visible; }
+        function dnd(): void { root.dnd = !root.dnd; }
+    }
+
     NotificationServer {
         id: server
         bodySupported: true
         bodyMarkupSupported: true
         actionsSupported: true
         imageSupported: true
-        onNotification: n => n.tracked = true
+        onNotification: n => {
+            root.record(n);
+            if (!root.dnd || n.urgency === NotificationUrgency.Critical)
+                n.tracked = true;
+        }
     }
 
     // A window that i3 floats in the corner without the focus, see the rule in its config
     FloatingWindow {
         id: win
         title: "nshell-toast"
-        visible: server.trackedNotifications.values.length > 0
+        visible: server.trackedNotifications.values.length > 0 && !center.visible
         color: "transparent"
         implicitWidth: 372
         // i3 does not follow a floating window that grows, so it is as tall as it will need and only the cards take
@@ -95,5 +125,13 @@ Scope {
                 onClearAll: server.trackedNotifications.values.slice().forEach(n => n.dismiss())
             }
         }
+    }
+
+    Center {
+        id: center
+        history: history
+        dnd: root.dnd
+        onToggleDnd: root.dnd = !root.dnd
+        onClearAll: history.clear()
     }
 }
