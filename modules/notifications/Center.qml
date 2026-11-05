@@ -22,8 +22,8 @@ FloatingWindow {
 
     function place() {
         const scale = win.devicePixelRatio;
-        const x = Math.round(win.screen.width * scale - win.width * scale - 24 * scale);
-        const y = Math.round(56 * scale);
+        const x = Math.round((win.screen.width - win.width + 12 - Theme.edge) * scale);
+        const y = Math.round(Theme.barHeight * scale);
         I3.dispatch(`[title="^nshell-center$"] move absolute position ${x}px ${y}px`);
     }
     onVisibleChanged: if (visible) placeTimer.restart()

@@ -14,6 +14,11 @@ Scope {
     property bool expanded: false
     onCountChanged: if (count <= Theme.toastLimit) expanded = false
 
+    // For the bar: how many are in the history, and the two things its bell does
+    readonly property int unread: history.count
+    function toggleCenter() { center.visible = !center.visible; }
+    function toggleDnd() { root.dnd = !root.dnd; }
+
     // Do not disturb: the toasts stay away, critical ones excepted, and the history still has them
     property bool dnd: false
 
@@ -34,8 +39,8 @@ Scope {
 
     IpcHandler {
         target: "center"
-        function toggle(): void { center.visible = !center.visible; }
-        function dnd(): void { root.dnd = !root.dnd; }
+        function toggle(): void { root.toggleCenter(); }
+        function dnd(): void { root.toggleDnd(); }
     }
 
     NotificationServer {
@@ -66,8 +71,9 @@ Scope {
         // i3 floats the window, and the corner is set in pixels of the screen, which the scale of Qt multiplies
         function place() {
             const scale = win.devicePixelRatio;
-            const x = Math.round(win.screen.width * scale - win.width * scale - 24 * scale);
-            const y = Math.round(56 * scale);
+            // the cards are 12 in from the window: their edge is the one of the bar, and they start the gap under it
+            const x = Math.round((win.screen.width - win.width + 12 - Theme.edge) * scale);
+            const y = Math.round(Theme.barHeight * scale);
             I3.dispatch(`[title="^nshell-toast$"] move absolute position ${x}px ${y}px`);
         }
         onVisibleChanged: if (visible) placeTimer.restart()
