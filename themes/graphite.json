@@ -1,0 +1,39 @@
+{
+  "name": "graphite",
+  "dark": {
+    "base": "#000000",
+    "bg": "#0b0b0b",
+    "surface": "#222222",
+    "surfaceHigh": "#3a3a3a",
+    "border": "#1affffff",
+    "text": "#eeeeee",
+    "muted": "#aeaeae",
+    "barMuted": "#aeaeae",
+    "primary": "#87adfa",
+    "accent": "#4d6fb7",
+    "onPrimary": "#0b0b0b",
+    "onFill": "#ffffff",
+    "success": "#6fc488",
+    "critical": "#f08d94",
+    "warning": "#e99861",
+    "shadow": "#8c000000"
+  },
+  "light": {
+    "base": "#ffffff",
+    "bg": "#ffffff",
+    "surface": "#eeeeee",
+    "surfaceHigh": "#cecece",
+    "border": "#1a000000",
+    "text": "#0b0b0b",
+    "muted": "#555555",
+    "barMuted": "#717171",
+    "primary": "#3b5487",
+    "accent": "#4d6fb7",
+    "onPrimary": "#ffffff",
+    "onFill": "#ffffff",
+    "success": "#267543",
+    "critical": "#b63132",
+    "warning": "#b16512",
+    "shadow": "#2e000000"
+  }
+}

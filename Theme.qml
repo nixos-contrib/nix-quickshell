@@ -1,31 +1,54 @@
 pragma Singleton
 import QtQuick
 import Quickshell
+import Quickshell.Io
 
 // The design system of the shell: every color, size and space comes from here, and nothing else has a number of its own.
 // The base is black, the black of the menu bar of macOS above the screen, so that the two read as one band. Every surface is
 // a step up from it, and the blues of nixos.org are only for what is active or can be pressed
 Singleton {
-    // The mode, dark or light, set by Appearance: the colors below follow it, live. The default is nixos-navy, the dark blues of
-    // nixos.org, and the light mode is its white, with the same blue for what is active. A theme file overrides the roles it names
+    // The theme is data. A variant of the package, themes/<name>.json, has the roles of a dark and of a light palette: nixos-navy is the
+    // default, the dark blues of nixos.org and its white, and graphite is the same with greys. The file of the user is over it,
+    // ~/.config/nix-shell/theme.json or the one of NSHELL_THEME: the variant, the font, the radius, the hours of auto, and the roles
+    // of a palette to change. Both are read when the shell starts and again when they change
+    readonly property string userPath: Quickshell.env("NSHELL_THEME") || (Quickshell.env("XDG_CONFIG_HOME") || Quickshell.env("HOME") + "/.config") + "/nix-shell/theme.json"
+    function readJson(view: var): var {
+        try {
+            const text = view.text();
+            return text ? JSON.parse(text) : {};
+        } catch (err) {
+            console.log("theme: could not read", view.path, err);
+            return {};
+        }
+    }
+    property var user: readJson(userFile)
+    property var variant: readJson(variantFile)
+    FileView {
+        id: userFile
+        path: Theme.userPath
+        blockLoading: true
+        printErrors: false
+        watchChanges: true
+        onFileChanged: reload()
+        onLoaded: Theme.user = Theme.readJson(userFile)
+        onLoadFailed: Theme.user = {}
+    }
+    FileView {
+        id: variantFile
+        path: Quickshell.shellPath("themes/" + (Theme.user.variant || "navy") + ".json")
+        blockLoading: true
+        watchChanges: true
+        onFileChanged: reload()
+        onLoaded: Theme.variant = Theme.readJson(variantFile)
+    }
+
+    // The mode, dark or light, set by Appearance: the colors below follow it, live
     property string mode: "dark"
     readonly property bool dark: mode !== "light"
 
     // Color: the base (the bar), three steps of surface, the edge, the text, and the accents. onPrimary is the text on a fill of
     // primary, and onFill the text on a fill of accent, on the tile of the focused workspace and on a pressed button
-    readonly property var darkPalette: ({
-        base: "#000000", bg: "#050b18", surface: "#15213a", surfaceHigh: "#28395f", border: "#1affffff",
-        text: "#eeeeee", muted: "#aeaeae", barMuted: "#aeaeae",
-        primary: "#87adfa", accent: "#4d6fb7", onPrimary: "#050b18", onFill: "#ffffff",
-        success: "#6fc488", critical: "#f08d94", warning: "#e99861", shadow: "#8c000000"
-    })
-    readonly property var lightPalette: ({
-        base: "#ffffff", bg: "#ffffff", surface: "#e8effc", surfaceHigh: "#cfdefd", border: "#1a000000",
-        text: "#050b18", muted: "#555555", barMuted: "#717171",
-        primary: "#3b5487", accent: "#4d6fb7", onPrimary: "#ffffff", onFill: "#ffffff",
-        success: "#267543", critical: "#b63132", warning: "#b16512", shadow: "#2e000000"
-    })
-    readonly property var palette: dark ? darkPalette : lightPalette
+    readonly property var palette: Object.assign({}, variant[dark ? "dark" : "light"] || {}, user[dark ? "dark" : "light"] || {})
 
     readonly property color base: palette.base
     readonly property color bg: palette.bg
@@ -42,8 +65,8 @@ Singleton {
     readonly property color critical: palette.critical
     readonly property color warning: palette.warning
 
-    // Type: SF Pro Text, and the sizes of the roles. The bar and the cards have their own, the bar is read from further
-    readonly property string font: "SF Pro Text"
+    // Type: Inter unless the theme names another, and the sizes of the roles. The bar and the cards have their own, the bar is read from further
+    readonly property string font: user.font || variant.font || "Inter"
     readonly property string iconFont: "JetBrainsMono Nerd Font Mono"
     readonly property int fontSmall: 10
     readonly property int fontBody: 12
@@ -74,7 +97,7 @@ Singleton {
     // chips and the tracks, md for the rows, the buttons and the cards inside a panel, lg for what floats: the panels, the
     // popups, the toasts, the launcher, the polkit card and the OSD. A theme changes the one, and the others follow
     readonly property int spacing: 10
-    readonly property int radiusLg: 16
+    readonly property int radiusLg: user.radius ?? variant.radius ?? 16
     readonly property int radiusMd: Math.round(radiusLg * 0.625)
     readonly property int radiusSm: Math.round(radiusLg * 0.375)
     readonly property int panelPadding: 16

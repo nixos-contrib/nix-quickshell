@@ -7,11 +7,12 @@ import qs
 // file of the state folder, so it is the same after the shell starts again, and it is changed from outside with `nshell theme`
 Scope {
     id: root
-    // dark, light or auto. A shell that was not told is dark
-    property string choice: "dark"
+    // dark, light or auto: what the file of the theme says, until a choice of `nshell theme` kept in the state folder replaces it. A
+    // shell that was not told is dark
+    property string choice: Theme.user.mode || "dark"
     // auto is light from this hour of the day until the other
-    property int lightFrom: 7
-    property int darkFrom: 19
+    readonly property int lightFrom: Theme.user.hours ? Theme.user.hours.light ?? 7 : 7
+    readonly property int darkFrom: Theme.user.hours ? Theme.user.hours.dark ?? 19 : 19
 
     property date now: new Date()
     Timer {

@@ -1,0 +1,39 @@
+{
+  "name": "nixos-navy",
+  "dark": {
+    "base": "#000000",
+    "bg": "#050b18",
+    "surface": "#15213a",
+    "surfaceHigh": "#28395f",
+    "border": "#1affffff",
+    "text": "#eeeeee",
+    "muted": "#aeaeae",
+    "barMuted": "#aeaeae",
+    "primary": "#87adfa",
+    "accent": "#4d6fb7",
+    "onPrimary": "#050b18",
+    "onFill": "#ffffff",
+    "success": "#6fc488",
+    "critical": "#f08d94",
+    "warning": "#e99861",
+    "shadow": "#8c000000"
+  },
+  "light": {
+    "base": "#ffffff",
+    "bg": "#ffffff",
+    "surface": "#e8effc",
+    "surfaceHigh": "#cfdefd",
+    "border": "#1a000000",
+    "text": "#050b18",
+    "muted": "#555555",
+    "barMuted": "#717171",
+    "primary": "#3b5487",
+    "accent": "#4d6fb7",
+    "onPrimary": "#ffffff",
+    "onFill": "#ffffff",
+    "success": "#267543",
+    "critical": "#b63132",
+    "warning": "#b16512",
+    "shadow": "#2e000000"
+  }
+}
