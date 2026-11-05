@@ -14,6 +14,17 @@ Scope {
     property bool expanded: false
     onCountChanged: if (count <= Theme.toastLimit) expanded = false
 
+    // A key that is held a moment repeats, and the command it runs comes again and again, 25 ms apart: these commands toggle, so
+    // the repeat would close what the first opened. Only the first of a burst counts, the ones that follow it within 400 ms are
+    // the same press
+    property double lastIpc: 0
+    function fresh(): bool {
+        const now = Date.now();
+        const first = now - root.lastIpc > 400;
+        root.lastIpc = now;
+        return first;
+    }
+
     // For the bar: how many are in the history, and the two things its bell does
     readonly property int unread: history.count
     readonly property bool centerOpen: center.visible
@@ -151,8 +162,8 @@ Scope {
 
     IpcHandler {
         target: "center"
-        function toggle(): void { root.toggleCenter(); }
-        function dnd(): void { root.toggleDnd(); }
+        function toggle(): void { if (root.fresh()) root.toggleCenter(); }
+        function dnd(): void { if (root.fresh()) root.toggleDnd(); }
     }
 
     NotificationServer {

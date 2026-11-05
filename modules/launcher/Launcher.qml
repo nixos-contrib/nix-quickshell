@@ -27,6 +27,17 @@ Scope {
 
     readonly property string statePath: (Quickshell.env("XDG_STATE_HOME") || Quickshell.env("HOME") + "/.local/state") + "/nix-shell/launcher.json"
 
+    // A key that is held a moment repeats, and the command it runs comes again and again, 25 ms apart: these commands toggle, so
+    // the repeat would close what the first opened. Only the first of a burst counts, the ones that follow it within 400 ms are
+    // the same press
+    property double lastIpc: 0
+    function fresh(): bool {
+        const now = Date.now();
+        const first = now - root.lastIpc > 400;
+        root.lastIpc = now;
+        return first;
+    }
+
     function openPick(dir: string, prompt: string) {
         // one at a time: a pick that is still open is cancelled
         if (root.pickDir !== "")
@@ -213,8 +224,8 @@ Scope {
 
     IpcHandler {
         target: "launcher"
-        function apps(): void { root.show("apps"); }
-        function windows(): void { root.show("windows"); }
+        function apps(): void { if (root.fresh()) root.show("apps"); }
+        function windows(): void { if (root.fresh()) root.show("windows"); }
         function pick(dir: string, prompt: string): void { root.openPick(dir, prompt); }
     }
 
