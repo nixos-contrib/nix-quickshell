@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# Sends every kind of notification the shell has to draw, one after the other
+set -u
+send() { notify-send "$@" & sleep 0.8; }
+
+send -a "Mail" "Plain notification" "Just a summary and a short body."
+send -a "Discord" -i discord "ralch" "Are you coming to the call? We start in five minutes and the link is in the channel."
+send -a "Brave" -u low "Download finished" "report-q3.pdf, 2.4 MB"
+send -a "1Password" -u critical "Vault locked" "Unlock it to continue. This one stays until you dismiss it."
+send -a "Build" -A "open=Open log" -A "retry=Retry" "Build failed" "nixos-rebuild switch stopped at the system-path derivation <b>exit 1</b>"
+send -a "Calendar" "A very long summary that should wrap onto a second line and then be cut with an ellipsis if it keeps going past the end" "$(printf 'Line one of the body\nLine two of the body\nLine three of the body\nLine four of the body\nLine five that is hidden')"
