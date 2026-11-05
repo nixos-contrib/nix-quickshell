@@ -36,9 +36,11 @@ FloatingWindow {
     onSpecChanged: placeTimer.restart()
 
     readonly property real pad: 6
+    // the strip that is a row of the bar is as wide as the output, and the tabs start where the container does
+    readonly property real inset: spec.inset / scale
     readonly property int count: spec.tabs.length
     readonly property real button: 30
-    readonly property real avail: width - pad * 2 - button - Theme.spaceXs
+    readonly property real avail: width - inset * 2 - pad * 2 - button - Theme.spaceXs
     readonly property real tabWidth: Math.max(44, Math.min(260, avail / Math.max(1, count)))
     readonly property bool compact: tabWidth < 104
 
@@ -50,17 +52,20 @@ FloatingWindow {
     // the track: the color of the bar, so that the strip is part of it, and the tabs are in it
     Rectangle {
         anchors.fill: parent
-        radius: Theme.radiusMd
+        radius: spec.full ? 0 : Theme.radiusMd
         color: Theme.base
         opacity: win.placed ? 1 : 0
         Behavior on opacity { NumberAnimation { duration: 100 } }
+
+        // the hairline between the bar and a strip that is a row of it
+        Rectangle { visible: win.spec.full; anchors { left: parent.left; right: parent.right; bottom: parent.bottom } height: 1; color: Theme.border }
 
         // a click where there is no tab
         MouseArea { anchors.fill: parent; onPressed: win.blankClicked() }
 
         Flickable {
             id: scroller
-            anchors { left: parent.left; right: listButton.left; top: parent.top; bottom: parent.bottom; leftMargin: win.pad; rightMargin: Theme.spaceXs }
+            anchors { left: parent.left; right: listButton.left; top: parent.top; bottom: parent.bottom; leftMargin: win.inset + win.pad; rightMargin: Theme.spaceXs }
             contentWidth: row.width
             contentHeight: height
             clip: true
@@ -147,7 +152,7 @@ FloatingWindow {
         // the button of the list: the windows of the container, to choose from when there are many
         Rectangle {
             id: listButton
-            anchors { right: parent.right; rightMargin: win.pad; verticalCenter: parent.verticalCenter }
+            anchors { right: parent.right; rightMargin: win.inset + win.pad; verticalCenter: parent.verticalCenter }
             width: win.button; height: parent.height - win.pad * 2
             radius: Theme.radiusSm + 2
             color: listArea.containsMouse ? Theme.surface : "transparent"

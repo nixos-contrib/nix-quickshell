@@ -13,6 +13,11 @@ import qs.modules.common
 Scope {
     id: root
 
+    // The look of a strip that has the width of the workspace and is under the bar: flush, square, as a second row of the bar, or card,
+    // the width of its container, rounded. Any other strip is a card. `nshell tabs style` changes it
+    property string look: "flush"
+    property var lastTree: null
+
     // The tabbed containers in view, each { id, x, y, w, h (the strip, in pixels of the screen), active (the focus is in it), tabs }, and
     // a tab { id, name, cls, current (the tab in front), urgent }
     property var containers: []
@@ -52,7 +57,7 @@ Scope {
             urgent: root.anyUrgent(child)
         };
     }
-    function collect(node, out) {
+    function collect(node, out, output) {
         if (node.type === "con" && node.layout === "tabbed" && (node.nodes ?? []).length > 0) {
             const kids = node.nodes;
             const strips = kids.map(k => k.deco_rect).filter(d => d && d.height > 0);
@@ -61,16 +66,24 @@ Scope {
                 const front = node.focus && node.focus.length > 0 ? node.focus[0] : kids[0].id;
                 // the strip is at the top of the container, as wide as it: the rectangle of the container, with the height of the tabs.
                 // The deco_rect of i3 is not in the same coordinates in x and in y
+                // the container fills the width of the output and is just under the bar: the strip can be a row of the bar
+                const scale = Quickshell.screens.length > 0 ? Quickshell.screens[0].devicePixelRatio : 1;
+                const left = node.rect.x - output.rect.x;
+                const right = output.rect.x + output.rect.width - node.rect.x - node.rect.width;
+                const flush = root.look === "flush" && Math.abs(node.rect.y - (output.rect.y + Theme.barHeight * scale)) <= 2 && Math.abs(left - right) <= 2 && left < output.rect.width / 8;
                 out.push({
                     id: node.id,
-                    x: node.rect.x, y: node.rect.y, w: node.rect.width, h: strips[0].height,
+                    full: flush,
+                    // the window of the strip, and how far in from its left edge the tabs start
+                    x: flush ? output.rect.x : node.rect.x, y: node.rect.y, w: flush ? output.rect.width : node.rect.width, h: strips[0].height,
+                    inset: flush ? left : 0,
                     active: root.holdsFocus(node),
                     tabs: kids.map(k => root.tabOf(k, k.id === front))
                 });
             }
         }
         for (const c of (node.nodes ?? []).concat(node.floating_nodes ?? []))
-            root.collect(c, out);
+            root.collect(c, out, output);
     }
     // only the workspace that each output shows has strips: the tree has the others too
     function build(tree) {
@@ -85,12 +98,13 @@ Scope {
                 const shown = content.focus && content.focus.length > 0 ? content.focus[0] : -1;
                 for (const ws of content.nodes ?? [])
                     if (ws.id === shown)
-                        root.collect(ws, out);
+                        root.collect(ws, out, output);
             }
         }
         return out;
     }
     function apply(tree) {
+        root.lastTree = tree;
         const built = root.build(tree);
         // the same value does not rebuild the windows
         if (JSON.stringify(built) !== JSON.stringify(root.containers))
@@ -157,12 +171,19 @@ Scope {
         list.container = container;
         const scale = Quickshell.screens.length > 0 ? Quickshell.screens[0].devicePixelRatio : 1;
         // at the end of the strip, under its button
-        list.openAt((container.x + container.w) / scale - list.panelWidth - 6, (container.y + container.h) / scale);
+        list.openAt((container.x + container.w - container.inset) / scale - list.panelWidth - 6, (container.y + container.h) / scale);
     }
+
+    onLookChanged: if (root.lastTree) root.apply(root.lastTree)
 
     IpcHandler {
         target: "tabs"
         function list(): void { root.openList(root.focusedContainer); }
+        function style(look: string): string {
+            if (look === "flush" || look === "card")
+                root.look = look;
+            return root.look;
+        }
     }
 
     TabList {
