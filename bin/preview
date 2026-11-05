@@ -1,11 +1,32 @@
 #!/usr/bin/env bash
-# Sends every kind of notification the shell has to draw, one after the other
+# Sends notifications to look at the shell. With no argument, one of every kind. With `burst`, a pile of them that
+# stays long enough to try the stack: "Show more", "Show less" and "Clear all"
 set -u
-send() { notify-send "$@" & sleep 0.8; }
+send() { notify-send "$@" & sleep "${DELAY:-0.8}"; }
 
-send -a "Mail" "Plain notification" "Just a summary and a short body."
-send -a "Discord" -i discord "ralch" "Are you coming to the call? We start in five minutes and the link is in the channel."
-send -a "Brave" -u low "Download finished" "report-q3.pdf, 2.4 MB"
-send -a "1Password" -u critical "Vault locked" "Unlock it to continue. This one stays until you dismiss it."
-send -a "Build" -A "open=Open log" -A "retry=Retry" "Build failed" "nixos-rebuild switch stopped at the system-path derivation <b>exit 1</b>"
-send -a "Calendar" "A very long summary that should wrap onto a second line and then be cut with an ellipsis if it keeps going past the end" "$(printf 'Line one of the body\nLine two of the body\nLine three of the body\nLine four of the body\nLine five that is hidden')"
+case "${1:-kinds}" in
+kinds)
+	send -a "Mail" "Plain notification" "Just a summary and a short body."
+	send -a "Discord" -i discord "ralch" "Are you coming to the call? We start in five minutes and the link is in the channel."
+	send -a "Brave" -u low "Download finished" "report-q3.pdf, 2.4 MB"
+	send -a "1Password" -u critical "Vault locked" "Unlock it to continue. This one stays until you dismiss it."
+	send -a "Build" -A "open=Open log" -A "retry=Retry" "Build failed" "nixos-rebuild switch stopped at the system-path derivation <b>exit 1</b>"
+	send -a "Calendar" "A very long summary that should wrap onto a second line and then be cut with an ellipsis if it keeps going past the end" "$(printf 'Line one of the body\nLine two of the body\nLine three of the body\nLine four of the body\nLine five that is hidden')"
+	;;
+burst)
+	# 45 s each, and the 8 of them: 4 show, 4 wait behind
+	DELAY=0.3
+	send -t 45000 -a "Slack" -i slack "#deploys" "Release 4.12 is out. Rollout to 25% of the fleet has started."
+	send -t 45000 -a "Mail" -i mail-unread "Invoice #2041" "Your invoice for October is ready to download."
+	send -t 45000 -a "Discord" -i discord "ralch" "Are you coming to the call?"
+	send -t 45000 -a "Calendar" "Standup in 5 minutes" "Daily sync, room 3 or the link in the invite."
+	send -t 45000 -a "Brave" -u low "Download finished" "report-q3.pdf, 2.4 MB"
+	send -t 45000 -a "GitHub" "Review requested" "iamralch/system.d: feat(x11): notifications of the shell"
+	send -t 45000 -a "Build" -A "open=Open log" "Build finished" "nixos-rebuild switch succeeded in <b>2m 14s</b>"
+	send -t 45000 -a "Spotify" "Now playing" "Boards of Canada, Roygbiv"
+	;;
+*)
+	echo "usage: preview [kinds|burst]" >&2
+	exit 1
+	;;
+esac
