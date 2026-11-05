@@ -18,7 +18,11 @@ It is a work in progress. So far:
   `nshell launcher windows`). An app that has a window is focused and not started again, by the `StartupWMClass` of its desktop
   entry, also from a key: `nshell launch brave-browser`
 
-Planned: `nshell pick` for scripts, volume OSD. Not done: network and Bluetooth in the bar.
+- volume OSD: a pill at the bottom of the screen that shows the volume (or muted) for a moment when it changes, whatever changed it:
+  the keys, the wheel on the bar, the slider, another app. It watches the sound, so there is no command for it. The keys are
+  yours to bind, see `docs/i3.md`
+
+Not done: brightness (needs a screen with a backlight), network and Bluetooth in the bar.
 
 ## Try it
 
