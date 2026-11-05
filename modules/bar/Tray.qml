@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
+import QtQml.Models
 import Quickshell.Services.SystemTray
 import Quickshell.Widgets
 import qs
@@ -15,8 +16,12 @@ RowLayout {
     // the right button, or the left one for the apps that only have a menu: the item and where its icon is in the bar
     signal menuRequested(var item, real x)
 
+    // The apps are in the order of their names and not of the order they started in, which changes from one login to the next. A
+    // ScriptModel keeps the icon of an app when the list changes
     Repeater {
-        model: SystemTray.items
+        model: ScriptModel {
+            values: SystemTray.items.values.slice().sort((a, b) => (a.title || a.id).toLowerCase().localeCompare((b.title || b.id).toLowerCase()))
+        }
         delegate: Rectangle {
             id: slot
             required property SystemTrayItem modelData
