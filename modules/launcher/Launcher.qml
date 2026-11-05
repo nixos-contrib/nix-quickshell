@@ -253,7 +253,6 @@ Scope {
             color: Theme.bg
             border { width: 1; color: Theme.border }
             focus: true
-            onActiveFocusChanged: if (!activeFocus && !search.activeFocus && win.visible && Date.now() - win.openedAt > 600) win.visible = false
 
             ColumnLayout {
                 anchors { fill: parent; margins: Theme.spaceLg }
@@ -275,6 +274,9 @@ Scope {
                         selectionColor: Theme.accent
                         font { family: Theme.font; pixelSize: Theme.fontHeading }
                         onTextChanged: root.query = text
+                        // the keys are here, so this is what loses the focus when the window does: a click anywhere else closes the
+                        // launcher, and a pick is cancelled
+                        onActiveFocusChanged: if (!activeFocus && win.visible && Date.now() - win.openedAt > 600) win.visible = false
                         Text {
                             visible: search.text === ""
                             anchors.verticalCenter: parent.verticalCenter
