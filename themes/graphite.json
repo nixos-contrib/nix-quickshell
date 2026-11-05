@@ -16,7 +16,23 @@
     "success": "#6fc488",
     "critical": "#f08d94",
     "warning": "#e99861",
-    "shadow": "#8c000000"
+    "shadow": "#8c000000",
+    "red": "#f08d94",
+    "brightRed": "#f8bcbe",
+    "yellow": "#cbaa4b",
+    "brightYellow": "#dfcc99",
+    "green": "#6fc488",
+    "brightGreen": "#acdcb8",
+    "blue": "#87adfa",
+    "brightBlue": "#b7cefd",
+    "magenta": "#d991d2",
+    "brightMagenta": "#e9bee4",
+    "cyan": "#5fb8f2",
+    "brightCyan": "#a4d5f7",
+    "black": "#222222",
+    "brightBlack": "#717171",
+    "white": "#cecece",
+    "brightWhite": "#eeeeee"
   },
   "light": {
     "base": "#ffffff",
@@ -34,6 +50,22 @@
     "success": "#378450",
     "critical": "#a8545b",
     "warning": "#a25e2c",
-    "shadow": "#2e000000"
+    "shadow": "#2e000000",
+    "red": "#803e44",
+    "brightRed": "#a8545b",
+    "yellow": "#695205",
+    "brightYellow": "#8a6e08",
+    "green": "#28633c",
+    "brightGreen": "#378450",
+    "blue": "#3b5487",
+    "brightBlue": "#506fb2",
+    "magenta": "#71426d",
+    "brightMagenta": "#955890",
+    "cyan": "#1a5b82",
+    "brightCyan": "#2579ab",
+    "black": "#050b18",
+    "brightBlack": "#717171",
+    "white": "#aeaeae",
+    "brightWhite": "#cecece"
   }
 }

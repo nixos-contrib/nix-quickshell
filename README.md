@@ -94,7 +94,7 @@ programs.nix-shell = {
 | `integration.gtk` | `gtk-3.0/settings.ini` (adw-gtk3 in the mode, the icon theme, the font), `gtk-3.0/gtk.css` and `gtk-4.0/gtk.css` with the named colors of the palette | `gtk.extraCss`, rules of layout that can use the colors (`@window_bg_color`), `gtk.iconTheme` |
 | `integration.zathura` | `zathura/zathurarc`, with the colors and the font | `zathura.extraConfig` |
 | `integration.cursor` | the cursor theme (capitaine-cursors, the arrow of macOS, by default): its package, `icons/default/index.theme`, the cursor in `gtk-3.0/settings.ini` and in `nix-shell/Xresources`, and `nix-shell/session.sh` | `. ~/.config/nix-shell/session.sh` in `xinitrc`, and `cursor.size`: 24 by default, 48 on a screen with twice the pixels |
-| `integration.xresources` | `nix-shell/Xresources`, the colors of xterm | `xrdb -merge ~/.config/nix-shell/Xresources` in the session |
+| `integration.xresources` | `nix-shell/Xresources`, the colors of xterm, and its sixteen: the hues of the NixOS palette, light on dark and darker on light | `xrdb -merge ~/.config/nix-shell/Xresources` in the session |
 | `integration.i3` | `nix-shell/i3.conf`, the colors of the tabs | `include ~/.config/nix-shell/i3.conf` in the config of i3 |
 
 `integration.fontSize` is the size of the text of GTK and zathura, 11 by default. The apps have the palette of the `mode` when it
