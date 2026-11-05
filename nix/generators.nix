@@ -26,19 +26,19 @@ in
     @define-color dialog_bg_color ${p.surface};
     @define-color dialog_fg_color ${p.text};
     @define-color accent_bg_color ${p.accent};
-    @define-color accent_fg_color ${p.onFill};
+    @define-color accent_fg_color ${p.textOnAccent};
     @define-color accent_color ${p.primary};
     @define-color destructive_bg_color ${p.critical};
-    @define-color destructive_fg_color ${p.onPrimary};
+    @define-color destructive_fg_color ${p.textOnPrimary};
     @define-color destructive_color ${p.critical};
     @define-color success_bg_color ${p.success};
-    @define-color success_fg_color ${p.onPrimary};
+    @define-color success_fg_color ${p.textOnPrimary};
     @define-color success_color ${p.success};
     @define-color warning_bg_color ${p.warning};
-    @define-color warning_fg_color ${p.onPrimary};
+    @define-color warning_fg_color ${p.textOnPrimary};
     @define-color warning_color ${p.warning};
     @define-color error_bg_color ${p.critical};
-    @define-color error_fg_color ${p.onPrimary};
+    @define-color error_fg_color ${p.textOnPrimary};
     @define-color error_color ${p.critical};
   '';
 
@@ -77,9 +77,9 @@ in
     set notification-bg "${p.surface}"
     set notification-fg "${p.text}"
     set notification-error-bg "${p.critical}"
-    set notification-error-fg "${p.onPrimary}"
+    set notification-error-fg "${p.textOnPrimary}"
     set notification-warning-bg "${p.warning}"
-    set notification-warning-fg "${p.onPrimary}"
+    set notification-warning-fg "${p.textOnPrimary}"
     set completion-bg "${p.surface}"
     set completion-fg "${p.text}"
     set completion-highlight-bg "${p.surfaceHigh}"
@@ -98,7 +98,7 @@ in
     client.focused          ${p.surfaceHigh} ${p.surfaceHigh} ${p.text} ${p.surfaceHigh} ${p.surfaceHigh}
     client.focused_inactive ${p.surface} ${p.surface} ${p.text} ${p.surface} ${p.surface}
     client.unfocused        #00000000 #00000000 ${p.muted} #00000000 #00000000
-    client.urgent           ${p.critical} ${p.critical} ${p.onPrimary} ${p.critical} ${p.critical}
+    client.urgent           ${p.critical} ${p.critical} ${p.textOnPrimary} ${p.critical} ${p.critical}
     client.placeholder      ${p.base} ${p.base} ${p.text} ${p.base} ${p.base}
     client.background       ${p.base}
   '';

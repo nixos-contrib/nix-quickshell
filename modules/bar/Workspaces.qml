@@ -22,7 +22,7 @@ RowLayout {
             Text {
                 anchors.centerIn: parent
                 text: tile.modelData.name
-                color: tile.modelData.urgent || tile.modelData.focused ? Theme.onFill : (tile.modelData.active ? Theme.barText : Theme.barMuted)
+                color: tile.modelData.urgent ? Theme.textOnPrimary : (tile.modelData.focused || tile.modelData.active ? Theme.barText : Theme.barMuted)
                 font { family: Theme.font; pixelSize: Theme.fontBar; weight: Font.Medium }
             }
             MouseArea {

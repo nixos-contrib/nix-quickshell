@@ -11,8 +11,6 @@
     "barMuted": "#aeaeae",
     "primary": "#87adfa",
     "accent": "#4d6fb7",
-    "onPrimary": "#050b18",
-    "onFill": "#ffffff",
     "success": "#6fc488",
     "critical": "#f08d94",
     "warning": "#e99861",
@@ -32,7 +30,9 @@
     "black": "#15213a",
     "brightBlack": "#717171",
     "white": "#cecece",
-    "brightWhite": "#eeeeee"
+    "brightWhite": "#eeeeee",
+    "textOnPrimary": "#050b18",
+    "textOnAccent": "#ffffff"
   },
   "light": {
     "base": "#ffffff",
@@ -45,8 +45,6 @@
     "barMuted": "#717171",
     "primary": "#3b5487",
     "accent": "#4d6fb7",
-    "onPrimary": "#ffffff",
-    "onFill": "#ffffff",
     "success": "#378450",
     "critical": "#a8545b",
     "warning": "#a25e2c",
@@ -66,6 +64,8 @@
     "black": "#050b18",
     "brightBlack": "#717171",
     "white": "#aeaeae",
-    "brightWhite": "#cecece"
+    "brightWhite": "#cecece",
+    "textOnPrimary": "#ffffff",
+    "textOnAccent": "#ffffff"
   }
 }

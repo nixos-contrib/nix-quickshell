@@ -26,8 +26,8 @@ white of nixos.org with the same blue, darker so that it reads on white (`#3b548
 what is selected. Text on both is above 7:1, and the edge is a hairline of white on dark and of black on light. Status colors are
 the lighter step on dark and the darker step on light.
 
-`onPrimary` is the text on a fill of `primary` (the active button), and `onFill` the text on a fill of `accent` (a pressed button, the
-focused workspace). `modules/theme/Appearance.qml` holds the choice, dark, light or auto, and sets the mode.
+`textOnPrimary` is the text on a fill of `primary` (the active button), and `textOnAccent` the text on a fill of `accent` (a pressed
+button). The names do not start with `on`: QML reads such a property as a signal handler, and it was always black. `modules/theme/Appearance.qml` holds the choice, dark, light or auto, and sets the mode.
 
 ## Shape and depth (`Theme.qml`)
 

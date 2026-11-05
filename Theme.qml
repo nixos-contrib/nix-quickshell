@@ -46,8 +46,8 @@ Singleton {
     property string mode: "dark"
     readonly property bool dark: mode !== "light"
 
-    // Color: the base (the bar), three steps of surface, the edge, the text, and the accents. onPrimary is the text on a fill of
-    // primary, and onFill the text on a fill of accent, on the tile of the focused workspace and on a pressed button
+    // Color: the base (the bar), three steps of surface, the edge, the text, and the accents. textOnPrimary is the text on a fill of
+    // primary, and textOnAccent the text on a fill of accent, as a pressed button. Not named on...: QML reads that as a signal handler
     readonly property var palette: Object.assign({}, variant[dark ? "dark" : "light"] || {}, user[dark ? "dark" : "light"] || {})
 
     readonly property color base: palette.base
@@ -60,7 +60,7 @@ Singleton {
     readonly property color muted: palette.muted
     readonly property color primary: palette.primary
     readonly property color accent: palette.accent
-    readonly property color onPrimary: palette.onPrimary
+    readonly property color textOnPrimary: palette.textOnPrimary
     readonly property color success: palette.success
     readonly property color critical: palette.critical
     readonly property color warning: palette.warning
@@ -125,7 +125,7 @@ Singleton {
     readonly property color barMuted: palette.barMuted
     readonly property color barFocus: surfaceHigh
     // the text on the filled tile of the focused workspace, and on the red of an urgent one
-    readonly property color onFill: palette.onFill
+    readonly property color textOnAccent: palette.textOnAccent
     // Every item of the bar sits in a slot of the same size, centered: the workspaces, the icons of the tray, the bell. The
     // bar has the same room above and below the slot
     readonly property int slot: 24
