@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Effects
 import QtQuick.Layouts
 import Quickshell
+import Quickshell.I3
 import Quickshell.Io
 import Quickshell.Services.SystemTray
 import qs
@@ -61,6 +62,11 @@ Scope {
         notifications.closeCenter();
     }
     // the history of the notifications, from the bell and from the clock, as the clock opens it in macOS and in Windows 11
+    // the workspace changes, from a click on its number or from a key: the popups are on every workspace, and have no business on the new one
+    Connections {
+        target: I3
+        function onFocusedWorkspaceChanged() { root.closePopups(); }
+    }
     function toggleHistory() {
         const wasOpen = notifications.centerOpen;
         closePopups();
@@ -80,6 +86,12 @@ Scope {
         anchors { top: true; left: true; right: true }
         implicitHeight: Theme.barHeight
         color: Theme.barBg
+
+        // a click on the bar where no item is closes the popups, as a click anywhere else
+        MouseArea {
+            anchors.fill: parent
+            onPressed: root.closePopups()
+        }
 
         RowLayout {
             anchors { fill: parent; leftMargin: Theme.edge; rightMargin: Theme.edge }

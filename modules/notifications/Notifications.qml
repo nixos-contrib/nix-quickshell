@@ -193,14 +193,14 @@ Scope {
         implicitHeight: Math.max(400, win.screen.height - 72)
         // the window takes the clicks on the cards and on their shadows, and the shape of the window is the one of the mask: a shadow
         // outside of it is cut. The rest of the tall window lets them through
-        mask: Region { x: panel.x - win.room; y: panel.y - win.room; width: panel.width + win.room * 2; height: panel.height + win.room * 2 }
+        mask: Region { x: panel.x - win.room; y: 0; width: panel.width + win.room * 2; height: panel.y + panel.height + win.room }
 
         // i3 floats the window, and the corner is set in pixels of the screen, which the scale of Qt multiplies
         function place() {
             const scale = win.devicePixelRatio;
             // the cards are a room in from the window: their edge is the one of the bar, and they start the gap under it
             const x = Math.round((win.screen.width - win.width + room - Theme.edge) * scale);
-            const y = Math.round((Theme.barHeight + Theme.gap - room) * scale);
+            const y = Math.round(Theme.barHeight * scale);
             I3.dispatch(`[title="^nshell-toast$"] move absolute position ${x}px ${y}px`);
         }
         // drawn when it is in its place, see Popover
@@ -231,7 +231,7 @@ Scope {
             opacity: win.placed ? 1 : 0
             width: 348
             x: win.room
-            y: win.room
+            y: Theme.gap
             spacing: Theme.spacing
 
             // The list takes the place of the cards, and the Flickable around it is a room bigger on every side: it clips what scrolls,
@@ -239,7 +239,7 @@ Scope {
             Item {
                 id: viewport
                 width: parent.width
-                height: Math.min(stack.implicitHeight, win.height - win.room * 2 - (footer.visible ? footer.height + panel.spacing : 0))
+                height: Math.min(stack.implicitHeight, win.height - Theme.gap - win.room - (footer.visible ? footer.height + panel.spacing : 0))
                 Flickable {
                     id: scroller
                     x: -win.room

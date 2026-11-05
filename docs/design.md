@@ -39,7 +39,16 @@ button). The names do not start with `on`: QML reads such a property as a signal
 - **Room for the shadow.** Every window of the shell is a transparent window with the card in it, so the window is bigger than the
   card by `marginLow` or `marginHigh`. The shape of the window (`mask`) is the card and that room: it is also the shape that is
   drawn, so a shadow outside of it would be cut. The cost is a dead ring of that width around a card, where a click does not go to
-  the window under it.
+  the window under it. The windows that hang from the bar start under it, so that the ring never covers an item of the bar.
+
+## Popups close on a click anywhere
+
+A popup (the ones of the bar, the history, the launcher) closes when it loses the focus, which is a click on an app, and also on:
+- **the wallpaper**, or any place where no window is: `modules/common/ClickAway.qml` listens to the raw presses of the buttons of X
+  (`xinput`) while a popup is open, and asks what is under the pointer (`xdotool`). A window of the shell, or the strip of the bar,
+  is not outside; anything else is, and the click goes on to what it was on.
+- **another item of the bar**: it closes this popup and opens its own. **The bar where no item is**: it closes it.
+- **a change of workspace**, from its number or from a key: the popups are on every workspace.
 
 ## The text (`modules/common/Label.qml`)
 

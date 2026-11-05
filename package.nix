@@ -3,6 +3,8 @@
   stdenvNoCC,
   makeWrapper,
   quickshell,
+  xinput,
+  xdotool,
 }:
 
 # The shell: the QML next to the command, which runs Quickshell on it
@@ -36,7 +38,7 @@ stdenvNoCC.mkDerivation {
     wrapProgram $out/bin/nshell \
       --set-default NSHELL_PATH $out/share/nshell \
       --set-default NSHELL_BIN $out/bin/nshell \
-      --prefix PATH : ${lib.makeBinPath [ quickshell ]}
+      --prefix PATH : ${lib.makeBinPath [ quickshell xinput xdotool ]}
 
     runHook postInstall
   '';

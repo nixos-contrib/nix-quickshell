@@ -61,6 +61,9 @@ Scope {
         Quickshell.execDetached(["sh", "-c", 'printf "%s\n%s" "$1" "$2" > "$3"', "sh", status, line, pipe]);
     }
 
+    // for the click away: is the window open, and close it
+    readonly property bool open: win.visible
+    function hide() { win.visible = false; }
     function show(m) {
         // the launcher opened by hand takes the place of a pick that was waiting, which is cancelled
         const wasPick = root.pickDir !== "";
