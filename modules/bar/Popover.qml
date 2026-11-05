@@ -40,6 +40,11 @@ FloatingWindow {
         I3.dispatch(`[title="^nshell-menu$"] move absolute position ${x}px ${y}px, focus`);
     }
     property double openedAt: 0
+    FocusGuard {
+        id: focusGuard
+        windowName: "nshell-menu"
+        onLost: win.visible = false
+    }
     // i3 shows a floating window in the middle of the screen, and it is moved to its place a moment later: the panel is not drawn
     // until it is there, or it showed for a moment where it does not belong
     property bool placed: false
@@ -77,6 +82,6 @@ FloatingWindow {
         opacity: win.placed ? 1 : 0
         focus: true
         Keys.onEscapePressed: win.visible = false
-        onActiveFocusChanged: if (!activeFocus && win.visible && Date.now() - win.openedAt > 600) win.visible = false
+        onActiveFocusChanged: if (!activeFocus && win.visible && Date.now() - win.openedAt > 600) focusGuard.check()
     }
 }

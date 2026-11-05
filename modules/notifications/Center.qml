@@ -29,6 +29,11 @@ FloatingWindow {
         I3.dispatch(`[title="^nshell-center$"] move absolute position ${x}px ${y}px, focus`);
     }
     property double openedAt: 0
+    FocusGuard {
+        id: focusGuard
+        windowName: "nshell-center"
+        onLost: win.visible = false
+    }
     // drawn when it is in its place, see Popover
     property bool placed: false
     onVisibleChanged: {
@@ -64,7 +69,7 @@ FloatingWindow {
         focus: true
         Keys.onEscapePressed: win.visible = false
         // a click anywhere else closes it, as the popups of the bar
-        onActiveFocusChanged: if (!activeFocus && win.visible && Date.now() - win.openedAt > 600) win.visible = false
+        onActiveFocusChanged: if (!activeFocus && win.visible && Date.now() - win.openedAt > 600) focusGuard.check()
 
         actions: [
             PillButton {

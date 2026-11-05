@@ -238,6 +238,11 @@ Scope {
         implicitHeight: 480
 
         property double openedAt: 0
+        FocusGuard {
+            id: focusGuard
+            windowName: "nshell-launcher"
+            onLost: win.visible = false
+        }
         onVisibleChanged: {
             if (visible) {
                 openedAt = Date.now();
@@ -283,7 +288,7 @@ Scope {
                     onTextChanged: root.query = text
                     // the keys are here, so this is what loses the focus when the window does: a click anywhere else closes the
                     // launcher, and a pick is cancelled
-                    onActiveFocusChanged: if (!activeFocus && win.visible && Date.now() - win.openedAt > 600) win.visible = false
+                    onActiveFocusChanged: if (!activeFocus && win.visible && Date.now() - win.openedAt > 600) focusGuard.check()
                     Text {
                         visible: search.text === ""
                         anchors.verticalCenter: parent.verticalCenter
