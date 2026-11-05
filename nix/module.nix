@@ -42,6 +42,7 @@ ${cfg.integration.gtk.extraCss}'';
 
   font = if cfg.theme.font != null then cfg.theme.font else "Inter";
   fontSize = toString cfg.integration.fontSize;
+  cursor = cfg.integration.cursor;
 in
 {
   options.programs.nix-shell = {
@@ -140,6 +141,30 @@ in
         };
       };
 
+      cursor = {
+        enable = enableOption ''
+          The mouse cursor: the package, a default theme for X (icons/default/index.theme), the cursor of GTK, the cursor of Xresources,
+          and nix-shell/session.sh, which the session sources for XCURSOR_THEME, XCURSOR_SIZE and XCURSOR_PATH. Xcursor on NixOS does
+          not look into the profile of the user by itself
+        '';
+        name = mkOption {
+          type = types.str;
+          default = "capitaine-cursors";
+          description = "The name of the cursor theme: capitaine-cursors is the arrow of macOS, black with a white edge, and capitaine-cursors-white is its white one.";
+        };
+        package = mkOption {
+          type = types.package;
+          default = pkgs.capitaine-cursors;
+          defaultText = "pkgs.capitaine-cursors";
+          description = "The package of the cursor theme.";
+        };
+        size = mkOption {
+          type = types.ints.positive;
+          default = 24;
+          description = "The size in pixels. capitaine-cursors has 24, 30, 36, 48, 60 and 72, and a screen with twice the pixels needs twice the size.";
+        };
+      };
+
       xresources.enable = enableOption "~/.config/nix-shell/Xresources, the colors of xterm, for `xrdb -merge`";
       i3.enable = enableOption "~/.config/nix-shell/i3.conf, the colors of the tabs, for `include` in the config of i3";
     };
@@ -152,7 +177,8 @@ in
     ++ lib.optionals cfg.integration.gtk.enable [
       pkgs.adw-gtk3
       cfg.integration.gtk.iconTheme.package
-    ];
+    ]
+    ++ lib.optional cfg.integration.cursor.enable cfg.integration.cursor.package;
 
     xdg.configFile = {
       "nix-shell/theme.json".text = builtins.toJSON (
@@ -174,9 +200,26 @@ in
         gtk-icon-theme-name=${cfg.integration.gtk.iconTheme.name}
         gtk-font-name=${font} ${fontSize}
         gtk-application-prefer-dark-theme=${if mode == "light" then "0" else "1"}
+      '' + lib.optionalString cfg.integration.cursor.enable ''
+        gtk-cursor-theme-name=${cursor.name}
+        gtk-cursor-theme-size=${toString cursor.size}
       '';
     }
-    // lib.optionalAttrs cfg.integration.xresources.enable { "nix-shell/Xresources".text = files.xresources; }
+    // lib.optionalAttrs (cfg.integration.xresources.enable || cursor.enable) {
+      "nix-shell/Xresources".text =
+        lib.optionalString cfg.integration.xresources.enable files.xresources
+        + lib.optionalString cursor.enable ''
+          Xcursor.theme: ${cursor.name}
+          Xcursor.size: ${toString cursor.size}
+        '';
+    }
+    // lib.optionalAttrs cursor.enable {
+      "nix-shell/session.sh".text = ''
+        export XCURSOR_THEME=${cursor.name}
+        export XCURSOR_SIZE=${toString cursor.size}
+        export XCURSOR_PATH=${config.home.profileDirectory}/share/icons:/run/current-system/sw/share/icons
+      '';
+    }
     // lib.optionalAttrs cfg.integration.zathura.enable {
       "zathura/zathurarc".text = ''
         ${files.zathura}
@@ -185,5 +228,14 @@ in
       '';
     }
     // lib.optionalAttrs cfg.integration.i3.enable { "nix-shell/i3.conf".text = files.i3; };
+
+    xdg.dataFile = lib.optionalAttrs cursor.enable {
+      "icons/default/index.theme".text = ''
+        [Icon Theme]
+        Name=Default
+        Comment=The default cursor theme
+        Inherits=${cursor.name}
+      '';
+    };
   };
 }
