@@ -35,7 +35,7 @@ FloatingWindow {
     Timer { id: revealTimer; interval: 50; onTriggered: win.placed = true }
     onSpecChanged: placeTimer.restart()
 
-    readonly property real pad: 6
+    readonly property real pad: spec.attached ? 4 : 6
     // the strip that is a row of the bar is as wide as the output, and the tabs start where the container does
     readonly property real inset: spec.inset / scale
     readonly property int count: spec.tabs.length
@@ -52,13 +52,17 @@ FloatingWindow {
     // the track: the color of the bar, so that the strip is part of it, and the tabs are in it
     Rectangle {
         anchors.fill: parent
-        radius: spec.full ? 0 : Theme.radiusMd
+        radius: spec.attached ? 0 : (spec.full ? 0 : Theme.radiusMd)
+        topLeftRadius: spec.attached ? Theme.radiusMd : (spec.full ? 0 : Theme.radiusMd)
+        topRightRadius: spec.attached ? Theme.radiusMd : (spec.full ? 0 : Theme.radiusMd)
+        bottomLeftRadius: spec.attached ? 0 : (spec.full ? 0 : Theme.radiusMd)
+        bottomRightRadius: spec.attached ? 0 : (spec.full ? 0 : Theme.radiusMd)
         color: Theme.base
         opacity: win.placed ? 1 : 0
         Behavior on opacity { NumberAnimation { duration: 100 } }
 
         // the hairline between the bar and a strip that is a row of it
-        Rectangle { visible: win.spec.full; anchors { left: parent.left; right: parent.right; bottom: parent.bottom } height: 1; color: Theme.border }
+        Rectangle { visible: win.spec.full || win.spec.attached; anchors { left: parent.left; right: parent.right; bottom: parent.bottom } height: 1; color: Theme.border }
 
         // a click where there is no tab
         MouseArea { anchors.fill: parent; onPressed: win.blankClicked() }

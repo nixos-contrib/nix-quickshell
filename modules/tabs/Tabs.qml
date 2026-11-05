@@ -71,11 +71,19 @@ Scope {
                 const left = node.rect.x - output.rect.x;
                 const right = output.rect.x + output.rect.width - node.rect.x - node.rect.width;
                 const flush = root.look === "flush" && Math.abs(node.rect.y - (output.rect.y + Theme.barHeight * scale)) <= 2 && Math.abs(left - right) <= 2 && left < output.rect.width / 8;
+                // attached: lower, against the window, and lower than the reserved strip: a row of 32 points on top of the window
+                const attached = root.look === "attached";
+                const frontKid = kids.find(k => k.id === front) ?? kids[0];
+                const attachedH = Math.round(32 * scale);
                 out.push({
                     id: node.id,
+                    attached: attached,
                     full: flush,
                     // the window of the strip, and how far in from its left edge the tabs start
-                    x: flush ? output.rect.x : node.rect.x, y: node.rect.y, w: flush ? output.rect.width : node.rect.width, h: strips[0].height,
+                    x: flush ? output.rect.x : node.rect.x,
+                    y: attached ? frontKid.rect.y - attachedH : node.rect.y,
+                    w: flush ? output.rect.width : node.rect.width,
+                    h: attached ? attachedH : strips[0].height,
                     inset: flush ? left : 0,
                     active: root.holdsFocus(node),
                     tabs: kids.map(k => root.tabOf(k, k.id === front))
@@ -180,7 +188,7 @@ Scope {
         target: "tabs"
         function list(): void { root.openList(root.focusedContainer); }
         function style(look: string): string {
-            if (look === "flush" || look === "card")
+            if (look === "flush" || look === "card" || look === "attached")
                 root.look = look;
             return root.look;
         }
