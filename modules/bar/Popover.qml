@@ -31,9 +31,14 @@ FloatingWindow {
         // the panel is 12 in from the window, and it hangs from the item, kept inside the screen
         const x = Math.round((Math.min(win.anchorX, win.screen.width - Theme.edge - panel.width) - 12) * scale);
         const y = Math.round((Theme.barHeight - 8) * scale);
-        I3.dispatch(`[title="^nshell-menu$"] move absolute position ${x}px ${y}px`);
+        // and takes the focus, which i3 may have given to the window of the popup that was closing
+        I3.dispatch(`[title="^nshell-menu$"] move absolute position ${x}px ${y}px, focus`);
     }
-    onVisibleChanged: if (visible) placeTimer.restart()
+    property double openedAt: 0
+    onVisibleChanged: if (visible) {
+        openedAt = Date.now();
+        placeTimer.restart();
+    }
     Timer {
         id: placeTimer
         interval: 80
@@ -54,7 +59,7 @@ FloatingWindow {
         border { width: 1; color: Theme.border }
         focus: true
         Keys.onEscapePressed: win.visible = false
-        onActiveFocusChanged: if (!activeFocus && win.visible && placeTimer.running === false) win.visible = false
+        onActiveFocusChanged: if (!activeFocus && win.visible && Date.now() - win.openedAt > 600) win.visible = false
 
         Item {
             id: body

@@ -22,11 +22,13 @@ Scope {
     AudioPopup { id: audioPopup }
     BatteryPopup { id: batteryPopup }
 
-    // One popup at a time: the others close when one opens, and a click on the item of the one that is open closes it
+    // One popup at a time, the history of the notifications among them: the others close when one opens, and a click on the item
+    // of the one that is open closes it
     function closePopups() {
         trayMenu.visible = false;
         audioPopup.visible = false;
         batteryPopup.visible = false;
+        notifications.closeCenter();
     }
     function toggle(popup, x) {
         const wasOpen = popup.visible;
@@ -132,7 +134,17 @@ Scope {
                         hoverEnabled: true
                         cursorShape: Qt.PointingHandCursor
                         acceptedButtons: Qt.LeftButton | Qt.RightButton
-                        onClicked: mouse => mouse.button === Qt.RightButton ? root.notifications.toggleDnd() : root.notifications.toggleCenter()
+                        onClicked: mouse => {
+                            if (mouse.button === Qt.RightButton) {
+                                root.notifications.toggleDnd();
+                            } else {
+                                // the center is one of the popups: the others close, and a click on the bell closes it when it is open
+                                const wasOpen = root.notifications.centerOpen;
+                                root.closePopups();
+                                if (!wasOpen)
+                                    root.notifications.toggleCenter();
+                            }
+                        }
                     }
                 }
 

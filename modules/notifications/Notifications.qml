@@ -18,6 +18,7 @@ Scope {
     readonly property int unread: history.count
     readonly property bool centerOpen: center.visible
     function toggleCenter() { center.visible = !center.visible; }
+    function closeCenter() { center.visible = false; }
     function toggleDnd() { root.dnd = !root.dnd; }
 
     // Do not disturb: the toasts stay away, critical ones excepted, and the history still has them

@@ -25,13 +25,21 @@ FloatingWindow {
         const scale = win.devicePixelRatio;
         const x = Math.round((win.screen.width - win.width + 12 - Theme.edge) * scale);
         const y = Math.round(Theme.barHeight * scale);
-        I3.dispatch(`[title="^nshell-center$"] move absolute position ${x}px ${y}px`);
+        // and takes the focus, which i3 may have given to the window of the popup that was closing
+        I3.dispatch(`[title="^nshell-center$"] move absolute position ${x}px ${y}px, focus`);
     }
-    onVisibleChanged: if (visible) placeTimer.restart()
+    property double openedAt: 0
+    onVisibleChanged: if (visible) {
+        openedAt = Date.now();
+        placeTimer.restart();
+    }
     Timer {
         id: placeTimer
         interval: 80
-        onTriggered: win.place()
+        onTriggered: {
+            win.place();
+            panel.forceActiveFocus();
+        }
     }
 
     Rectangle {
@@ -45,6 +53,8 @@ FloatingWindow {
         border { width: 1; color: Theme.border }
         focus: true
         Keys.onEscapePressed: win.visible = false
+        // a click anywhere else closes it, as the popups of the bar
+        onActiveFocusChanged: if (!activeFocus && win.visible && Date.now() - win.openedAt > 600) win.visible = false
 
         ColumnLayout {
             anchors { fill: parent; margins: Theme.spacing + 4 }
