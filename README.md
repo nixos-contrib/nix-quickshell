@@ -8,12 +8,12 @@ It is a work in progress. So far:
 - notifications: a server and toasts, with urgency, actions, markup, icons, a close button on hover, a stack with
   show more and clear all, and a history center with do not disturb (`nshell center`)
 
-- bar: the logo, the workspaces of i3, the tray (StatusNotifierItem) with menus in the style of the shell, the bell with
-  the count of the history, and the clock
+- bar: the logo, the workspaces of i3, the tray (StatusNotifierItem) with menus in the style of the shell, the sound (volume,
+  mute, outputs), the battery, the bell with the count of the history, and the clock
 
 - polkit agent: a card for the touch of the key or the password, with its own layout for 1Password unlocking with the system
 
-Planned: launcher, volume OSD.
+Planned: launcher, volume OSD. Not done: network and Bluetooth in the bar.
 
 ## Try it
 
