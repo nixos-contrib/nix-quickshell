@@ -86,7 +86,7 @@ Scope {
 
             // The logo of NixOS in its two blues, as the one of Apple in the menu bar, and the workspaces
             RowLayout {
-                spacing: Theme.spaceLg
+                spacing: Theme.spaceSm
                 // The logo is an item like the others, as the Apple of the menu bar: the same size, and it fills while it is pressed.
                 // It opens the launcher
                 Rectangle {

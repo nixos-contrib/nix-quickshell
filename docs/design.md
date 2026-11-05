@@ -47,5 +47,16 @@ tile of text would look further from its neighbour than a tile of an icon.
 ## Keys
 
 The commands that a key can run (`nshell launcher`, `center`, `bar`) toggle, and a key that is held a moment repeats: the command
-comes again and again, 25 ms apart, and the repeat would close what the first opened. Only the first of a burst counts.
+runs again and again, 25 ms apart, and the repeat would close what the first opened. The command itself catches it (`same_press` in
+`bin/nshell`): a run less than 400 ms after the one before is the same press and ends at once, and every run counts as the one
+before, so a key held for any time is one press. It has to be the command: starting the client of Quickshell takes long enough
+for the runs to pile up and reach the shell in bursts, and a late one looked like a new press. The shell keeps a check of its
+own for the commands that reach it by other ways.
 
+## Windows
+
+A window of the shell is drawn only when it is in its place: i3 shows a floating window in the middle of the screen and moves it a
+moment later, and what is drawn in that moment is seen. The panels have no opacity until a short while after the move.
+
+The popups close when they lose the focus, which they do on a click outside them, so the focus must not follow the pointer:
+`focus_follows_mouse no` in the i3 config, see `docs/i3.md`.
