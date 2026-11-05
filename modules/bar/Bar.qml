@@ -37,6 +37,13 @@ Scope {
         batteryPopup.visible = false;
         notifications.closeCenter();
     }
+    // the history of the notifications, from the bell and from the clock, as the clock opens it in macOS and in Windows 11
+    function toggleHistory() {
+        const wasOpen = notifications.centerOpen;
+        closePopups();
+        if (!wasOpen)
+            notifications.toggleCenter();
+    }
     function toggle(popup, x) {
         const wasOpen = popup.visible;
         closePopups();
@@ -145,20 +152,32 @@ Scope {
                             if (mouse.button === Qt.RightButton) {
                                 root.notifications.toggleDnd();
                             } else {
-                                // the center is one of the popups: the others close, and a click on the bell closes it when it is open
-                                const wasOpen = root.notifications.centerOpen;
-                                root.closePopups();
-                                if (!wasOpen)
-                                    root.notifications.toggleCenter();
+                                root.toggleHistory();
                             }
                         }
                     }
                 }
 
-                Text {
-                    text: Qt.formatDateTime(Clock.date, "ddd d MMM HH:mm")
-                    color: Theme.barText
-                    font { family: Theme.font; pixelSize: Theme.fontBar; weight: Font.Medium }
+                // the clock: a tile like the others, which opens the history too
+                Rectangle {
+                    Layout.preferredHeight: Theme.slot
+                    Layout.preferredWidth: clock.implicitWidth + Theme.spaceMd
+                    radius: Theme.tileRadius
+                    color: clockArea.pressed || root.notifications.centerOpen ? Theme.barFocus : "transparent"
+                    Behavior on color { ColorAnimation { duration: 120 } }
+                    Text {
+                        id: clock
+                        anchors.centerIn: parent
+                        text: Qt.formatDateTime(Clock.date, "ddd d MMM HH:mm")
+                        color: Theme.barText
+                        font { family: Theme.font; pixelSize: Theme.fontBar; weight: Font.Medium }
+                    }
+                    MouseArea {
+                        id: clockArea
+                        anchors.fill: parent
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: root.toggleHistory()
+                    }
                 }
             }
         }
