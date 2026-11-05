@@ -3,9 +3,10 @@ import QtQuick.Layouts
 import Quickshell
 import Quickshell.Services.Pipewire
 import qs
+import qs.modules.common
 
 // The sound of the VM in the bar: a speaker that says the volume, a click opens the volume and the outputs, the wheel changes the
-// volume and the middle button mutes
+// volume and the right button, or the middle one, mutes
 Rectangle {
     id: item
     property Popover popover
@@ -16,38 +17,28 @@ Rectangle {
     readonly property bool muted: sink && sink.audio ? sink.audio.muted : false
     PwObjectTracker { objects: item.sink ? [item.sink] : [] }
 
-    function glyph() {
-        if (muted)
-            return "\udb81\udd81";
-        if (volume <= 0)
-            return "\udb81\udf5f";
-        if (volume < 0.34)
-            return "\udb81\udd7f";
-        if (volume < 0.67)
-            return "\udb81\udd80";
-        return "\udb81\udd7e";
-    }
-
     visible: sink !== null
-    Layout.preferredWidth: Theme.slot
+    Layout.preferredWidth: Theme.statusIcon + Theme.tilePad * 2
     Layout.preferredHeight: Theme.slot
     radius: Theme.tileRadius
     color: area.pressed || (popover && popover.visible) ? Theme.barFocus : "transparent"
     Behavior on color { ColorAnimation { duration: 120 } }
 
-    Text {
+    SpeakerIcon {
         anchors.centerIn: parent
-        text: item.glyph()
+        level: item.volume
+        muted: item.muted
         color: item.muted ? Theme.barMuted : Theme.barText
-        font { family: Theme.iconFont; pixelSize: Theme.statusIcon }
     }
     MouseArea {
         id: area
         anchors.fill: parent
         cursorShape: Qt.PointingHandCursor
-        acceptedButtons: Qt.LeftButton | Qt.MiddleButton
+        acceptedButtons: Qt.LeftButton | Qt.MiddleButton | Qt.RightButton
         onClicked: mouse => {
-            if (mouse.button === Qt.MiddleButton) {
+            // the right button mutes, as on the bell it silences the notifications, and the middle button does the same: a
+            // trackpad has no middle button
+            if (mouse.button === Qt.MiddleButton || mouse.button === Qt.RightButton) {
                 if (item.sink && item.sink.audio)
                     item.sink.audio.muted = !item.sink.audio.muted;
             } else {

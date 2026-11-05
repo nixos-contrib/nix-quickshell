@@ -28,11 +28,11 @@ Popover {
                 Layout.preferredHeight: Theme.slot
                 radius: Theme.tileRadius
                 color: muteArea.pressed ? Theme.barFocus : "transparent"
-                Text {
+                SpeakerIcon {
                     anchors.centerIn: parent
-                    text: win.sink && win.sink.audio && win.sink.audio.muted ? "\udb81\udd81" : "\udb81\udd7e"
-                    color: win.sink && win.sink.audio && win.sink.audio.muted ? Theme.muted : Theme.text
-                    font { family: Theme.iconFont; pixelSize: Theme.statusIcon }
+                    level: win.sink && win.sink.audio ? win.sink.audio.volume : 0
+                    muted: win.sink && win.sink.audio && win.sink.audio.muted
+                    color: muted ? Theme.muted : Theme.text
                 }
                 MouseArea {
                     id: muteArea
