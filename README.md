@@ -6,7 +6,8 @@ notification daemon, the bar and the launcher of an i3 session with one process,
 It is a work in progress. So far:
 
 - notifications: a server and toasts, with urgency, actions, markup, icons, a close button on hover, a stack with
-  show more and clear all, and a history center with do not disturb (`nshell center`)
+  show more and clear all, and a history center with do not disturb (`nshell center`). Do not disturb also mutes the sound effects of chat apps
+  (Vesktop, Discord) while it is on, see `modules/notifications/QuietSound.qml`
 
 - bar: the logo, the workspaces of i3, the tray (StatusNotifierItem) with menus in the style of the shell, the sound (volume,
   mute, outputs), the battery, the bell with the count of the history, and the clock
