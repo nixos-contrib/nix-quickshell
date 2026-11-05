@@ -19,6 +19,21 @@ Scope {
     }
 
     TrayMenu { id: trayMenu }
+    AudioPopup { id: audioPopup }
+    BatteryPopup { id: batteryPopup }
+
+    // One popup at a time: the others close when one opens, and a click on the item of the one that is open closes it
+    function closePopups() {
+        trayMenu.visible = false;
+        audioPopup.visible = false;
+        batteryPopup.visible = false;
+    }
+    function toggle(popup, x) {
+        const wasOpen = popup.visible;
+        closePopups();
+        if (!wasOpen)
+            popup.openAt(x);
+    }
 
     PanelWindow {
         id: bar
@@ -71,7 +86,20 @@ Scope {
 
                 Tray {
                     openItem: trayMenu.visible ? trayMenu.item : null
-                    onMenuRequested: (item, x) => trayMenu.openFor(item, x)
+                    onMenuRequested: (item, x) => {
+                        root.closePopups();
+                        trayMenu.openFor(item, x);
+                    }
+                }
+
+                AudioItem {
+                    popover: audioPopup
+                    onToggled: x => root.toggle(audioPopup, x)
+                }
+
+                BatteryItem {
+                    popover: batteryPopup
+                    onToggled: x => root.toggle(batteryPopup, x)
                 }
 
                 Rectangle {

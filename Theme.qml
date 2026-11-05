@@ -16,6 +16,7 @@ Singleton {
     readonly property color muted: "#8b95a3"
     readonly property color primary: "#7ebae4"
     readonly property color accent: "#5277c3"
+    readonly property color success: "#6fc488"
     readonly property color critical: "#e5616f"
     readonly property color warning: "#e9b45b"
 
