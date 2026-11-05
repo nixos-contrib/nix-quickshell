@@ -7,6 +7,7 @@
 #   nshell launcher [windows]  opens the launcher, on the apps or on the windows
 #   nshell launch ID        an app by the id of its desktop entry (brave-browser): its window is focused when it has one, and it is
 #                           started when it has none
+#   nshell theme [dark|light|auto|toggle]  the mode of the theme, auto follows the hours of the day. Without an argument, says it
 #   nshell pick [--prompt TEXT]  a choice for a script: it reads the lines on stdin, a line is "title", "title<TAB>subtitle" or
 #                           "title<TAB>subtitle<TAB>icon", shows them in the style of the shell, and prints the line that was
 #                           chosen. The exit status is 0 for a choice and 1 when it was cancelled, 2 when the shell is not running
@@ -26,7 +27,7 @@ same_press() {
 }
 
 case "${1:-}" in
-center | bar | launcher | launch) same_press && exit 0 ;;
+center | bar | launcher | launch | theme) same_press && exit 0 ;;
 esac
 
 case "${1:-}" in
@@ -34,6 +35,13 @@ case "${1:-}" in
 center) exec quickshell -p "$NSHELL_PATH" ipc call center "${2:-toggle}" ;;
 bar) exec quickshell -p "$NSHELL_PATH" ipc call bar "${2:-toggle}" ;;
 launcher) exec quickshell -p "$NSHELL_PATH" ipc call launcher "${2:-apps}" ;;
+theme)
+	case "${2:-}" in
+	"") exec quickshell -p "$NSHELL_PATH" ipc call theme get ;;
+	toggle) exec quickshell -p "$NSHELL_PATH" ipc call theme toggle ;;
+	*) exec quickshell -p "$NSHELL_PATH" ipc call theme set "$2" ;;
+	esac
+	;;
 launch) exec quickshell -p "$NSHELL_PATH" ipc call launcher launch "${2:?usage: nshell launch ID}" ;;
 pick)
 	shift
@@ -64,7 +72,7 @@ pick)
 	exit 1
 	;;
 *)
-	echo "usage: nshell [center [dnd] | bar | launcher [windows] | launch ID | pick [--prompt TEXT]]" >&2
+	echo "usage: nshell [center [dnd] | bar | launcher [windows] | launch ID | theme [dark|light|auto|toggle] | pick [--prompt TEXT]]" >&2
 	exit 1
 	;;
 esac

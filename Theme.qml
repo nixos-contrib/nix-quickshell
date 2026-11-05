@@ -6,20 +6,41 @@ import Quickshell
 // The base is black, the black of the menu bar of macOS above the screen, so that the two read as one band. Every surface is
 // a step up from it, and the blues of nixos.org are only for what is active or can be pressed
 Singleton {
-    // Color: the base, three steps of surface, the text, and the accents
-    readonly property color base: "#000000"
-    readonly property color bg: "#0b0d10"
-    readonly property color surface: "#14171c"
-    readonly property color surfaceHigh: "#222730"
-    // the edge of a card: a hairline of white, so that it is the same on any surface and any wallpaper
-    readonly property color border: Qt.rgba(1, 1, 1, 0.10)
-    readonly property color text: "#e8eef5"
-    readonly property color muted: "#8b95a3"
-    readonly property color primary: "#7ebae4"
-    readonly property color accent: "#5277c3"
-    readonly property color success: "#6fc488"
-    readonly property color critical: "#e5616f"
-    readonly property color warning: "#e9b45b"
+    // The mode, dark or light, set by Appearance: the colors below follow it, live. The default is nixos-navy, the dark blues of
+    // nixos.org, and the light mode is its white, with the same blue for what is active. A theme file overrides the roles it names
+    property string mode: "dark"
+    readonly property bool dark: mode !== "light"
+
+    // Color: the base (the bar), three steps of surface, the edge, the text, and the accents. onPrimary is the text on a fill of
+    // primary, and onFill the text on a fill of accent, on the tile of the focused workspace and on a pressed button
+    readonly property var darkPalette: ({
+        base: "#000000", bg: "#050b18", surface: "#15213a", surfaceHigh: "#28395f", border: "#1affffff",
+        text: "#eeeeee", muted: "#aeaeae", barMuted: "#aeaeae",
+        primary: "#87adfa", accent: "#4d6fb7", onPrimary: "#050b18", onFill: "#ffffff",
+        success: "#6fc488", critical: "#f08d94", warning: "#e99861", shadow: "#8c000000"
+    })
+    readonly property var lightPalette: ({
+        base: "#ffffff", bg: "#ffffff", surface: "#e8effc", surfaceHigh: "#cfdefd", border: "#1a000000",
+        text: "#050b18", muted: "#555555", barMuted: "#717171",
+        primary: "#3b5487", accent: "#4d6fb7", onPrimary: "#ffffff", onFill: "#ffffff",
+        success: "#267543", critical: "#b63132", warning: "#b16512", shadow: "#2e000000"
+    })
+    readonly property var palette: dark ? darkPalette : lightPalette
+
+    readonly property color base: palette.base
+    readonly property color bg: palette.bg
+    readonly property color surface: palette.surface
+    readonly property color surfaceHigh: palette.surfaceHigh
+    // the edge of a card: a hairline of white on dark and of black on light, so that it is the same on any surface and any wallpaper
+    readonly property color border: palette.border
+    readonly property color text: palette.text
+    readonly property color muted: palette.muted
+    readonly property color primary: palette.primary
+    readonly property color accent: palette.accent
+    readonly property color onPrimary: palette.onPrimary
+    readonly property color success: palette.success
+    readonly property color critical: palette.critical
+    readonly property color warning: palette.warning
 
     // Type: SF Pro Text, and the sizes of the roles. The bar and the cards have their own, the bar is read from further
     readonly property string font: "SF Pro Text"
@@ -63,7 +84,7 @@ Singleton {
     // Elevation: the shadow of what floats, soft and a little below its card. A window of the shell is a transparent window with the
     // card in it, so the shadow is drawn in the window, and the window is bigger than the card by the margin of the elevation: the
     // blur and the offset, and a little more. Level 1 is for what hangs from the bar, 2 for what comes to the middle
-    readonly property color shadow: Qt.rgba(0, 0, 0, 0.55)
+    readonly property color shadow: palette.shadow
     readonly property int blurLow: 24
     readonly property int offsetLow: 6
     readonly property int blurHigh: 48
@@ -78,10 +99,10 @@ Singleton {
     // The bar
     readonly property color barBg: base
     readonly property color barText: text
-    readonly property color barMuted: "#a8a8ac"
+    readonly property color barMuted: palette.barMuted
     readonly property color barFocus: surfaceHigh
     // the text on the filled tile of the focused workspace, and on the red of an urgent one
-    readonly property color onFill: "#ffffff"
+    readonly property color onFill: palette.onFill
     // Every item of the bar sits in a slot of the same size, centered: the workspaces, the icons of the tray, the bell. The
     // bar has the same room above and below the slot
     readonly property int slot: 24

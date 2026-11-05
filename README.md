@@ -22,6 +22,9 @@ It is a work in progress. So far:
   the keys, the wheel on the bar, the slider, another app. It watches the sound, so there is no command for it. The keys are
   yours to bind, see `docs/i3.md`
 
+- theme: nixos-navy dark and a light mode from the same blues of nixos.org. `nshell theme [dark|light|auto|toggle]` changes it
+  live, `auto` is light from 07:00 to 19:00, and the choice is kept in `~/.local/state/nix-shell/theme.json`
+
 Not done: brightness (needs a screen with a backlight), network and Bluetooth in the bar.
 
 ## Try it

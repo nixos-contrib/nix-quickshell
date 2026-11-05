@@ -173,7 +173,7 @@ Rectangle {
                             id: label
                             anchors.centerIn: parent
                             text: modelData.text
-                            color: Theme.primary
+                            color: press.pressed ? Theme.onFill : Theme.primary
                             font { family: Theme.font; pixelSize: Theme.fontSmall + 1; weight: Font.Medium }
                         }
                     }

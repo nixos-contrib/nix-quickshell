@@ -5,8 +5,10 @@ import qs.modules.launcher
 import qs.modules.notifications
 import qs.modules.osd
 import qs.modules.polkit
+import qs.modules.theme
 
 ShellRoot {
+    Appearance {}
     Notifications { id: center }
     Polkit {}
     Osd { suppressed: center.popupOpen }
