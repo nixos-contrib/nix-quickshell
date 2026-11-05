@@ -12,19 +12,30 @@ import qs.modules.notifications
 Scope {
     id: root
     required property Notifications notifications
+    // A key that is held a moment repeats, and the command it runs comes again and again, 25 ms apart: these commands toggle, so
+    // the repeat would close what the first opened. Only the first of a burst counts, the ones that follow it within 400 ms are
+    // the same press
+    property double lastIpc: 0
+    function fresh(): bool {
+        const now = Date.now();
+        const first = now - root.lastIpc > 400;
+        root.lastIpc = now;
+        return first;
+    }
+
     // the launcher, which the logo opens
     required property var launcher
     property bool shown: true
 
     IpcHandler {
         target: "bar"
-        function toggle(): void { root.shown = !root.shown; }
+        function toggle(): void { if (root.fresh()) root.shown = !root.shown; }
         // the popups of the bar, from the outside: a key, or a test. They hang from the right end of the bar
-        function audio(): void { root.toggle(audioPopup, bar.width - 480); }
-        function battery(): void { root.toggle(batteryPopup, bar.width - 400); }
+        function audio(): void { if (root.fresh()) root.toggle(audioPopup, bar.width - 480); }
+        function battery(): void { if (root.fresh()) root.toggle(batteryPopup, bar.width - 400); }
         function tray(): void {
             const items = SystemTray.items.values;
-            if (items.length === 0)
+            if (items.length === 0 || !root.fresh())
                 return;
             root.closePopups();
             trayMenu.openFor(items[0], bar.width - 520);
@@ -109,7 +120,7 @@ Scope {
             // them, as the menu bar of macOS has its items. The bell has the count of the history, a slash when do not
             // disturb is on, a click opens the history and the right button toggles do not disturb
             RowLayout {
-                spacing: Theme.spaceSm
+                spacing: Theme.statusGap
 
                 Tray {
                     openItem: trayMenu.visible ? trayMenu.item : null
@@ -131,13 +142,14 @@ Scope {
 
                 Rectangle {
                     Layout.preferredHeight: Theme.slot
-                    Layout.preferredWidth: Math.max(Theme.slot, bell.implicitWidth + Theme.spaceSm)
+                    Layout.preferredWidth: bell.implicitWidth + Theme.tilePad * 2 - Theme.textBearing
                     radius: Theme.tileRadius
                     color: bellArea.pressed || root.notifications.centerOpen ? Theme.barFocus : "transparent"
                     Behavior on color { ColorAnimation { duration: 120 } }
                     Row {
                         id: bell
-                        anchors.centerIn: parent
+                        x: Theme.tilePad
+                        anchors.verticalCenter: parent.verticalCenter
                         spacing: Theme.spaceXs + 2
                         Text {
                             anchors.verticalCenter: parent.verticalCenter
@@ -172,13 +184,14 @@ Scope {
                 // the clock: a tile like the others, which opens the history too
                 Rectangle {
                     Layout.preferredHeight: Theme.slot
-                    Layout.preferredWidth: clock.implicitWidth + Theme.spaceMd
+                    Layout.preferredWidth: clock.implicitWidth + Theme.tilePad * 2 - Theme.textBearing
                     radius: Theme.tileRadius
                     color: clockArea.pressed || root.notifications.centerOpen ? Theme.barFocus : "transparent"
                     Behavior on color { ColorAnimation { duration: 120 } }
                     Text {
                         id: clock
-                        anchors.centerIn: parent
+                        x: Theme.tilePad - Theme.textBearing
+                        anchors.verticalCenter: parent.verticalCenter
                         text: Qt.formatDateTime(Clock.date, "ddd d MMM HH:mm")
                         color: Theme.barText
                         font { family: Theme.font; pixelSize: Theme.fontBar; weight: Font.Medium }

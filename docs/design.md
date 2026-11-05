@@ -34,3 +34,18 @@ pressed is `surfaceHigh`.
   there is nothing to move. The battery and the sound have the same row: an icon in a slot, and a track.
 - The **buttons** of a window are pills (`PillButton.qml`); the one that is on is filled.
 - The items of the bar light up while they are pressed or their popup is open, never for the pointer over them.
+- A **right click** on an item of the bar is its quick quiet toggle: on the bell it turns do not disturb on and off, on the speaker
+  it mutes (a middle click does the same, but a trackpad has none). On an icon of the tray it is the menu of the app.
+
+## The status area of the bar
+
+Its items, the tray, the sound, the battery, the bell and the clock, are tiles with the same room inside, on each side of what they
+hold (`Theme.tilePad`), and the same gap between them (`Theme.statusGap`), so the space between what is shown is the same all
+along: 12 to 13 points between any two. Text has a little room of its own at its edges, which `Theme.textBearing` takes back, or a
+tile of text would look further from its neighbour than a tile of an icon.
+
+## Keys
+
+The commands that a key can run (`nshell launcher`, `center`, `bar`) toggle, and a key that is held a moment repeats: the command
+comes again and again, 25 ms apart, and the repeat would close what the first opened. Only the first of a burst counts.
+

@@ -74,6 +74,14 @@ Singleton {
     readonly property int slot: 24
     readonly property int barHeight: 40
     readonly property int tile: slot
+    // The tiles of the status area, the tray, the sound, the battery, the bell and the clock, have the same room inside, on each
+    // side of what they hold, and the same gap between them: so the space between what is shown is the same all along. With a room
+    // of its own for each the gaps grew from one item to the next
+    readonly property int tilePad: 4
+    readonly property int statusGap: 4
+    // a piece of text has a little room of its own at its edges, so a tile of text is that much further from the next than a tile of
+    // an icon: its padding is smaller on the side where the text ends or starts
+    readonly property int textBearing: 1
     // The corner of a tile of the bar, and of the filled tile of an item that is pressed or whose menu is open: the same for the
     // workspaces, the tray, the bell and the logo. The bar has no highlight for the pointer over an item, as the menu bar of macOS
     readonly property int tileRadius: 7

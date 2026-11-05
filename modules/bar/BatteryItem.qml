@@ -20,7 +20,7 @@ Rectangle {
     readonly property bool low: present && !charging && level <= 15
 
     visible: present
-    Layout.preferredWidth: Math.max(Theme.slot, row.implicitWidth + Theme.spaceSm)
+    Layout.preferredWidth: row.implicitWidth + Theme.tilePad * 2 - Theme.textBearing
     Layout.preferredHeight: Theme.slot
     radius: Theme.tileRadius
     color: area.pressed || (popover && popover.visible) ? Theme.barFocus : "transparent"
@@ -28,7 +28,8 @@ Rectangle {
 
     Row {
         id: row
-        anchors.centerIn: parent
+        x: Theme.tilePad
+        anchors.verticalCenter: parent.verticalCenter
         spacing: Theme.spaceXs + 2
 
         BatteryIcon {

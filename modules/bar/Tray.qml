@@ -10,7 +10,7 @@ import qs
 // A click does what the app does, the right button shows its menu
 RowLayout {
     id: tray
-    spacing: Theme.spaceSm
+    spacing: Theme.statusGap
     // the item whose menu is open: its tile is filled, as long as the menu is
     property var openItem: null
     // the right button, or the left one for the apps that only have a menu: the item and where its icon is in the bar
@@ -26,7 +26,7 @@ RowLayout {
             id: slot
             required property SystemTrayItem modelData
 
-            Layout.preferredWidth: Theme.slot
+            Layout.preferredWidth: Theme.statusIcon + Theme.tilePad * 2
             Layout.preferredHeight: Theme.slot
             visible: modelData.status !== Status.Passive
             radius: Theme.tileRadius
