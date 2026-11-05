@@ -3,6 +3,7 @@ import QtQuick.Layouts
 import Quickshell
 import Quickshell.I3
 import qs
+import qs.modules.common
 
 // The history of the notifications, in the corner of the toasts: newest first, with Clear all and Do not disturb
 FloatingWindow {
