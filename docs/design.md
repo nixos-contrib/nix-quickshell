@@ -60,3 +60,11 @@ moment later, and what is drawn in that moment is seen. The panels have no opaci
 
 The popups close when they lose the focus, which they do on a click outside them, so the focus must not follow the pointer:
 `focus_follows_mouse no` in the i3 config, see `docs/i3.md`.
+
+## Closing on a loss of focus
+
+The launcher, the popups and the history close when they lose the focus, which is a click outside them. But a window also reports
+a loss of focus when a key grab starts, as i3 does while a key that it binds is held: X sends a FocusOut with the mode
+NotifyGrab, Qt gives it to QML as a loss of focus, and the window closed in the middle of a held Mod+Shift+d. So a loss is checked
+with i3 (`FocusGuard`): if i3 still has the focus on the window it was a grab, and only a click that moved the focus closes it.
+
