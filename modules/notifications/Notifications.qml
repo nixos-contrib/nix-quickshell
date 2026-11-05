@@ -185,18 +185,22 @@ Scope {
         title: "nshell-toast"
         visible: server.trackedNotifications.values.length > 0 && !center.visible && !root.popupOpen
         color: "transparent"
-        implicitWidth: 372
+        // the room around the cards is for their shadows
+        readonly property int room: Theme.marginLow
+        implicitWidth: 348 + room * 2
         // i3 does not follow a floating window that grows, so it is as tall as it will need and only the cards take
         // the pointer: the rest of it is transparent and lets the clicks through
         implicitHeight: Math.max(400, win.screen.height - 72)
-        mask: Region { item: panel }
+        // the window takes the clicks on the cards and on their shadows, and the shape of the window is the one of the mask: a shadow
+        // outside of it is cut. The rest of the tall window lets them through
+        mask: Region { x: panel.x - win.room; y: panel.y - win.room; width: panel.width + win.room * 2; height: panel.height + win.room * 2 }
 
         // i3 floats the window, and the corner is set in pixels of the screen, which the scale of Qt multiplies
         function place() {
             const scale = win.devicePixelRatio;
-            // the cards are 12 in from the window: their edge is the one of the bar, and they start the gap under it
-            const x = Math.round((win.screen.width - win.width + 12 - Theme.edge) * scale);
-            const y = Math.round(Theme.barHeight * scale);
+            // the cards are a room in from the window: their edge is the one of the bar, and they start the gap under it
+            const x = Math.round((win.screen.width - win.width + room - Theme.edge) * scale);
+            const y = Math.round((Theme.barHeight + Theme.gap - room) * scale);
             I3.dispatch(`[title="^nshell-toast$"] move absolute position ${x}px ${y}px`);
         }
         // drawn when it is in its place, see Popover
@@ -225,37 +229,48 @@ Scope {
         Column {
             id: panel
             opacity: win.placed ? 1 : 0
-            width: 372 - 24
-            x: 12
-            y: 12
+            width: 348
+            x: win.room
+            y: win.room
             spacing: Theme.spacing
 
-            Flickable {
-                id: scroller
+            // The list takes the place of the cards, and the Flickable around it is a room bigger on every side: it clips what scrolls,
+            // and it would cut the shadows at the edge of the cards
+            Item {
+                id: viewport
                 width: parent.width
-                height: Math.min(stack.implicitHeight, win.height - 24 - (footer.visible ? footer.height + panel.spacing : 0))
-                contentWidth: width
-                contentHeight: stack.implicitHeight
-                clip: true
-                boundsBehavior: Flickable.StopAtBounds
-                interactive: contentHeight > height
+                height: Math.min(stack.implicitHeight, win.height - win.room * 2 - (footer.visible ? footer.height + panel.spacing : 0))
+                Flickable {
+                    id: scroller
+                    x: -win.room
+                    y: -win.room
+                    width: viewport.width + win.room * 2
+                    height: viewport.height + win.room * 2
+                    contentWidth: width
+                    contentHeight: stack.implicitHeight + win.room * 2
+                    clip: true
+                    boundsBehavior: Flickable.StopAtBounds
+                    interactive: contentHeight > height
 
-                // The newest is on top and the older ones wait below, so that showing them does not move the cards
-                // that are being read. The model keeps a card for the same notification when the list changes: it does
-                // not start its time again
-                Column {
-                    id: stack
-                    width: scroller.width
-                    spacing: Theme.spacing
-                    move: Transition { NumberAnimation { properties: "y"; duration: 200; easing.type: Easing.OutCubic } }
-                    Repeater {
-                        model: ScriptModel { values: server.trackedNotifications.values.slice().reverse() }
-                        delegate: Toast {
-                            required property Notification modelData
-                            required property int index
-                            notification: modelData
-                            paused: root.popupOpen
-                            visible: root.expanded || index < Theme.toastLimit
+                    // The newest is on top and the older ones wait below, so that showing them does not move the cards
+                    // that are being read. The model keeps a card for the same notification when the list changes: it does
+                    // not start its time again
+                    Column {
+                        id: stack
+                        x: win.room
+                        y: win.room
+                        width: viewport.width
+                        spacing: Theme.spacing
+                        move: Transition { NumberAnimation { properties: "y"; duration: 200; easing.type: Easing.OutCubic } }
+                        Repeater {
+                            model: ScriptModel { values: server.trackedNotifications.values.slice().reverse() }
+                            delegate: Toast {
+                                required property Notification modelData
+                                required property int index
+                                notification: modelData
+                                paused: root.popupOpen
+                                visible: root.expanded || index < Theme.toastLimit
+                            }
                         }
                     }
                 }

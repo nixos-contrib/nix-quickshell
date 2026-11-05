@@ -3,6 +3,7 @@ import QtQuick.Layouts
 import Quickshell
 import Quickshell.Services.Notifications
 import qs
+import qs.modules.common
 
 // One notification as a card: the app, the summary, the body and its actions. Critical ones stay until dismissed
 Rectangle {
@@ -33,6 +34,7 @@ Rectangle {
     Behavior on opacity { NumberAnimation { duration: 180 } }
     Behavior on x { NumberAnimation { duration: 220; easing.type: Easing.OutCubic } }
     Behavior on border.color { ColorAnimation { duration: 120 } }
+    Shadow {}
 
     // The strip at the left says how urgent it is
     Rectangle {

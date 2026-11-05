@@ -13,10 +13,22 @@ color or a radius of its own: it all comes from `Theme.qml`.
 | Footer | a hint, at the bottom left, small and muted |
 
 The container is the dark `bg` for every window (the popups of the bar, the history, the launcher, the polkit card), with one
-border, a radius of 18 and 16 of room around. A menu has less room, as its lines have their own, and a dialog more.
+hairline border, the large radius, a shadow and 16 of room around. A menu has less room, as its lines have their own, and a dialog more.
 
-What a window holds are **cards** (the entries of the history, the toasts): `surface`, a radius of 14. What is selected or
-pressed is `surfaceHigh`.
+What a window holds are **cards** (the entries of the history): `surface`, the medium radius. The toasts are cards that float, so
+they have the large radius and a shadow. What is selected or pressed is `surfaceHigh`.
+
+## Shape and depth (`Theme.qml`)
+
+- **Radius.** Three, from one: large (16) for what floats, medium (10) for rows, buttons and the cards inside a panel, small (6)
+  for the tiles of the bar, chips and tracks. The inside is smaller than the outside, so that the corners nest.
+- **Edge.** A hairline of white at 10 percent, the same on every surface and wallpaper.
+- **Shadow.** Two elevations: 1 for what hangs from the bar (popups, toasts), 2 for what comes to the middle of the screen
+  (launcher, polkit, OSD). `Panel` and the toasts draw it (`modules/common/Shadow.qml`).
+- **Room for the shadow.** Every window of the shell is a transparent window with the card in it, so the window is bigger than the
+  card by `marginLow` or `marginHigh`. The shape of the window (`mask`) is the card and that room: it is also the shape that is
+  drawn, so a shadow outside of it would be cut. The cost is a dead ring of that width around a card, where a click does not go to
+  the window under it.
 
 ## The text (`modules/common/Label.qml`)
 

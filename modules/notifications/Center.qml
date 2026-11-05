@@ -16,15 +16,18 @@ FloatingWindow {
     title: "nshell-center"
     visible: false
     color: "transparent"
-    implicitWidth: 400
+    // the room around the panel is for its shadow
+    readonly property int room: Theme.marginLow
+    implicitWidth: 376 + room * 2
     // As tall as it can be, like the toasts: i3 does not follow a floating window that grows
     implicitHeight: Math.max(400, win.screen.height - 72)
-    mask: Region { item: panel }
+    // the cards and their shadows, see the toasts
+    mask: Region { x: panel.x - win.room; y: panel.y - win.room; width: panel.width + win.room * 2; height: panel.height + win.room * 2 }
 
     function place() {
         const scale = win.devicePixelRatio;
-        const x = Math.round((win.screen.width - win.width + 12 - Theme.edge) * scale);
-        const y = Math.round(Theme.barHeight * scale);
+        const x = Math.round((win.screen.width - win.width + room - Theme.edge) * scale);
+        const y = Math.round((Theme.barHeight + Theme.gap - room) * scale);
         // and takes the focus, which i3 may have given to the window of the popup that was closing
         I3.dispatch(`[title="^nshell-center$"] move absolute position ${x}px ${y}px, focus`);
     }
@@ -60,10 +63,10 @@ FloatingWindow {
 
     Panel {
         id: panel
-        x: 12
-        y: 12
-        width: 400 - 24
-        height: Math.min(win.height - 24, implicitHeight)
+        x: win.room
+        y: win.room
+        width: 376
+        height: Math.min(win.height - win.room * 2, implicitHeight)
         title: "Notifications"
         opacity: win.placed ? 1 : 0
         focus: true

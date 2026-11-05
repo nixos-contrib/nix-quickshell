@@ -17,6 +17,8 @@ Rectangle {
     property int padding: Theme.panelPadding
     // the body takes what is left when the panel has a size of its own, and is as tall as its content when it has not
     property bool fillBody: false
+    // the shadow, see Shadow: 1 for what hangs from the bar, 2 for what comes to the middle of the screen, 0 for none
+    property int elevation: 1
     // a header of its own, instead of the title
     property alias header: custom.data
     // buttons at the right of the title
@@ -31,6 +33,8 @@ Rectangle {
     radius: Theme.radiusLg
     color: Theme.bg
     border { width: 1; color: Theme.border }
+
+    Shadow { elevation: panel.elevation }
 
     ColumnLayout {
         id: col

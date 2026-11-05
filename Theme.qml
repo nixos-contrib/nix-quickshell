@@ -60,6 +60,16 @@ Singleton {
     readonly property int popupWidth: 320
     // the track of a slider and of a meter: the same height, and the same colors
     readonly property int trackHeight: 6
+    // Elevation: the shadow of what floats, soft and a little below its card. A window of the shell is a transparent window with the
+    // card in it, so the shadow is drawn in the window, and the window is bigger than the card by the margin of the elevation: the
+    // blur and the offset, and a little more. Level 1 is for what hangs from the bar, 2 for what comes to the middle
+    readonly property color shadow: Qt.rgba(0, 0, 0, 0.55)
+    readonly property int blurLow: 24
+    readonly property int offsetLow: 6
+    readonly property int blurHigh: 48
+    readonly property int offsetHigh: 14
+    readonly property int marginLow: 32
+    readonly property int marginHigh: 64
     // The room between the edge of the screen and the bar, the toasts, the history and the menus: what lines them up
     readonly property int edge: 20
     // The room under the bar before the first card

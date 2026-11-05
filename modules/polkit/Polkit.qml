@@ -24,12 +24,14 @@ Scope {
         title: "polkit"
         visible: agent.isActive
         color: "transparent"
-        implicitWidth: 440
-        implicitHeight: 290
+        // the room around the card is for its shadow
+        implicitWidth: 440 + Theme.marginHigh * 2
+        implicitHeight: 290 + Theme.marginHigh * 2
 
         Panel {
             id: card
-            anchors.fill: parent
+            anchors { fill: parent; margins: Theme.marginHigh }
+            elevation: 2
             padding: Theme.spaceXl
             fillBody: true
             focus: true

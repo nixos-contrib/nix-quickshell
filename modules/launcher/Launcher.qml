@@ -278,8 +278,9 @@ Scope {
         title: "nshell-launcher"
         visible: false
         color: "transparent"
-        implicitWidth: 680
-        implicitHeight: 480
+        // the room around the card is for its shadow
+        implicitWidth: 680 + Theme.marginHigh * 2
+        implicitHeight: 480 + Theme.marginHigh * 2
 
         property double openedAt: 0
         FocusGuard {
@@ -308,7 +309,8 @@ Scope {
 
         Panel {
             id: card
-            anchors.fill: parent
+            anchors { fill: parent; margins: Theme.marginHigh }
+            elevation: 2
             fillBody: true
             focus: true
             footer: root.pickDir !== "" ? "↵ choose     esc cancel" : "↵ open     ⇥ " + (root.mode === "apps" ? "windows" : "apps") + "     esc close"
