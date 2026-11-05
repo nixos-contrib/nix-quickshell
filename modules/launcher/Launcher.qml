@@ -167,12 +167,37 @@ Scope {
         return out;
     }
 
+    // An app that has a window is focused and not started a second time: the class of its window is the StartupWMClass of its
+    // entry. i3 says if there was a window to focus, and when there was none the app is started
+    property var pending: null
+    function launchOrFocus(entry) {
+        if (entry.startupClass === "") {
+            entry.execute();
+            return;
+        }
+        const cls = entry.startupClass.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        root.pending = entry;
+        focusProbe.command = ["i3-msg", `[class="^${cls}$"] focus`];
+        focusProbe.running = true;
+    }
+    Process {
+        id: focusProbe
+        stdout: StdioCollector {
+            onStreamFinished: {
+                const entry = root.pending;
+                root.pending = null;
+                if (entry && !text.includes('"success":true'))
+                    entry.execute();
+            }
+        }
+    }
+
     function launch(entry) {
         win.visible = false;
         if (entry.runInTerminal)
             Quickshell.execDetached({ command: root.terminal.split(" ").concat(["-e"], entry.command), workingDirectory: entry.workingDirectory });
         else
-            entry.execute();
+            root.launchOrFocus(entry);
         const u = root.usage;
         u[entry.id] = (u[entry.id] ?? 0) + 1;
         root.usage = u;
@@ -238,6 +263,14 @@ Scope {
         function apps(): void { if (root.fresh()) root.show("apps"); }
         function windows(): void { if (root.fresh()) root.show("windows"); }
         function pick(dir: string, prompt: string): void { root.openPick(dir, prompt); }
+        // an app by the id of its desktop entry, from a key: its window is focused, or it is started
+        function launch(id: string): void {
+            const entry = DesktopEntries.byId(id);
+            if (entry)
+                root.launch(entry);
+            else
+                console.log("launcher: no desktop entry with the id", id);
+        }
     }
 
     FloatingWindow {
