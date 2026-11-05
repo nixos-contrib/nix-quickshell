@@ -10,6 +10,8 @@ import qs.modules.common
 FloatingWindow {
     id: win
     property real anchorX: 0
+    // the top of the window, in points of the screen: under the bar when it is not set, or where a container asks for it
+    property real anchorY: -1
     property int panelWidth: Theme.popupWidth
     property string heading: ""
     property string headerValue: ""
@@ -18,8 +20,9 @@ FloatingWindow {
     default property alias content: panel.content
 
     // the item that opened it, in the bar: its place in the window of the bar
-    function openAt(x) {
+    function openAt(x, y) {
         win.anchorX = x;
+        win.anchorY = y === undefined ? -1 : y;
         win.visible = true;
     }
 
@@ -40,7 +43,7 @@ FloatingWindow {
         const scale = win.devicePixelRatio;
         // the panel is a room in from the window, and it hangs from the item, kept inside the screen
         const x = Math.round((Math.min(win.anchorX, win.screen.width - Theme.edge - panel.width) - room) * scale);
-        const y = Math.round(Theme.barHeight * scale);
+        const y = Math.round((anchorY >= 0 ? anchorY : Theme.barHeight) * scale);
         // and takes the focus, which i3 may have given to the window of the popup that was closing
         I3.dispatch(`[title="^nshell-menu$"] move absolute position ${x}px ${y}px, focus`);
     }

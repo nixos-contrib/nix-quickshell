@@ -7,6 +7,7 @@
 #   nshell launcher [windows]  opens the launcher, on the apps or on the windows
 #   nshell launch ID        an app by the id of its desktop entry (brave-browser): its window is focused when it has one, and it is
 #                           started when it has none
+#   nshell tabs list        opens the list of the windows of the tabbed container that has the focus
 #   nshell theme [dark|light|auto|toggle]  the mode of the theme, auto follows the hours of the day. Without an argument, says it
 #   nshell apps [dark|light]  puts the files of a mode where the apps read them, and tells the GTK apps, xterm and i3 to read them again.
 #                           The shell runs it when the mode changes, and the session at its start. Without a mode it takes the saved one
@@ -88,6 +89,7 @@ apps) apply_apps "${2:-}" ;;
 center) exec quickshell -p "$NSHELL_PATH" ipc call center "${2:-toggle}" ;;
 bar) exec quickshell -p "$NSHELL_PATH" ipc call bar "${2:-toggle}" ;;
 launcher) exec quickshell -p "$NSHELL_PATH" ipc call launcher "${2:-apps}" ;;
+tabs) exec quickshell -p "$NSHELL_PATH" ipc call tabs "${2:-list}" ;;
 theme)
 	case "${2:-}" in
 	"") exec quickshell -p "$NSHELL_PATH" ipc call theme get ;;
@@ -125,7 +127,7 @@ pick)
 	exit 1
 	;;
 *)
-	echo "usage: nshell [center [dnd] | bar | launcher [windows] | launch ID | theme [dark|light|auto|toggle] | apps [dark|light] | pick [--prompt TEXT]]" >&2
+	echo "usage: nshell [center [dnd] | bar | launcher [windows] | launch ID | tabs list | theme [dark|light|auto|toggle] | apps [dark|light] | pick [--prompt TEXT]]" >&2
 	exit 1
 	;;
 esac

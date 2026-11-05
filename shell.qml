@@ -6,6 +6,7 @@ import qs.modules.launcher
 import qs.modules.notifications
 import qs.modules.osd
 import qs.modules.polkit
+import qs.modules.tabs
 import qs.modules.theme
 
 ShellRoot {
@@ -20,13 +21,16 @@ ShellRoot {
         active: Quickshell.env("NSHELL_NO_BAR") !== "1"
         sourceComponent: Bar { notifications: center; launcher: appLauncher }
     }
+    // The tabs of the tabbed containers of i3
+    Tabs { id: containerTabs }
     // A popup closes on a click anywhere outside of it, the wallpaper too, see ClickAway
     ClickAway {
-        active: center.popupOpen || center.centerOpen || appLauncher.open
+        active: center.popupOpen || center.centerOpen || appLauncher.open || containerTabs.listOpen
         barHeight: Theme.barHeight * (Quickshell.screens.length > 0 ? Quickshell.screens[0].devicePixelRatio : 1)
         onOutside: {
             center.closeCenter();
             appLauncher.hide();
+            containerTabs.closeList();
             if (barLoader.item)
                 barLoader.item.closePopups();
         }

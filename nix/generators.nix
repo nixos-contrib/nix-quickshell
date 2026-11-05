@@ -91,15 +91,20 @@ in
     set recolor-keephue true
   '';
 
-  # i3: `include` it from the config. The tabs of the stacked and tabbed layouts: the one in use is a tile in surfaceHigh when its
-  # container has the focus and in surface when it has not, the others are text on the base. Order of the colors: border,
-  # background, text, indicator and the border of the window
+  # i3: `include` it from the config. The tabs of the tabbed containers are drawn by the shell (modules/tabs), over the strip that i3
+  # reserves: i3 draws nothing in it, no colors, no title and no icon, and the window of a strip is floated and takes no focus. The
+  # minimum size of a floating window is lowered, as the strip is lower than the default 50 px. The same for both modes
   i3 = ''
-    client.focused          ${p.surfaceHigh} ${p.surfaceHigh} ${p.text} ${p.surfaceHigh} ${p.surfaceHigh}
-    client.focused_inactive ${p.surface} ${p.surface} ${p.text} ${p.surface} ${p.surface}
-    client.unfocused        #00000000 #00000000 ${p.muted} #00000000 #00000000
-    client.urgent           ${p.critical} ${p.critical} ${p.textOnPrimary} ${p.critical} ${p.critical}
-    client.placeholder      ${p.base} ${p.base} ${p.text} ${p.base} ${p.base}
-    client.background       ${p.base}
+    client.focused          #00000000 #00000000 #00000000 #00000000 #00000000
+    client.focused_inactive #00000000 #00000000 #00000000 #00000000 #00000000
+    client.unfocused        #00000000 #00000000 #00000000 #00000000 #00000000
+    client.urgent           #00000000 #00000000 #00000000 #00000000 #00000000
+    client.placeholder      #00000000 #00000000 #00000000 #00000000 #00000000
+    client.background       #00000000
+    for_window [all] title_format " "
+    for_window [all] title_window_icon off
+    floating_minimum_size 1 x 1
+    for_window [title="^nshell-tabs-"] floating enable, border none, sticky enable
+    no_focus [title="^nshell-tabs-"]
   '';
 }
