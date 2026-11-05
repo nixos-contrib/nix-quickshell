@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Io
+import Quickshell.Services.SystemTray
 import qs
 import qs.modules.notifications
 
@@ -18,6 +19,16 @@ Scope {
     IpcHandler {
         target: "bar"
         function toggle(): void { root.shown = !root.shown; }
+        // the popups of the bar, from the outside: a key, or a test. They hang from the right end of the bar
+        function audio(): void { root.toggle(audioPopup, bar.width - 480); }
+        function battery(): void { root.toggle(batteryPopup, bar.width - 400); }
+        function tray(): void {
+            const items = SystemTray.items.values;
+            if (items.length === 0)
+                return;
+            root.closePopups();
+            trayMenu.openFor(items[0], bar.width - 520);
+        }
     }
 
     TrayMenu { id: trayMenu }
