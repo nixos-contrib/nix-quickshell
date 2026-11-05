@@ -5,9 +5,10 @@ notification daemon, the bar and the launcher of an i3 session with one process,
 
 It is a work in progress. So far:
 
-- notifications: a server and toasts, with urgency, actions, markup, icons and a close button on hover
+- notifications: a server and toasts, with urgency, actions, markup, icons, a close button on hover, a stack with
+  show more and clear all, and a history center with do not disturb (`bin/center`)
 
-Planned: history center, polkit agent, bar with i3 workspaces and tray, launcher, volume OSD.
+Planned: polkit agent, bar with i3 workspaces and tray, launcher, volume OSD.
 
 ## Try it
 
