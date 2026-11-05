@@ -86,7 +86,7 @@ Scope {
                         spacing: Theme.spaceXs + 2
                         Text {
                             anchors.verticalCenter: parent.verticalCenter
-                            text: root.notifications.dnd ? "\uf1f6" : "\uf0f3"
+                            text: root.notifications.dnd ? "\udb80\udc9b" : "\udb80\udc9a"
                             color: root.notifications.dnd ? Theme.barMuted : Theme.barText
                             font { family: Theme.iconFont; pixelSize: Theme.statusIcon }
                         }
