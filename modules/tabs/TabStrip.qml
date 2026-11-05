@@ -177,7 +177,7 @@ FloatingWindow {
             radius: Theme.radiusSm + 2
             color: listArea.containsMouse ? Theme.surface : "transparent"
             Behavior on color { ColorAnimation { duration: 110 } }
-            Text { anchors.centerIn: parent; text: "▾"; color: Theme.muted; font.pixelSize: 13 }
+            ChevronIcon { anchors.centerIn: parent; size: 16; color: listArea.containsMouse ? Theme.text : Theme.muted }
             MouseArea { id: listArea; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: win.listRequested() }
         }
     }
