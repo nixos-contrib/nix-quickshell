@@ -25,7 +25,6 @@ let
   stateDir = "${config.xdg.stateHome}/nix-shell";
 
   gtkTheme = m: "nix-shell-${m}";
-  iconName = m: if m == "light" then cfg.integration.gtk.iconTheme.lightName else cfg.integration.gtk.iconTheme.name;
   # The GTK theme of a mode: adw-gtk3 in that mode, with the named colors of the palette after it, which win over its own, and the
   # rules of the user
   gtkThemeCss = m: ''
@@ -36,7 +35,7 @@ let
   # What xsettingsd tells the GTK apps, which then draw themselves again: the theme of the mode, and the rest of the look
   xsettings = m: ''
     Net/ThemeName "${gtkTheme m}"
-    Net/IconThemeName "${iconName m}"
+    Net/IconThemeName "${cfg.integration.gtk.iconTheme.name}"
     Gtk/FontName "${font} ${fontSize}"
     Gtk/ApplicationPreferDarkTheme ${if m == "light" then "0" else "1"}
     ${lib.optionalString cursor.enable ''
@@ -137,13 +136,12 @@ in
         iconTheme = {
           name = mkOption {
             type = types.str;
-            default = "Papirus-Dark";
-            description = "The name of the icon theme in the dark mode.";
-          };
-          lightName = mkOption {
-            type = types.str;
-            default = "Papirus-Light";
-            description = "The name of the icon theme in the light mode.";
+            default = "Papirus";
+            description = ''
+              The name of the icon theme, the same in both modes: some widgets keep the icons of the icon theme they were drawn with
+              (the location bar of Thunar, until it goes to another folder), so an icon theme per mode left them in the colors of the
+              other mode. Papirus has a dark glyph that reads on both.
+            '';
           };
           package = mkOption {
             type = types.package;
@@ -230,7 +228,7 @@ in
         "gtk-3.0/settings.ini".text = ''
           [Settings]
           gtk-theme-name=${gtkTheme startMode}
-          gtk-icon-theme-name=${iconName startMode}
+          gtk-icon-theme-name=${cfg.integration.gtk.iconTheme.name}
           gtk-font-name=${font} ${fontSize}
           gtk-application-prefer-dark-theme=${if startMode == "light" then "0" else "1"}
         ''
