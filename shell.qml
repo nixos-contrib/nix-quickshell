@@ -19,7 +19,7 @@ ShellRoot {
     Loader {
         id: barLoader
         active: Quickshell.env("NSHELL_NO_BAR") !== "1"
-        sourceComponent: Bar { notifications: center; launcher: appLauncher }
+        sourceComponent: Bar { notifications: center; launcher: appLauncher; tabs: containerTabs }
     }
     // The tabs of the tabbed containers of i3
     Tabs {

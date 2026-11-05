@@ -13,9 +13,11 @@ import qs.modules.common
 Scope {
     id: root
 
+    // group: no strip, the windows of a workspace are in the bar, at its number. The others are strips over the room that i3 reserves, which
+    // has to be as high as a strip (the patch of i3), and are not used with the group.
     // The look of a strip that has the width of the workspace and is under the bar: flush, square, as a second row of the bar, or card,
     // the width of its container, rounded. Any other strip is a card. `nshell tabs style` changes it
-    property string look: "flush"
+    property string look: "group"
     property var lastTree: null
     // Windows that i3 moved when the screen changed, which is what leaving full screen in the window of the VM does: the strip is put in
     // its place again. The number of times it was, by container
@@ -221,6 +223,13 @@ Scope {
         }
     }
 
+    // from a button of the bar: where the list hangs from is given, in points
+    function openListAt(container, x, y) {
+        if (!container)
+            return;
+        list.container = container;
+        list.openAt(x - list.panelWidth / 2, y + 4);
+    }
     function openList(container) {
         if (!container)
             return;
@@ -236,7 +245,7 @@ Scope {
         target: "tabs"
         function list(): void { root.openList(root.focusedContainer); }
         function style(look: string): string {
-            if (look === "flush" || look === "card" || look === "attached")
+            if (look === "flush" || look === "card" || look === "attached" || look === "group")
                 root.look = look;
             return root.look;
         }
@@ -250,7 +259,8 @@ Scope {
 
     // keyed by the id of the container: a change of a title or a tab updates the window and does not make it again
     Instantiator {
-        model: ScriptModel { values: root.containers; objectProp: "id" }
+        // no strips in the group look: the tabs are in the bar
+        model: ScriptModel { values: root.look === "group" ? [] : root.containers; objectProp: "id" }
         delegate: TabStrip {
             required property var modelData
             spec: modelData

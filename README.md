@@ -18,6 +18,11 @@ It is a work in progress. So far:
   `nshell launcher windows`). An app that has a window is focused and not started again, by the `StartupWMClass` of its desktop
   entry, also from a key: `nshell launch brave-browser`
 
+- tabs: the windows of a tabbed container of i3 show in the bar, at the number of their workspace, as the tabs of a group of a browser:
+  an icon for each (the front one lit, three at most, then +N), a click on an icon takes its window to the front, and the chevron, or
+  `nshell tabs list`, opens the list with titles and a filter. i3 draws nothing for its tabs, see `docs/i3.md`. `nshell tabs style
+  flush|card|attached` shows a strip over the room that i3 reserves instead, which needs the patch of i3 to reserve as much
+
 - volume OSD: a pill at the bottom of the screen that shows the volume (or muted) for a moment when it changes, whatever changed it:
   the keys, the wheel on the bar, the slider, another app. It watches the sound, so there is no command for it. The keys are
   yours to bind, see `docs/i3.md`

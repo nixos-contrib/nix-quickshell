@@ -27,6 +27,8 @@ Scope {
 
     // the launcher, which the logo opens
     required property var launcher
+    // the tabs of the containers, for the group of a workspace, see Workspaces
+    property var tabs: null
     property bool shown: true
 
     IpcHandler {
@@ -64,6 +66,8 @@ Scope {
     }
     Timer { id: remapTimer; interval: 300; onTriggered: root.shown = true }
     function closePopups() {
+        if (root.tabs)
+            root.tabs.closeList();
         trayMenu.visible = false;
         audioPopup.visible = false;
         batteryPopup.visible = false;
@@ -139,7 +143,13 @@ Scope {
                         onClicked: root.launcher.show("apps")
                     }
                 }
-                Workspaces {}
+                Workspaces {
+                    tabs: root.tabs
+                    onListRequested: (container, x, y) => {
+                        root.closePopups();
+                        root.tabs.openListAt(container, x, y);
+                    }
+                }
             }
 
             Item { Layout.fillWidth: true }
