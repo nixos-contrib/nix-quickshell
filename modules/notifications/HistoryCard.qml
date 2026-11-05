@@ -119,7 +119,7 @@ Rectangle {
             anchors.fill: parent
             hoverEnabled: true
             cursorShape: Qt.PointingHandCursor
-            onClicked: ListView.view.model.remove(card.index)
+            onClicked: card.ListView.view.model.remove(card.index)
         }
     }
 }
