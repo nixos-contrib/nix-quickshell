@@ -11,6 +11,22 @@
 set -eu
 : "${NSHELL_PATH:?NSHELL_PATH is not set}"
 
+# A key that is held a moment repeats, 40 times a second, and runs the command each time. These commands toggle, so the repeat would
+# close what the first opened. Starting the client of Quickshell takes long enough for the runs to pile up and reach the shell in
+# bursts, so the repeat is caught here: a run less than 400 ms after the one before is the same press, and ends at once. Every run
+# counts as the one before, so a key held for any time is one press
+same_press() {
+	local stamp="${XDG_RUNTIME_DIR:-/tmp}/nshell-key-press" now last
+	now="$(date +%s%3N)"
+	last="$(cat "$stamp" 2>/dev/null || echo 0)"
+	printf '%s' "$now" >"$stamp"
+	[ $((now - last)) -lt 400 ]
+}
+
+case "${1:-}" in
+center | bar | launcher) same_press && exit 0 ;;
+esac
+
 case "${1:-}" in
 "") exec quickshell -p "$NSHELL_PATH" ;;
 center) exec quickshell -p "$NSHELL_PATH" ipc call center "${2:-toggle}" ;;
