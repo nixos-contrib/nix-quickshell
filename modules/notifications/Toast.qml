@@ -104,7 +104,7 @@ Rectangle {
         spacing: Theme.spacing + 2
 
         Image {
-            readonly property string picture: root.notification.image !== "" ? root.notification.image : (root.notification.appIcon !== "" ? Quickshell.iconPath(root.notification.appIcon, "dialog-information") : "")
+            readonly property string picture: Pictures.of(root.notification.image, root.notification.appIcon, root.notification.appName, root.notification.desktopEntry)
             visible: picture !== ""
             source: picture
             sourceSize: Qt.size(96, 96)

@@ -30,12 +30,28 @@ Scope {
             appName: n.appName,
             summary: n.summary,
             body: n.body,
-            picture: n.image !== "" ? n.image : (n.appIcon !== "" ? Quickshell.iconPath(n.appIcon, "dialog-information") : ""),
+            picture: Pictures.of(n.image, n.appIcon, n.appName, n.desktopEntry),
             critical: n.urgency === NotificationUrgency.Critical,
             time: Math.floor(Date.now() / 1000)
         });
         while (history.count > 100)
             history.remove(history.count - 1);
+    }
+
+    // The image that came with a notification is served under a URL that is gone when it closes. Each entry of the history
+    // keeps its picture loaded here, at the size the cards ask for, and the cards find it in the cache of Qt
+    Item {
+        visible: false
+        Repeater {
+            model: history
+            delegate: Image {
+                required property string picture
+                source: picture
+                sourceSize: Qt.size(96, 96)
+                asynchronous: false
+                cache: true
+            }
+        }
     }
 
     IpcHandler {
