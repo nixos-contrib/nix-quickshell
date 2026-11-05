@@ -25,6 +25,11 @@ Scope {
     property string pickPrompt: ""
     property var pickLines: []
 
+    // The terminal for the programs that need one, from the environment of the session as everything else does: `xterm`, or
+    // `alacritty`, anything that takes `-e command`. Without it a program that runs in a terminal has nowhere to open, and the
+    // launcher does not list it
+    readonly property string terminal: Quickshell.env("TERMINAL") || ""
+
     readonly property string statePath: (Quickshell.env("XDG_STATE_HOME") || Quickshell.env("HOME") + "/.local/state") + "/nix-shell/launcher.json"
 
     // A key that is held a moment repeats, and the command it runs comes again and again, 25 ms apart: these commands toggle, so
@@ -92,6 +97,9 @@ Scope {
         const out = [];
         for (const e of DesktopEntries.applications.values) {
             if (e.noDisplay)
+                continue;
+            // a program that runs in a terminal is listed when there is a terminal to run it in
+            if (e.runInTerminal && root.terminal === "")
                 continue;
             let s = 1;
             if (q !== "") {
@@ -161,7 +169,10 @@ Scope {
 
     function launch(entry) {
         win.visible = false;
-        entry.execute();
+        if (entry.runInTerminal)
+            Quickshell.execDetached({ command: root.terminal.split(" ").concat(["-e"], entry.command), workingDirectory: entry.workingDirectory });
+        else
+            entry.execute();
         const u = root.usage;
         u[entry.id] = (u[entry.id] ?? 0) + 1;
         root.usage = u;

@@ -31,6 +31,9 @@ of them.
 
 `NSHELL_NO_BAR=1` runs it without the bar, to try the notifications beside another one.
 
+The launcher lists programs that run in a terminal (Helix, Yazi, bottom…) only when `TERMINAL` is set in the session, to a terminal that takes
+`-e command` (`xterm`, `alacritty`, `foot`…), and runs them in it. Without it they are not listed, as they would have nowhere to open.
+
 It needs `QS_ICON_THEME` set to an installed icon theme for the icons of the apps, and `I3SOCK` when it runs outside i3.
 The window of the toasts is floated by i3, see the rules in `docs/i3.md`.
 
