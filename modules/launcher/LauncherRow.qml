@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Layouts
 import qs
+import qs.modules.common
 
 // A line of the launcher: the icon, the name and what it is. The current one is filled, as the selected tile of the bar
 Rectangle {
@@ -34,20 +35,18 @@ Rectangle {
         ColumnLayout {
             Layout.fillWidth: true
             spacing: 1
-            Text {
+            Label {
                 text: row.modelData.title
-                color: Theme.text
+                strong: true
                 elide: Text.ElideRight
                 Layout.fillWidth: true
-                font { family: Theme.font; pixelSize: Theme.fontTitle + 1; weight: Font.Medium }
             }
-            Text {
+            Label {
                 visible: text !== ""
+                role: "caption"
                 text: row.modelData.subtitle
-                color: Theme.muted
                 elide: Text.ElideRight
                 Layout.fillWidth: true
-                font { family: Theme.font; pixelSize: Theme.fontSmall + 1 }
             }
         }
     }

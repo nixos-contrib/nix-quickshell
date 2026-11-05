@@ -5,6 +5,7 @@ import qs
 Popover {
     id: win
     property var item: null
+    padding: Theme.spaceSm
 
     function openFor(trayItem, x) {
         win.item = trayItem;

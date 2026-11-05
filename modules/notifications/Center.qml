@@ -42,70 +42,54 @@ FloatingWindow {
         }
     }
 
-    Rectangle {
+    Panel {
         id: panel
         x: 12
         y: 12
         width: 400 - 24
-        height: Math.min(win.height - 24, header.implicitHeight + (list.count > 0 ? list.contentHeight : empty.implicitHeight) + Theme.spacing * 4)
-        radius: Theme.radius + 4
-        color: Theme.bg
-        border { width: 1; color: Theme.border }
+        height: Math.min(win.height - 24, implicitHeight)
+        title: "Notifications"
         focus: true
         Keys.onEscapePressed: win.visible = false
         // a click anywhere else closes it, as the popups of the bar
         onActiveFocusChanged: if (!activeFocus && win.visible && Date.now() - win.openedAt > 600) win.visible = false
 
-        ColumnLayout {
-            anchors { fill: parent; margins: Theme.spacing + 4 }
-            spacing: Theme.spacing
-
-            RowLayout {
-                id: header
-                Layout.fillWidth: true
-                spacing: 8
-                Text {
-                    text: "Notifications"
-                    color: Theme.text
-                    font { family: Theme.font; pixelSize: Theme.fontTitle + 2; weight: Font.DemiBold }
-                    Layout.fillWidth: true
-                }
-                PillButton {
-                    text: "Do not disturb"
-                    active: win.dnd
-                    onClicked: win.toggleDnd()
-                }
-                PillButton {
-                    visible: list.count > 0
-                    text: "Clear all"
-                    onClicked: win.clearAll()
-                }
+        actions: [
+            PillButton {
+                text: "Do not disturb"
+                active: win.dnd
+                onClicked: win.toggleDnd()
+            },
+            PillButton {
+                visible: list.count > 0
+                text: "Clear all"
+                onClicked: win.clearAll()
             }
+        ]
 
-            ListView {
-                id: list
-                visible: count > 0
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-                model: win.history
-                spacing: Theme.spacing
-                clip: true
-                boundsBehavior: Flickable.StopAtBounds
-                delegate: HistoryCard {}
-                remove: Transition { NumberAnimation { property: "opacity"; to: 0; duration: 140 } }
-                displaced: Transition { NumberAnimation { properties: "y"; duration: 180; easing.type: Easing.OutCubic } }
-            }
+        ListView {
+            id: list
+            width: parent.width
+            height: count > 0 ? Math.min(contentHeight, Math.max(120, win.height - 24 - panel.chromeHeight)) : 0
+            visible: count > 0
+            model: win.history
+            spacing: Theme.spaceSm + 2
+            clip: true
+            boundsBehavior: Flickable.StopAtBounds
+            delegate: HistoryCard {}
+            remove: Transition { NumberAnimation { property: "opacity"; to: 0; duration: 140 } }
+            displaced: Transition { NumberAnimation { properties: "y"; duration: 180; easing.type: Easing.OutCubic } }
+        }
 
-            Text {
-                id: empty
-                visible: list.count === 0
-                text: "No notifications"
-                color: Theme.muted
-                font { family: Theme.font; pixelSize: Theme.fontBody }
-                Layout.alignment: Qt.AlignHCenter
-                Layout.topMargin: Theme.spacing
-                Layout.bottomMargin: Theme.spacing
-            }
+        // the empty state, centered in the body
+        Label {
+            width: parent.width
+            height: list.count === 0 ? implicitHeight + Theme.spaceXl : 0
+            visible: list.count === 0
+            role: "caption"
+            text: "No notifications"
+            horizontalAlignment: Text.AlignHCenter
+            verticalAlignment: Text.AlignVCenter
         }
     }
 }

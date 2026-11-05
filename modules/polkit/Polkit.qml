@@ -27,28 +27,26 @@ Scope {
         implicitWidth: 440
         implicitHeight: 290
 
-        Rectangle {
+        Panel {
             id: card
             anchors.fill: parent
-            radius: Theme.radius + 4
-            color: Theme.bg
-            border { width: 1; color: Theme.border }
+            padding: Theme.spaceXl
+            fillBody: true
             focus: true
             Keys.onEscapePressed: if (root.flow) root.flow.cancelAuthenticationRequest()
 
             ColumnLayout {
-                anchors { fill: parent; margins: Theme.spaceXl }
+                anchors.fill: parent
                 spacing: Theme.spaceLg
 
-                Text {
+                Label {
                     Layout.fillWidth: true
+                    role: "heading"
                     horizontalAlignment: Text.AlignHCenter
                     wrapMode: Text.Wrap
                     maximumLineCount: 3
                     elide: Text.ElideRight
                     text: root.flow ? root.flow.message : ""
-                    color: Theme.text
-                    font { family: Theme.font; pixelSize: Theme.fontHeading; weight: Font.DemiBold }
                 }
 
                 // The key and the app with a line between them; any other action has only its icon
@@ -112,7 +110,7 @@ Scope {
                         elide: Text.ElideRight
                         text: root.flow && root.flow.supplementaryMessage !== "" ? root.flow.supplementaryMessage : (root.onePassword ? "Touch your YubiKey" : "Waiting for authentication")
                         color: root.flow && root.flow.supplementaryIsError ? Theme.critical : Theme.muted
-                        font { family: Theme.font; pixelSize: Theme.fontBody + 1 }
+                        font { family: Theme.font; pixelSize: Theme.textBody }
                     }
 
                     TextInput {
@@ -122,7 +120,7 @@ Scope {
                         verticalAlignment: TextInput.AlignVCenter
                         echoMode: root.flow && root.flow.responseVisible ? TextInput.Normal : TextInput.Password
                         color: Theme.text
-                        font { family: Theme.font; pixelSize: Theme.fontBody + 2 }
+                        font { family: Theme.font; pixelSize: Theme.textBody }
                         onVisibleChanged: if (visible) forceActiveFocus()
                         onAccepted: {
                             root.flow.submit(text);

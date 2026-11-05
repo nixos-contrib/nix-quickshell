@@ -2,15 +2,20 @@ import QtQuick
 import Quickshell
 import Quickshell.I3
 import qs
+import qs.modules.common
 
 // The popup under an item of the bar: the menu of an icon of the tray, the volume, the battery. A window of its own, hung from the
-// item, in the style of the shell. It closes with Escape and when it loses the focus (a click anywhere else). What goes inside
-// it is the content, in a panel that is as tall as it needs
+// item, with a panel in it. It closes with Escape and when it loses the focus (a click anywhere else). The header is the heading and
+// its value, none for a menu, and the content goes in the body of the panel
 FloatingWindow {
     id: win
     property real anchorX: 0
-    property int panelWidth: 276
-    default property alias content: body.data
+    property int panelWidth: Theme.popupWidth
+    property string heading: ""
+    property string headerValue: ""
+    // the room around the content: less for a menu, whose lines have room of their own
+    property int padding: Theme.panelPadding
+    default property alias content: panel.content
 
     // the item that opened it, in the bar: its place in the window of the bar
     function openAt(x) {
@@ -48,25 +53,17 @@ FloatingWindow {
         }
     }
 
-    Rectangle {
+    Panel {
         id: panel
         x: 12
         y: 12
         width: win.panelWidth
-        height: Math.min(win.height - 24, body.implicitHeight + 16)
-        radius: Theme.radius
-        color: Theme.surface
-        border { width: 1; color: Theme.border }
+        height: Math.min(win.height - 24, implicitHeight)
+        title: win.heading
+        value: win.headerValue
+        padding: win.padding
         focus: true
         Keys.onEscapePressed: win.visible = false
         onActiveFocusChanged: if (!activeFocus && win.visible && Date.now() - win.openedAt > 600) win.visible = false
-
-        Item {
-            id: body
-            x: 8
-            y: 8
-            width: parent.width - 16
-            implicitHeight: childrenRect.height
-        }
     }
 }

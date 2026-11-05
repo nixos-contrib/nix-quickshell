@@ -3,6 +3,7 @@ import QtQuick.Layouts
 import Quickshell
 import Quickshell.Widgets
 import qs
+import qs.modules.common
 
 // The entries of a menu of the tray: text, icon, check marks, separators. An entry with children has them listed under
 // it, indented, as the menus of the apps are short
@@ -52,19 +53,19 @@ ColumnLayout {
                         text: entry.modelData.checkState === Qt.Checked ? "✓" : ""
                         color: Theme.primary
                         Layout.preferredWidth: 12
-                        font { family: Theme.font; pixelSize: Theme.fontBody }
+                        font { family: Theme.font; pixelSize: Theme.textBody }
                     }
                     IconImage {
                         visible: entry.modelData.icon !== ""
                         source: entry.modelData.icon
                         implicitSize: 16
                     }
-                    Text {
+                    Label {
                         text: entry.modelData.text
-                        color: entry.modelData.hasChildren ? Theme.muted : (entry.modelData.enabled ? Theme.text : Theme.muted)
+                        color: entry.modelData.hasChildren || !entry.modelData.enabled ? Theme.muted : Theme.text
+                        strong: entry.modelData.hasChildren
                         elide: Text.ElideRight
                         Layout.fillWidth: true
-                        font { family: Theme.font; pixelSize: Theme.fontBody + 1; weight: entry.modelData.hasChildren ? Font.Medium : Font.Normal }
                     }
                 }
                 MouseArea {

@@ -165,9 +165,9 @@ Scope {
                 ws = n.name;
             const name = n.name ?? "";
             const cls = n.window_properties ? (n.window_properties.class ?? "") : "";
-            // only the windows of a workspace: the bar of the shell is in the dock area, and the popups and cards of the shell have
-            // the class of Quickshell
-            if (n.window !== null && n.window !== undefined && ws !== "" && cls !== "quickshell")
+            // only the windows of a workspace: the bar of the shell is in the dock area, and the popups and cards of the shell are
+            // known by their class or by their names
+            if (n.window !== null && n.window !== undefined && ws !== "" && cls !== "quickshell" && !name.startsWith("nshell-") && name !== "polkit")
                 out.push({ id: n.id, title: name, cls: cls, ws: ws.startsWith("__i3") ? "scratchpad" : ws });
             for (const c of (n.nodes ?? []).concat(n.floating_nodes ?? []))
                 walk(c, ws);
@@ -246,114 +246,95 @@ Scope {
             }
         }
 
-        Rectangle {
+        Panel {
             id: card
             anchors.fill: parent
-            radius: Theme.radius + 4
-            color: Theme.bg
-            border { width: 1; color: Theme.border }
+            fillBody: true
             focus: true
+            footer: root.pickDir !== "" ? "↵ choose     esc cancel" : "↵ open     ⇥ " + (root.mode === "apps" ? "windows" : "apps") + "     esc close"
 
-            ColumnLayout {
-                anchors { fill: parent; margins: Theme.spaceLg }
+            // the header is the search field, and the modes at its right. A pick has none
+            header: RowLayout {
+                width: parent.width
                 spacing: Theme.spaceMd
 
-                RowLayout {
-                    Layout.fillWidth: true
-                    spacing: Theme.spaceMd
-
-                    Text {
-                        text: "󰍉"
-                        color: Theme.muted
-                        font { family: Theme.iconFont; pixelSize: Theme.iconBar }
-                    }
-                    TextInput {
-                        id: search
-                        Layout.fillWidth: true
-                        color: Theme.text
-                        selectionColor: Theme.accent
-                        font { family: Theme.font; pixelSize: Theme.fontHeading }
-                        onTextChanged: root.query = text
-                        // the keys are here, so this is what loses the focus when the window does: a click anywhere else closes the
-                        // launcher, and a pick is cancelled
-                        onActiveFocusChanged: if (!activeFocus && win.visible && Date.now() - win.openedAt > 600) win.visible = false
-                        Text {
-                            visible: search.text === ""
-                            anchors.verticalCenter: parent.verticalCenter
-                            text: root.pickDir !== "" ? root.pickPrompt : (root.mode === "apps" ? "Search apps" : "Search windows")
-                            color: Theme.muted
-                            font: search.font
-                        }
-                        Keys.onPressed: event => {
-                            const ctrl = (event.modifiers & Qt.ControlModifier) !== 0;
-                            if (event.key === Qt.Key_Down || (ctrl && event.key === Qt.Key_N)) {
-                                list.currentIndex = Math.min(list.count - 1, list.currentIndex + 1);
-                                event.accepted = true;
-                            } else if (event.key === Qt.Key_Up || (ctrl && event.key === Qt.Key_P)) {
-                                list.currentIndex = Math.max(0, list.currentIndex - 1);
-                                event.accepted = true;
-                            } else if (event.key === Qt.Key_Tab) {
-                                if (root.pickDir === "")
-                                    root.cycle();
-                                search.text = "";
-                                event.accepted = true;
-                            } else if (event.key === Qt.Key_Escape) {
-                                win.visible = false;
-                                event.accepted = true;
-                            }
-                        }
-                        onAccepted: if (list.currentItem) list.currentItem.modelData.run()
-                    }
-                    // the modes: the one in use is filled. A pick has none
-                    Repeater {
-                        model: root.pickDir !== "" ? [] : root.modes
-                        delegate: PillButton {
-                            required property string modelData
-                            text: modelData === "apps" ? "Apps" : "Windows"
-                            active: root.mode === modelData
-                            onClicked: {
-                                root.setMode(modelData);
-                                search.text = "";
-                                search.forceActiveFocus();
-                            }
-                        }
-                    }
-                }
-
-                Rectangle {
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: 1
-                    color: Theme.border
-                }
-
-                ListView {
-                    id: list
-                    Layout.fillWidth: true
-                    Layout.fillHeight: true
-                    clip: true
-                    spacing: 2
-                    model: root.items
-                    boundsBehavior: Flickable.StopAtBounds
-                    highlightMoveDuration: 0
-                    onModelChanged: currentIndex = 0
-                    onCurrentIndexChanged: positionViewAtIndex(currentIndex, ListView.Contain)
-                    delegate: LauncherRow {
-                        onChosen: modelData.run()
-                    }
-
-                    Text {
-                        anchors.centerIn: parent
-                        visible: list.count === 0
-                        text: "No results"
-                        color: Theme.muted
-                        font { family: Theme.font; pixelSize: Theme.fontBody + 1 }
-                    }
-                }
-
                 Text {
-                    text: root.pickDir !== "" ? "↵ choose     esc cancel" : "↵ open     ⇥ " + (root.mode === "apps" ? "windows" : "apps") + "     esc close"
+                    text: "\udb80\udf49"
                     color: Theme.muted
-                    font { family: Theme.font; pixelSize: Theme.fontSmall }
+                    font { family: Theme.iconFont; pixelSize: Theme.iconBar }
+                }
+                TextInput {
+                    id: search
+                    Layout.fillWidth: true
+                    color: Theme.text
+                    selectionColor: Theme.accent
+                    font { family: Theme.font; pixelSize: Theme.textHeading }
+                    onTextChanged: root.query = text
+                    // the keys are here, so this is what loses the focus when the window does: a click anywhere else closes the
+                    // launcher, and a pick is cancelled
+                    onActiveFocusChanged: if (!activeFocus && win.visible && Date.now() - win.openedAt > 600) win.visible = false
+                    Text {
+                        visible: search.text === ""
+                        anchors.verticalCenter: parent.verticalCenter
+                        text: root.pickDir !== "" ? root.pickPrompt : (root.mode === "apps" ? "Search apps" : "Search windows")
+                        color: Theme.muted
+                        font: search.font
+                    }
+                    Keys.onPressed: event => {
+                        const ctrl = (event.modifiers & Qt.ControlModifier) !== 0;
+                        if (event.key === Qt.Key_Down || (ctrl && event.key === Qt.Key_N)) {
+                            list.currentIndex = Math.min(list.count - 1, list.currentIndex + 1);
+                            event.accepted = true;
+                        } else if (event.key === Qt.Key_Up || (ctrl && event.key === Qt.Key_P)) {
+                            list.currentIndex = Math.max(0, list.currentIndex - 1);
+                            event.accepted = true;
+                        } else if (event.key === Qt.Key_Tab) {
+                            if (root.pickDir === "")
+                                root.cycle();
+                            search.text = "";
+                            event.accepted = true;
+                        } else if (event.key === Qt.Key_Escape) {
+                            win.visible = false;
+                            event.accepted = true;
+                        }
+                    }
+                    onAccepted: if (list.currentItem) list.currentItem.modelData.run()
+                }
+                Repeater {
+                    model: root.pickDir !== "" ? [] : root.modes
+                    delegate: PillButton {
+                        required property string modelData
+                        text: modelData === "apps" ? "Apps" : "Windows"
+                        active: root.mode === modelData
+                        onClicked: {
+                            root.setMode(modelData);
+                            search.text = "";
+                            search.forceActiveFocus();
+                        }
+                    }
+                }
+            }
+
+            ListView {
+                id: list
+                anchors.fill: parent
+                clip: true
+                spacing: 2
+                model: root.items
+                boundsBehavior: Flickable.StopAtBounds
+                highlightMoveDuration: 0
+                onModelChanged: currentIndex = 0
+                onCurrentIndexChanged: positionViewAtIndex(currentIndex, ListView.Contain)
+                delegate: LauncherRow {
+                    onChosen: modelData.run()
+                }
+
+                // the empty state, centered in the body
+                Label {
+                    anchors.centerIn: parent
+                    visible: list.count === 0
+                    role: "caption"
+                    text: "No results"
                 }
             }
         }

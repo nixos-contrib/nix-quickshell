@@ -8,7 +8,8 @@ import qs.modules.common
 // The volume and the outputs: a slider with the mute button, and the list of the outputs to choose from
 Popover {
     id: win
-    panelWidth: 320
+    heading: "Sound"
+    headerValue: sink && sink.audio ? Math.round(sink.audio.volume * 100) + "%" : ""
 
     readonly property PwNode sink: Pipewire.defaultAudioSink
     PwObjectTracker { objects: Pipewire.nodes.values.filter(n => n.isSink && !n.isStream) }
@@ -17,22 +18,6 @@ Popover {
     ColumnLayout {
         width: parent.width
         spacing: Theme.spaceMd
-
-        RowLayout {
-            Layout.fillWidth: true
-            Layout.topMargin: Theme.spaceXs
-            Text {
-                text: "Sound"
-                color: Theme.text
-                font { family: Theme.font; pixelSize: Theme.fontTitle + 1; weight: Font.DemiBold }
-                Layout.fillWidth: true
-            }
-            Text {
-                text: win.sink && win.sink.audio ? Math.round(win.sink.audio.volume * 100) + "%" : ""
-                color: Theme.muted
-                font { family: Theme.font; pixelSize: Theme.fontBody }
-            }
-        }
 
         RowLayout {
             Layout.fillWidth: true
@@ -64,16 +49,11 @@ Popover {
             }
         }
 
-        Rectangle {
-            Layout.fillWidth: true
-            Layout.preferredHeight: 1
-            color: Theme.border
-        }
-
-        Text {
+        // the section: its label is the break, and no line
+        Label {
+            role: "label"
             text: "Output"
-            color: Theme.muted
-            font { family: Theme.font; pixelSize: Theme.fontSmall; weight: Font.Medium; capitalization: Font.AllUppercase; letterSpacing: 0.6 }
+            Layout.topMargin: Theme.spaceXs
         }
         Repeater {
             model: win.outputs
@@ -88,18 +68,15 @@ Popover {
                 RowLayout {
                     anchors { fill: parent; leftMargin: Theme.spaceSm; rightMargin: Theme.spaceSm }
                     spacing: Theme.spaceSm
-                    Text {
+                    Label {
                         text: row.current ? "✓" : ""
                         color: Theme.primary
                         Layout.preferredWidth: 14
-                        font { family: Theme.font; pixelSize: Theme.fontBody + 1 }
                     }
-                    Text {
+                    Label {
                         text: row.modelData.description !== "" ? row.modelData.description : row.modelData.name
-                        color: Theme.text
                         elide: Text.ElideRight
                         Layout.fillWidth: true
-                        font { family: Theme.font; pixelSize: Theme.fontBody + 1 }
                     }
                 }
                 MouseArea {

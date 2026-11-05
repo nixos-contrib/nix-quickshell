@@ -3,11 +3,13 @@ import QtQuick.Layouts
 import Quickshell
 import Quickshell.Services.UPower
 import qs
+import qs.modules.common
 
 // The details of the battery: the charge, what it is doing and how long it takes, and its health
 Popover {
     id: win
-    panelWidth: 300
+    heading: "Battery"
+    headerValue: device ? Math.round(level) + "%" : ""
 
     readonly property var device: UPower.displayDevice
     // the charge, 0 to 100: Quickshell gives a fraction
@@ -47,50 +49,37 @@ Popover {
         width: parent.width
         spacing: Theme.spaceMd
 
+        // the same row as the sound: the icon at the left, in a slot, and a track
         RowLayout {
             Layout.fillWidth: true
-            Layout.topMargin: Theme.spaceXs
-            Text {
-                text: "Battery"
-                color: Theme.text
-                font { family: Theme.font; pixelSize: Theme.fontTitle + 1; weight: Font.DemiBold }
+            spacing: Theme.spaceMd
+            Item {
+                Layout.preferredWidth: Theme.slot
+                Layout.preferredHeight: Theme.slot
+                BatteryIcon {
+                    anchors.centerIn: parent
+                    level: win.level
+                    charging: win.device !== null && win.device.state === UPowerDeviceState.Charging
+                    low: win.level <= 15 && !(win.device !== null && win.device.state === UPowerDeviceState.Charging)
+                }
+            }
+            Meter {
                 Layout.fillWidth: true
-            }
-            Text {
-                text: win.device ? Math.round(win.level) + "%" : ""
-                color: Theme.text
-                font { family: Theme.font; pixelSize: Theme.fontTitle + 1; weight: Font.DemiBold }
-            }
-        }
-
-        // the charge, as a bar
-        Rectangle {
-            Layout.fillWidth: true
-            Layout.preferredHeight: 8
-            radius: 4
-            color: Theme.surfaceHigh
-            Rectangle {
-                height: parent.height
-                radius: 4
-                width: parent.width * win.level / 100
+                value: win.level / 100
                 color: win.device && win.device.state === UPowerDeviceState.Charging ? Theme.success : (win.level <= 15 ? Theme.critical : Theme.primary)
             }
         }
 
-        Text {
+        Label {
             Layout.fillWidth: true
             text: win.status()
-            color: Theme.muted
             wrapMode: Text.Wrap
-            font { family: Theme.font; pixelSize: Theme.fontBody + 1 }
         }
-        Text {
+        Label {
             visible: win.device && win.device.healthSupported
             Layout.fillWidth: true
+            role: "caption"
             text: win.device ? "Health " + Math.round(win.device.healthPercentage * 100) + "%" : ""
-            color: Theme.muted
-            font { family: Theme.font; pixelSize: Theme.fontBody }
         }
-        Item { Layout.preferredHeight: Theme.spaceXs }
     }
 }
