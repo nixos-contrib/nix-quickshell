@@ -13,6 +13,9 @@
       forEach = f: nixpkgs.lib.genAttrs systems (system: f nixpkgs.legacyPackages.${system});
     in
     {
+      # the shell, its theme file and the fragments for the apps, for home-manager
+      homeModules.default = import ./nix/module.nix self;
+
       packages = forEach (pkgs: rec {
         nshell = pkgs.callPackage ./package.nix { };
         default = nshell;

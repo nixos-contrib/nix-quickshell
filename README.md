@@ -23,7 +23,8 @@ It is a work in progress. So far:
   yours to bind, see `docs/i3.md`
 
 - theme: nixos-navy dark and a light mode from the same blues of nixos.org. `nshell theme [dark|light|auto|toggle]` changes it
-  live, `auto` is light from 07:00 to 19:00, and the choice is kept in `~/.local/state/nix-shell/theme.json`
+  live, `auto` is light from 07:00 to 19:00, and the choice is kept in `~/.local/state/nix-shell/theme.json`. The palettes are data,
+  see Theme below
 
 Not done: brightness (needs a screen with a backlight), network and Bluetooth in the bar.
 
@@ -44,6 +45,55 @@ The launcher lists programs that run in a terminal (Helix, Yazi, bottom…) only
 
 It needs `QS_ICON_THEME` set to an installed icon theme for the icons of the apps, and `I3SOCK` when it runs outside i3.
 The window of the toasts is floated by i3, see the rules in `docs/i3.md`.
+
+## Theme
+
+The palettes are files of the package, `themes/navy.json` (the default, the blues of nixos.org) and `themes/graphite.json` (greys),
+each with the roles of a `dark` and a `light` palette. `~/.config/nix-shell/theme.json`, or the file of `NSHELL_THEME`, is read over
+it, and the shell reads both again when they change:
+
+```json
+{
+  "variant": "navy",
+  "mode": "dark",
+  "font": "Inter",
+  "radius": 16,
+  "hours": { "light": 7, "dark": 19 },
+  "dark": { "primary": "#7ebae4" }
+}
+```
+
+Every key is optional: `variant` is `navy` or `graphite`, `mode` is `dark`, `light` or `auto` (a choice of `nshell theme` lasts over
+it), `font` is the family (Inter by default, which has to be installed), `radius` is the large one and the other two follow it, and
+`dark` and `light` name the roles to change.
+
+### With Nix
+
+`homeModules.default` is a home-manager module that writes that file from options, and the fragments of the apps that follow the theme:
+
+```nix
+programs.nix-shell = {
+  enable = true;
+  theme = {
+    variant = "navy";
+    mode = "auto";
+    font = "SF Pro Text";
+    dark.primary = "#7ebae4";
+  };
+  # each writes a file in ~/.config/nix-shell that the config of the app includes, so the rest of that config stays yours
+  integration = { gtk = true; xresources = true; zathura = true; i3 = true; };
+};
+```
+
+| Option | File | Include it with |
+|---|---|---|
+| `integration.gtk` | `gtk.css`, the named colors of adw-gtk3 and libadwaita | `@import url("file:///home/you/.config/nix-shell/gtk.css");` in `gtk-3.0/gtk.css` and `gtk-4.0/gtk.css`, with the theme `adw-gtk3` or `adw-gtk3-dark` |
+| `integration.xresources` | `Xresources`, the colors of xterm | `xrdb -merge ~/.config/nix-shell/Xresources` |
+| `integration.zathura` | `zathurarc`, the colors of zathura | `include ~/.config/nix-shell/zathurarc` in zathurarc |
+| `integration.i3` | `i3.conf`, the colors of the tabs | `include ~/.config/nix-shell/i3.conf` in the config of i3 |
+
+The apps have the palette of the `mode` when it is `dark` or `light`, and the dark one when it is `auto`: they take their colors when
+they start, and do not change with the shell.
 
 ## License
 
