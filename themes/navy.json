@@ -31,9 +31,9 @@
     "accent": "#4d6fb7",
     "onPrimary": "#ffffff",
     "onFill": "#ffffff",
-    "success": "#267543",
-    "critical": "#b63132",
-    "warning": "#b16512",
+    "success": "#378450",
+    "critical": "#a8545b",
+    "warning": "#a25e2c",
     "shadow": "#2e000000"
   }
 }

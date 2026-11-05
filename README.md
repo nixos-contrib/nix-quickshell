@@ -64,7 +64,7 @@ it, and the shell reads both again when they change:
 ```
 
 Every key is optional: `variant` is `navy` or `graphite`, `mode` is `dark`, `light` or `auto` (a choice of `nshell theme` lasts over
-it), `font` is the family (Inter by default, which has to be installed), `radius` is the large one and the other two follow it, and
+it), `font` is the family (Inter by default, which has to be installed; the brand font of NixOS, Route 159, is in [NixOS/branding](https://github.com/NixOS/branding) under the OFL, and works too), `radius` is the large one and the other two follow it, and
 `dark` and `light` name the roles to change.
 
 ### With Nix
