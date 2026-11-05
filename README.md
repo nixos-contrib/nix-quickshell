@@ -69,7 +69,7 @@ it), `font` is the family (Inter by default, which has to be installed), `radius
 
 ### With Nix
 
-`homeModules.default` is a home-manager module that writes that file from options, and the fragments of the apps that follow the theme:
+`homeModules.default` is a home-manager module that writes that file from options, and what the apps that follow the theme need:
 
 ```nix
 programs.nix-shell = {
@@ -80,20 +80,24 @@ programs.nix-shell = {
     font = "SF Pro Text";
     dark.primary = "#7ebae4";
   };
-  # each writes a file in ~/.config/nix-shell that the config of the app includes, so the rest of that config stays yours
-  integration = { gtk = true; xresources = true; zathura = true; i3 = true; };
+  integration = {
+    gtk.enable = true;        # the settings and the colors of the GTK apps (adw-gtk3), GTK 3 and 4
+    zathura.enable = true;    # zathurarc with the colors and the font
+    xresources.enable = true; # ~/.config/nix-shell/Xresources, for xrdb -merge
+    i3.enable = true;         # ~/.config/nix-shell/i3.conf, the colors of the tabs, for include
+  };
 };
 ```
 
-| Option | File | Include it with |
+| Option | Writes | Yours to add |
 |---|---|---|
-| `integration.gtk` | `gtk.css`, the named colors of adw-gtk3 and libadwaita | `@import url("file:///home/you/.config/nix-shell/gtk.css");` in `gtk-3.0/gtk.css` and `gtk-4.0/gtk.css`, with the theme `adw-gtk3` or `adw-gtk3-dark` |
-| `integration.xresources` | `Xresources`, the colors of xterm | `xrdb -merge ~/.config/nix-shell/Xresources` |
-| `integration.zathura` | `zathurarc`, the colors of zathura | `include ~/.config/nix-shell/zathurarc` in zathurarc |
-| `integration.i3` | `i3.conf`, the colors of the tabs | `include ~/.config/nix-shell/i3.conf` in the config of i3 |
+| `integration.gtk` | `gtk-3.0/settings.ini` (adw-gtk3 in the mode, the icon theme, the font), `gtk-3.0/gtk.css` and `gtk-4.0/gtk.css` with the named colors of the palette | `gtk.extraCss`, rules of layout that can use the colors (`@window_bg_color`), `gtk.iconTheme` |
+| `integration.zathura` | `zathura/zathurarc`, with the colors and the font | `zathura.extraConfig` |
+| `integration.xresources` | `nix-shell/Xresources`, the colors of xterm | `xrdb -merge ~/.config/nix-shell/Xresources` in the session |
+| `integration.i3` | `nix-shell/i3.conf`, the colors of the tabs | `include ~/.config/nix-shell/i3.conf` in the config of i3 |
 
-The apps have the palette of the `mode` when it is `dark` or `light`, and the dark one when it is `auto`: they take their colors when
-they start, and do not change with the shell.
+`integration.fontSize` is the size of the text of GTK and zathura, 11 by default. The apps have the palette of the `mode` when it
+is `dark` or `light`, and the dark one when it is `auto`: they take their colors when they start, and do not change with the shell.
 
 ## License
 

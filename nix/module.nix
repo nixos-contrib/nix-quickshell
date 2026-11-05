@@ -18,6 +18,10 @@ let
   mode = if cfg.theme.mode == "light" then "light" else "dark";
   palette = variant.${mode} // cfg.theme.${mode};
   files = import ./generators.nix palette;
+  # the colors are in a file of their own, which the apps that cannot be written by the module also import
+  gtkCss = ''
+    @import url("file://${config.xdg.configHome}/nix-shell/gtk.css");
+${cfg.integration.gtk.extraCss}'';
 
   roles = mkOption {
     type = types.attrsOf types.str;
@@ -28,13 +32,16 @@ let
     description = "Roles of the palette to change, by name, as in themes/*.json. A color is #rrggbb, or #aarrggbb with alpha.";
   };
 
-  integration =
+  enableOption =
     description:
     mkOption {
       type = types.bool;
       default = false;
       inherit description;
     };
+
+  font = if cfg.theme.font != null then cfg.theme.font else "Inter";
+  fontSize = toString cfg.integration.fontSize;
 in
 {
   options.programs.nix-shell = {
@@ -93,15 +100,59 @@ in
     };
 
     integration = {
-      gtk = integration "~/.config/nix-shell/gtk.css, the named colors of adw-gtk3 and libadwaita, for `@import url(\"../nix-shell/gtk.css\");` in gtk-3.0/gtk.css and gtk-4.0/gtk.css";
-      xresources = integration "~/.config/nix-shell/Xresources, the colors of xterm, for `xrdb -merge`";
-      zathura = integration "~/.config/nix-shell/zathurarc, the colors of zathura, for `include` in zathurarc";
-      i3 = integration "~/.config/nix-shell/i3.conf, the colors of the tabs, for `include` in the config of i3";
+      fontSize = mkOption {
+        type = types.ints.positive;
+        default = 11;
+        description = "The size of the text of the GTK apps and of zathura, in points. The shell has its own sizes.";
+      };
+
+      gtk = {
+        enable = enableOption ''
+          The look of the GTK apps: the settings (adw-gtk3 in the mode of the theme, the icons, the font), and gtk-3.0/gtk.css and
+          gtk-4.0/gtk.css with the named colors of the palette, which adw-gtk3 and libadwaita read. Owns those files
+        '';
+        iconTheme = {
+          name = mkOption {
+            type = types.str;
+            default = "Papirus-Dark";
+            description = "The name of the icon theme.";
+          };
+          package = mkOption {
+            type = types.package;
+            default = pkgs.papirus-icon-theme;
+            defaultText = "pkgs.papirus-icon-theme";
+            description = "The package of the icon theme, installed with the theme adw-gtk3.";
+          };
+        };
+        extraCss = mkOption {
+          type = types.lines;
+          default = "";
+          description = "Rules added to gtk.css after the colors: the layout of the apps. They can use the named colors, as @window_bg_color.";
+        };
+      };
+
+      zathura = {
+        enable = enableOption "zathura/zathurarc with the colors of the palette and the font. Owns that file";
+        extraConfig = mkOption {
+          type = types.lines;
+          default = "";
+          description = "Lines added to zathurarc.";
+        };
+      };
+
+      xresources.enable = enableOption "~/.config/nix-shell/Xresources, the colors of xterm, for `xrdb -merge`";
+      i3.enable = enableOption "~/.config/nix-shell/i3.conf, the colors of the tabs, for `include` in the config of i3";
     };
   };
 
   config = mkIf cfg.enable {
-    home.packages = [ cfg.package ];
+    home.packages = [
+      cfg.package
+    ]
+    ++ lib.optionals cfg.integration.gtk.enable [
+      pkgs.adw-gtk3
+      cfg.integration.gtk.iconTheme.package
+    ];
 
     xdg.configFile = {
       "nix-shell/theme.json".text = builtins.toJSON (
@@ -113,9 +164,26 @@ in
         }
       );
     }
-    // lib.optionalAttrs cfg.integration.gtk { "nix-shell/gtk.css".text = files.gtk; }
-    // lib.optionalAttrs cfg.integration.xresources { "nix-shell/Xresources".text = files.xresources; }
-    // lib.optionalAttrs cfg.integration.zathura { "nix-shell/zathurarc".text = files.zathura; }
-    // lib.optionalAttrs cfg.integration.i3 { "nix-shell/i3.conf".text = files.i3; };
+    // lib.optionalAttrs cfg.integration.gtk.enable {
+      "nix-shell/gtk.css".text = files.gtk;
+      "gtk-3.0/gtk.css".text = gtkCss;
+      "gtk-4.0/gtk.css".text = gtkCss;
+      "gtk-3.0/settings.ini".text = ''
+        [Settings]
+        gtk-theme-name=${if mode == "light" then "adw-gtk3" else "adw-gtk3-dark"}
+        gtk-icon-theme-name=${cfg.integration.gtk.iconTheme.name}
+        gtk-font-name=${font} ${fontSize}
+        gtk-application-prefer-dark-theme=${if mode == "light" then "0" else "1"}
+      '';
+    }
+    // lib.optionalAttrs cfg.integration.xresources.enable { "nix-shell/Xresources".text = files.xresources; }
+    // lib.optionalAttrs cfg.integration.zathura.enable {
+      "zathura/zathurarc".text = ''
+        ${files.zathura}
+        set font "${font} ${fontSize}"
+        ${cfg.integration.zathura.extraConfig}
+      '';
+    }
+    // lib.optionalAttrs cfg.integration.i3.enable { "nix-shell/i3.conf".text = files.i3; };
   };
 }
