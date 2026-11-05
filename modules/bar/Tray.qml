@@ -9,24 +9,29 @@ import qs
 // A click does what the app does, the right button shows its menu
 RowLayout {
     id: tray
-    spacing: Theme.spaceMd
+    spacing: Theme.spaceSm
+    // the item whose menu is open: its tile is filled, as long as the menu is
+    property var openItem: null
     // the right button, or the left one for the apps that only have a menu: the item and where its icon is in the bar
     signal menuRequested(var item, real x)
 
     Repeater {
         model: SystemTray.items
-        delegate: Item {
+        delegate: Rectangle {
             id: slot
             required property SystemTrayItem modelData
 
-            Layout.preferredWidth: Theme.trayIcon
-            Layout.preferredHeight: Theme.trayIcon
+            Layout.preferredWidth: Theme.slot
+            Layout.preferredHeight: Theme.slot
             visible: modelData.status !== Status.Passive
+            radius: Theme.tileRadius
+            color: area.pressed || tray.openItem === slot.modelData ? Theme.barFocus : "transparent"
+            Behavior on color { ColorAnimation { duration: 120 } }
 
             IconImage {
-                anchors.fill: parent
+                anchors.centerIn: parent
+                implicitSize: Theme.statusIcon
                 source: slot.modelData.icon
-                opacity: area.containsMouse ? 1 : 0.9
             }
             MouseArea {
                 id: area

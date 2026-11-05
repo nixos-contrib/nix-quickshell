@@ -15,8 +15,8 @@ RowLayout {
 
             Layout.preferredWidth: Theme.tile
             Layout.preferredHeight: Theme.tile
-            radius: 7
-            color: modelData.urgent ? Theme.critical : (modelData.focused ? Theme.barFocus : (area.containsMouse ? Theme.barHover : "transparent"))
+            radius: Theme.tileRadius
+            color: modelData.urgent ? Theme.critical : (modelData.focused ? Theme.barFocus : "transparent")
             Behavior on color { ColorAnimation { duration: 120 } }
 
             Text {

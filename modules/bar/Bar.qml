@@ -34,62 +34,84 @@ Scope {
             // The logo of NixOS in its two blues, as the one of Apple in the menu bar, and the workspaces
             RowLayout {
                 spacing: Theme.spaceLg
-                Image {
-                    source: Qt.resolvedUrl("../../assets/nix-snowflake.svg")
-                    sourceSize: Qt.size(Theme.logo * 2, Theme.logo * 2)
-                    Layout.preferredWidth: Theme.logo
-                    Layout.preferredHeight: Theme.logo
-                    fillMode: Image.PreserveAspectFit
+                // The logo is an item like the others, as the Apple of the menu bar: the same size, and it fills while it is pressed.
+                // It opens the launcher, until the shell has its own
+                Rectangle {
+                    Layout.preferredWidth: Theme.slot
+                    Layout.preferredHeight: Theme.slot
+                    radius: Theme.tileRadius
+                    color: logoArea.pressed ? Theme.barFocus : "transparent"
+                    Behavior on color { ColorAnimation { duration: 120 } }
+                    Image {
+                        anchors.centerIn: parent
+                        source: Qt.resolvedUrl("../../assets/nix-snowflake.svg")
+                        sourceSize: Qt.size(Theme.statusIcon * 2, Theme.statusIcon * 2)
+                        width: Theme.statusIcon
+                        height: Theme.statusIcon
+                        fillMode: Image.PreserveAspectFit
+                    }
+                    MouseArea {
+                        id: logoArea
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: Quickshell.execDetached(["rofi", "-show", "drun"])
+                    }
                 }
                 Workspaces {}
             }
 
             Item { Layout.fillWidth: true }
 
+            // The status area: the icons of the tray, the bell and the clock, every one in a slot and the same space between
+            // them, as the menu bar of macOS has its items. The bell has the count of the history, a slash when do not
+            // disturb is on, a click opens the history and the right button toggles do not disturb
             RowLayout {
-                spacing: Theme.spaceXl
+                spacing: Theme.spaceSm
 
-                Tray { onMenuRequested: (item, x) => trayMenu.openFor(item, x) }
+                Tray {
+                    openItem: trayMenu.visible ? trayMenu.item : null
+                    onMenuRequested: (item, x) => trayMenu.openFor(item, x)
+                }
 
-                // The status: the bell and the clock. The bell has the count of the history, a slash when do not disturb is on, a click
-                // opens the history and the right button toggles do not disturb
-                RowLayout {
-                    spacing: Theme.spaceMd
-
-                    Item {
-                        Layout.preferredHeight: Theme.slot
-                        Layout.preferredWidth: bell.implicitWidth
-                        Row {
-                            id: bell
+                Rectangle {
+                    Layout.preferredHeight: Theme.slot
+                    Layout.preferredWidth: Math.max(Theme.slot, bell.implicitWidth + Theme.spaceSm)
+                    radius: Theme.tileRadius
+                    color: bellArea.pressed || root.notifications.centerOpen ? Theme.barFocus : "transparent"
+                    Behavior on color { ColorAnimation { duration: 120 } }
+                    Row {
+                        id: bell
+                        anchors.centerIn: parent
+                        spacing: Theme.spaceXs + 2
+                        Text {
                             anchors.verticalCenter: parent.verticalCenter
-                            spacing: Theme.spaceXs + 2
-                            Text {
-                                anchors.verticalCenter: parent.verticalCenter
-                                text: root.notifications.dnd ? "" : ""
-                                color: root.notifications.dnd ? Theme.barMuted : Theme.barText
-                                font { family: Theme.iconFont; pixelSize: Theme.iconStatus }
-                            }
-                            Text {
-                                anchors.verticalCenter: parent.verticalCenter
-                                visible: root.notifications.unread > 0
-                                text: root.notifications.unread
-                                color: Theme.barText
-                                font { family: Theme.font; pixelSize: Theme.fontBar; weight: Font.Medium }
-                            }
+                            text: root.notifications.dnd ? "\uf1f6" : "\uf0f3"
+                            color: root.notifications.dnd ? Theme.barMuted : Theme.barText
+                            font { family: Theme.iconFont; pixelSize: Theme.statusIcon }
                         }
-                        MouseArea {
-                            anchors.fill: parent
-                            cursorShape: Qt.PointingHandCursor
-                            acceptedButtons: Qt.LeftButton | Qt.RightButton
-                            onClicked: mouse => mouse.button === Qt.RightButton ? root.notifications.toggleDnd() : root.notifications.toggleCenter()
+                        Text {
+                            anchors.verticalCenter: parent.verticalCenter
+                            visible: root.notifications.unread > 0
+                            text: root.notifications.unread
+                            color: Theme.barText
+                            font { family: Theme.font; pixelSize: Theme.fontBar; weight: Font.Medium }
                         }
                     }
+                    MouseArea {
+                        id: bellArea
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        cursorShape: Qt.PointingHandCursor
+                        acceptedButtons: Qt.LeftButton | Qt.RightButton
+                        onClicked: mouse => mouse.button === Qt.RightButton ? root.notifications.toggleDnd() : root.notifications.toggleCenter()
+                    }
+                }
 
-                    Text {
-                        text: Qt.formatDateTime(Clock.date, "ddd d MMM HH:mm")
-                        color: Theme.barText
-                        font { family: Theme.font; pixelSize: Theme.fontBar; weight: Font.Medium }
-                    }
+                Text {
+                    text: Qt.formatDateTime(Clock.date, "ddd d MMM HH:mm")
+                    color: Theme.barText
+                    font { family: Theme.font; pixelSize: Theme.fontBar; weight: Font.Medium }
                 }
             }
         }
