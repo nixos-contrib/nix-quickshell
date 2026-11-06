@@ -1,0 +1,85 @@
+The tabs of the tabbed and stacked containers of i3, for the shell, see docs/i3.md.
+
+The shell shows the tabs in its bar, see modules/tabs, and i3 draws nothing for them: the colors of the tabs are transparent, with no
+title and no icon. What the shell needs of i3 is three things. The room that i3 keeps above a tabbed container is 2 points, not
+the height of the font and 4 px, and it does not follow the font. The windows of a split inside tabs get the gap between them,
+which i3 gives only to the windows of a split that is not in tabs, and the container of the tabs gives the one at the edges. And
+the tabs that are not in front are not mapped when the one in front is a split of windows: i3 keeps them mapped, under the
+one in front, and one of them is seen through the gap. If the build stops here, the source of i3 has changed.
+
+--- a/src/gaps.c
++++ b/src/gaps.c
+@@ -74,7 +74,6 @@
+        depth in the tree. Do not inset as soon as any parent is a stacked or
+        tabbed container, to avoid double insets. */
+     if (leaf_or_stacked_tabbed &&
+-        !con_inside_stacked_or_tabbed(con) &&
+         con->parent->type == CT_CON &&
+         (con->parent->layout == L_SPLITH ||
+          con->parent->layout == L_SPLITV)) {
+--- a/src/render.c
++++ b/src/render.c
+@@ -25,13 +25,25 @@
+  * Returns the height for the decorations
+  */
+ int render_deco_height(void) {
+-    int deco_height = config.font.height + 4;
++    /* the height of the room that i3 keeps for the tabs, 2 points: the shell shows the windows of a workspace in the bar, see
++     * modules/tabs, and a pixmap cannot be 0 high. It does not follow the font, and the 1 that is added below for a font of odd
++     * height is taken off here */
++    int deco_height = logical_px(2) - (config.font.height & 0x01);
+     if (config.font.height & 0x01) {
+         ++deco_height;
+     }
+     return deco_height;
+ }
+ 
++/* The container and all that is in it are not mapped: they are not in front, see render_con() */
++static void render_unmap(Con *con) {
++    Con *child;
++    con->mapped = false;
++    TAILQ_FOREACH (child, &(con->nodes_head), nodes) {
++        render_unmap(child);
++    }
++}
++
+ /*
+  * "Renders" the given container (and its children), meaning that all rects are
+  * updated correctly. Note that this function does not call any xcb_*
+@@ -66,11 +78,14 @@
+ 
+     if (gaps_should_inset_con(con, params.children)) {
+         gaps_t gaps = calculate_effective_gaps(con);
++        /* inside tabs the container of the tabs has the room at its edges already: the windows of a split have it only
++         * between them */
++        const bool in_tabs = con->parent->type == CT_CON && con_inside_stacked_or_tabbed(con);
+         Rect inset = (Rect){
+-            gaps_has_adjacent_container(con, D_LEFT) ? gaps.inner / 2 : gaps.inner,
+-            gaps_has_adjacent_container(con, D_UP) ? gaps.inner / 2 : gaps.inner,
+-            gaps_has_adjacent_container(con, D_RIGHT) ? -(gaps.inner / 2) : -gaps.inner,
+-            gaps_has_adjacent_container(con, D_DOWN) ? -(gaps.inner / 2) : -gaps.inner,
++            gaps_has_adjacent_container(con, D_LEFT) ? gaps.inner / 2 : (in_tabs ? 0 : gaps.inner),
++            gaps_has_adjacent_container(con, D_UP) ? gaps.inner / 2 : (in_tabs ? 0 : gaps.inner),
++            gaps_has_adjacent_container(con, D_RIGHT) ? -(gaps.inner / 2) : (in_tabs ? 0 : -gaps.inner),
++            gaps_has_adjacent_container(con, D_DOWN) ? -(gaps.inner / 2) : (in_tabs ? 0 : -gaps.inner),
+         };
+         inset.width -= inset.x;
+         inset.height -= inset.y;
+@@ -205,6 +220,17 @@
+                  * case, the children of the non-leaf-container need to be
+                  * raised as well. */
+                 render_con(child);
++                /* i3 keeps the windows of the tabs that are not in front mapped, under the one that is: a window covers them.
++                 * The one in front is a split of several windows when it has gaps between them, and the tab under them is
++                 * seen through the gaps. Then the others are not mapped */
++                if (!con_is_leaf(child)) {
++                    Con *other;
++                    TAILQ_FOREACH (other, &(con->nodes_head), nodes) {
++                        if (other != child) {
++                            render_unmap(other);
++                        }
++                    }
++                }
+             }
+ 
+             if (params.children != 1) {
