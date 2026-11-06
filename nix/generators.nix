@@ -46,6 +46,11 @@ in
        here they are the surface of the palette, as the fields and the cards of the shell are. What is selected is the accent, as it was */
     entry, spinbutton:not(.vertical) { background-color: @card_bg_color; }
     treeview.view:not(:backdrop):not(:selected):hover { background-color: @card_bg_color; }
+    /* the menus of a menu bar are round in adw-gtk3, for a popup window with an alpha channel, which a menu has not here: the corners
+       outside the round were black. They are square, as the context menus are */
+    menubar > menuitem menu:dir(rtl), menubar > menuitem menu:dir(ltr),
+    .menubar > menuitem menu:dir(rtl), .menubar > menuitem menu:dir(ltr),
+    menubar .csd.popup decoration, .menubar .csd.popup decoration { border-radius: 0; }
     /* a tip is a card of the palette, and not black on both modes */
     tooltip.background { background-color: @popover_bg_color; color: @popover_fg_color; border: 1px solid alpha(currentColor, 0.15); border-radius: 10px; }
     tooltip.background * { background-color: transparent; color: @popover_fg_color; }
