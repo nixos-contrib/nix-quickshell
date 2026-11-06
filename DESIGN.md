@@ -87,6 +87,33 @@ Files: the module writes both modes into `~/.config/nix-quickshell`; `nshell app
 | The mode is only written by `nshell theme` | the saved choice survives restarts and deploys | |
 | Brave gets the theme twice | Brave reads the colors of a GTK theme when its name changes, before GTK has loaded it, and so shows the mode before | one change; nudging other settings did nothing |
 
+## Other shells
+
+Four Quickshell shells were read on 2026-11-06 (the QML, not run): [end-4/dots-hyprland](https://github.com/end-4/dots-hyprland),
+[caelestia-dots/shell](https://github.com/caelestia-dots/shell), [duxlabs-dev/dux-shell](https://github.com/duxlabs-dev/dux-shell) and
+[snowarch/iNiR](https://github.com/snowarch/iNiR). Their UI is not copied, and this is why.
+
+| | Size | Built for | License |
+|---|---|---|---|
+| dots-hyprland | 586 files, 57k lines | Hyprland, in 97 files | GPL-3.0 |
+| caelestia shell | 282 files, 40k lines, and a C++ plugin | Hyprland | GPL-3.0 |
+| dux-shell | 1,027 files, 228k lines, and a Go backend | the Wayland compositors, i3 only for the compositor service in 3 files | MIT |
+| iNiR | 1,422 files, 409k lines | niri, in 196 files | GPL-3.0 |
+| this shell | about 4k lines | i3 on X11 | GPL-3.0-or-later |
+
+- **They are Wayland shells.** Layer-shell is in 5 to 87 files of each, and the capture of the screen, the lock of the session and the
+  protocols of the compositors are all over them. A panel taken from them has its compositor layer to write again.
+- **Their look is not the one of NixOS.** The colors come from the wallpaper (Material You, matugen) and the icons are Material Symbols,
+  in 99 files of one and 451 of another. The principles above, branding first and quiet, are the opposite of a theme that changes with the wallpaper.
+- **The size is theirs to keep.** Ten to a hundred times the lines of this one, each pushed within the last month. A copy is a fork that
+  has to be followed.
+- **The licenses need a look at the headers.** GitHub says GPL-3.0 for three of them, which may not be "or later" as this one is. dux-shell is MIT.
+
+What is not done on purpose: the overview with live previews and the lock screen (they need Wayland protocols that X11 has no answer for),
+desktop widgets (they have no place in a tiling layout), a settings app, an assistant, a mascot, and colors from the wallpaper. What is
+taken is ideas, and each one is written here again for this shell and credited if it is close: a calendar on the clock, notifications with
+progress, a media item, a menu for the session, and one set of durations and easings for the motion. They are issues of the repo.
+
 ## The rules of the windows
 
 ### The panel (`modules/common/Panel.qml`)
