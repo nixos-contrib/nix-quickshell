@@ -33,13 +33,13 @@ case "${1:-}" in
 center | bar | launcher | launch | theme) same_press && exit 0 ;;
 esac
 
-# The apps follow the mode: nix-shell (the Nix module) writes the files of both modes in ~/.config/nix-shell, and this copies the ones
+# The apps follow the mode: nix-quickshell (the Nix module) writes the files of both modes in ~/.config/nix-quickshell, and this copies the ones
 # of a mode into the state folder, which the configs of the apps include, and asks the apps to read them again: xsettingsd (the GTK
 # apps change themselves, live), xrdb (xterm, at its next start) and i3 (the colors of the tabs)
 # The location bar of an open Thunar keeps the small icon of the other mode until it goes to another folder: GTK does not draw it again, and
 # the only way to make it do so is to swap the bar for the path buttons and back, which flashes. The rest of Thunar follows the mode live
 apply_apps() {
-	local mode="${1:-}" cfg="${XDG_CONFIG_HOME:-$HOME/.config}/nix-shell" state="${XDG_STATE_HOME:-$HOME/.local/state}/nix-shell" changed=0
+	local mode="${1:-}" cfg="${XDG_CONFIG_HOME:-$HOME/.config}/nix-quickshell" state="${XDG_STATE_HOME:-$HOME/.local/state}/nix-quickshell" changed=0
 	if [ -z "$mode" ]; then
 		mode="$(grep -o '"mode" *: *"[a-z]*"' "$state/theme.json" 2>/dev/null | head -n1 | grep -o '"[a-z]*"$' | tr -d '"' || true)"
 	fi

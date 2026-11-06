@@ -7,7 +7,7 @@ let
 in
 {
   # The named colors that adw-gtk3 reads, and libadwaita: with them the theme draws every GTK app in the palette. Import it from
-  # gtk-3.0/gtk.css and gtk-4.0/gtk.css: @import url("../nix-shell/gtk.css");
+  # gtk-3.0/gtk.css and gtk-4.0/gtk.css: @import url("../nix-quickshell/gtk.css");
   gtk = ''
     @define-color window_bg_color ${p.bg};
     @define-color window_fg_color ${p.text};

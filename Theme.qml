@@ -10,9 +10,9 @@ import Quickshell.Io
 Singleton {
     // The theme is data. A flavour of the package, flavours/<name>.json, has the roles of a dark and of a light palette: nixos-navy is the
     // default, the dark blues of nixos.org and its white, and nixos-graphite is the same with greys. The file of the user is over it,
-    // ~/.config/nix-shell/theme.json or the one of NSHELL_THEME: the flavour, the font, the radius, the hours of auto, and the roles
+    // ~/.config/nix-quickshell/theme.json or the one of NSHELL_THEME: the flavour, the font, the radius, the hours of auto, and the roles
     // of a palette to change. Both are read when the shell starts and again when they change
-    readonly property string userPath: Quickshell.env("NSHELL_THEME") || (Quickshell.env("XDG_CONFIG_HOME") || Quickshell.env("HOME") + "/.config") + "/nix-shell/theme.json"
+    readonly property string userPath: Quickshell.env("NSHELL_THEME") || (Quickshell.env("XDG_CONFIG_HOME") || Quickshell.env("HOME") + "/.config") + "/nix-quickshell/theme.json"
     function readJson(view: var): var {
         try {
             const text = view.text();

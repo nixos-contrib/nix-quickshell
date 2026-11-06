@@ -51,8 +51,8 @@ It is private and not released: there are no tags. The system that uses it pins 
 | `nshell` | `bin/nshell` | the commands: the IPC of the shell, `apps` (the files of a mode into place), `theme`, `tabs list` |
 | Nix | `nix/`, `flake.nix` | the home-manager module, the generators, the i3 patch as an overlay, the packages |
 
-Files: the module writes both modes into `~/.config/nix-shell`; `nshell apps` copies the ones of the current mode into the state folder
-(`~/.local/state/nix-shell`), which the configs of the apps include. The mode is saved there, and is only changed by `nshell theme`.
+Files: the module writes both modes into `~/.config/nix-quickshell`; `nshell apps` copies the ones of the current mode into the state folder
+(`~/.local/state/nix-quickshell`), which the configs of the apps include. The mode is saved there, and is only changed by `nshell theme`.
 
 ## Decisions
 

@@ -8,7 +8,7 @@ import qs.modules.common
 
 // The windows of every workspace, for the bar (modules/bar/Workspaces): the groups of each one, as they are on the screen, a group for a
 // tabbed container of i3 and one for the windows that are side by side. i3 reserves almost nothing for its tabs and draws nothing in it,
-// see the colors that nix-shell writes for it: the shell knows the windows from the tree of i3, and does what a click says with the
+// see the colors that nix-quickshell writes for it: the shell knows the windows from the tree of i3, and does what a click says with the
 // commands of i3. There is no stacked layout in the design, but one that is there is a group of tabs too. The list of the tabs of a
 // group, for when there are many, is a popup under the chevron of the group
 Scope {

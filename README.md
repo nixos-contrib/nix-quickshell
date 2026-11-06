@@ -1,4 +1,4 @@
-# nix-shell
+# nix-quickshell
 
 A small desktop shell for NixOS on X11, written in QML for [Quickshell](https://quickshell.org). It replaces the
 notification daemon, the bar and the launcher of an i3 session with one process, in the palette of nixos.org.
@@ -30,7 +30,7 @@ It is a work in progress. So far:
   yours to bind, see `docs/i3.md`
 
 - theme: nixos-navy dark and a light mode from the same blues of nixos.org. `nshell theme [dark|light|auto|toggle]` changes it
-  live, `auto` is light from 07:00 to 19:00, and the choice is kept in `~/.local/state/nix-shell/theme.json`. The palettes are data,
+  live, `auto` is light from 07:00 to 19:00, and the choice is kept in `~/.local/state/nix-quickshell/theme.json`. The palettes are data,
   see Theme below
 
 Not done: brightness (needs a screen with a backlight), network and Bluetooth in the bar.
@@ -38,8 +38,8 @@ Not done: brightness (needs a screen with a backlight), network and Bluetooth in
 ## Try it
 
 ```sh
-nix run github:nixos-contrib/nix-shell      # the shell
-nix run github:nixos-contrib/nix-shell -- center   # opens the history of the notifications
+nix run github:nixos-contrib/nix-quickshell      # the shell
+nix run github:nixos-contrib/nix-quickshell -- center   # opens the history of the notifications
 ```
 
 From a checkout, `NSHELL_PATH=. nshell`, and `bin/preview` sends one of every kind of notification, or `bin/preview burst` a pile
@@ -56,7 +56,7 @@ The window of the toasts is floated by i3, see the rules in `docs/i3.md`.
 ## Theme
 
 The palettes are flavours, files of the package, `flavours/nixos-navy.json` (the default, the blues of nixos.org) and `flavours/nixos-graphite.json` (greys),
-each with the roles of a `dark` and a `light` palette. `~/.config/nix-shell/theme.json`, or the file of `NSHELL_THEME`, is read over
+each with the roles of a `dark` and a `light` palette. `~/.config/nix-quickshell/theme.json`, or the file of `NSHELL_THEME`, is read over
 it, and the shell reads both again when they change:
 
 ```json
@@ -79,7 +79,7 @@ it), `font` is the family (Route 159 by default, the typeface of NixOS, which ha
 `homeModules.default` is a home-manager module that writes that file from options, and what the apps that follow the theme need:
 
 ```nix
-programs.nix-shell = {
+programs.nix-quickshell = {
   enable = true;
   theme = {
     flavour = "nixos-navy";
@@ -90,29 +90,29 @@ programs.nix-shell = {
   integration = {
     gtk.enable = true;        # the settings and the colors of the GTK apps (adw-gtk3), GTK 3 and 4
     zathura.enable = true;    # zathurarc with the colors and the font
-    xresources.enable = true; # ~/.config/nix-shell/Xresources, for xrdb -merge
-    i3.enable = true;         # ~/.config/nix-shell/i3.conf, the colors of the tabs, for include
+    xresources.enable = true; # ~/.config/nix-quickshell/Xresources, for xrdb -merge
+    i3.enable = true;         # ~/.config/nix-quickshell/i3.conf, the colors of the tabs, for include
   };
 };
 ```
 
 | Option | Writes | Yours to add |
 |---|---|---|
-| `integration.gtk` | two GTK themes in `~/.local/share/themes`, `nix-shell-dark` and `nix-shell-light` (adw-gtk3 with the named colors of the palette after it), each with a twin of the same look (`-twin`), `gtk-3.0/settings.ini` and `gtk-4.0/gtk.css`, and `xsettings-<mode>.conf` and its twin for xsettingsd | `gtk.menuImages` (icons in the menus, on), `gtk.extraCss` (layout rules that can use the colors, as `@window_bg_color`), `gtk.xsettings` (as `Xft/DPI`), `gtk.iconTheme` |
+| `integration.gtk` | two GTK themes in `~/.local/share/themes`, `nix-quickshell-dark` and `nix-quickshell-light` (adw-gtk3 with the named colors of the palette after it), each with a twin of the same look (`-twin`), `gtk-3.0/settings.ini` and `gtk-4.0/gtk.css`, and `xsettings-<mode>.conf` and its twin for xsettingsd | `gtk.menuImages` (icons in the menus, on), `gtk.extraCss` (layout rules that can use the colors, as `@window_bg_color`), `gtk.xsettings` (as `Xft/DPI`), `gtk.iconTheme` |
 | `integration.zathura` | `zathura/zathurarc`, which includes the colors of the mode from the state folder, and the font | `zathura.extraConfig` |
 | `integration.wallpaper` | `wallpaper-<mode>.png`, the surface color of the palette, a step off the bar, with the logomark of NixOS in the middle (white on dark, black on light), and `nshell apps` sets the one of the mode with feh | `wallpaper.image`, an image of your own for both modes |
 | `integration.xresources` | `xresources-<mode>`, the colors of xterm and its sixteen: the hues of the NixOS palette, light on dark and darker on light | |
-| `integration.i3` | `i3-<mode>.conf`, the colors of the tabs | `include ~/.local/state/nix-shell/i3.conf` in the config of i3 |
-| `integration.cursor` | the cursor theme (capitaine-cursors, the arrow of macOS, by default): its package, `icons/default/index.theme`, the cursor of GTK and `Xresources`, and `session.sh` | `. ~/.config/nix-shell/session.sh` in the session, and `cursor.size`: 24 by default, 48 on a screen with twice the pixels |
+| `integration.i3` | `i3-<mode>.conf`, the colors of the tabs | `include ~/.local/state/nix-quickshell/i3.conf` in the config of i3 |
+| `integration.cursor` | the cursor theme (capitaine-cursors, the arrow of macOS, by default): its package, `icons/default/index.theme`, the cursor of GTK and `Xresources`, and `session.sh` | `. ~/.config/nix-quickshell/session.sh` in the session, and `cursor.size`: 24 by default, 48 on a screen with twice the pixels |
 
 ### The apps follow the mode
 
-The module writes the files of both modes into `~/.config/nix-shell`. `nshell apps [dark|light]` copies the ones of a mode into
-`~/.local/state/nix-shell` (where the configs of zathura and i3 include them), and the shell runs it when it starts and each time the
+The module writes the files of both modes into `~/.config/nix-quickshell`. `nshell apps [dark|light]` copies the ones of a mode into
+`~/.local/state/nix-quickshell` (where the configs of zathura and i3 include them), and the shell runs it when it starts and each time the
 mode changes. Then:
 
-- **GTK 3 apps** change live: `xsettingsd` tells them the theme changed from `nix-shell-dark` to `nix-shell-light`, and 0.4 s later to its twin, which looks the same: Brave reads the colors of a theme when its name changes, before GTK has loaded it, so with one change it shows the mode before. Start it in the
-  session after `nshell apps`: `xsettingsd -c ~/.local/state/nix-shell/xsettings.conf &`, and do not set `GTK_THEME`, which GTK
+- **GTK 3 apps** change live: `xsettingsd` tells them the theme changed from `nix-quickshell-dark` to `nix-quickshell-light`, and 0.4 s later to its twin, which looks the same: Brave reads the colors of a theme when its name changes, before GTK has loaded it, so with one change it shows the mode before. Start it in the
+  session after `nshell apps`: `xsettingsd -c ~/.local/state/nix-quickshell/xsettings.conf &`, and do not set `GTK_THEME`, which GTK
   puts before everything.
 - **i3** reads its include again (`i3-msg reload`), so the tabs change.
 - **xterm** and **zathura** take the colors when they start.

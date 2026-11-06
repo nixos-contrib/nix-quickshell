@@ -17,7 +17,7 @@
       homeModules.default = import ./nix/module.nix self;
 
       # i3 with the patch that the shell needs, see docs/i3.md: the room for its tabs, the gap inside them and the tabs that are not in front
-      # unmapped. It applies to the i3 of the pkgs that it is used with, so use it as nixpkgs.overlays = [ nix-shell.overlays.i3 ]
+      # unmapped. It applies to the i3 of the pkgs that it is used with, so use it as nixpkgs.overlays = [ nix-quickshell.overlays.i3 ]
       overlays.i3 = _final: prev: {
         i3 = prev.i3.overrideAttrs (old: {
           # the tests of i3 drag a tab with the pointer at the places of its default height, which the patch changes

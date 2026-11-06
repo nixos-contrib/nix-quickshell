@@ -9,7 +9,7 @@ self:
 }:
 
 let
-  cfg = config.programs.nix-shell;
+  cfg = config.programs.nix-quickshell;
   inherit (lib) mkEnableOption mkOption mkIf types;
 
   flavour = builtins.fromJSON (builtins.readFile ../flavours/${cfg.theme.flavour}.json);
@@ -22,13 +22,13 @@ let
   # The mode the apps have until the shell says its own: the files that the shell copies when the mode changes, see `nshell apps`.
   # Dark, unless the theme is light
   startMode = if cfg.theme.mode == "light" then "light" else "dark";
-  stateDir = "${config.xdg.stateHome}/nix-shell";
+  stateDir = "${config.xdg.stateHome}/nix-quickshell";
 
-  gtkTheme = m: "nix-shell-${m}";
+  gtkTheme = m: "nix-quickshell-${m}";
   # The same theme under another name. Brave (Chromium) reads the colors of the GTK theme when its name changes, before GTK has loaded it, and
   # so it shows the mode before: the apps are told the name of the theme, and a moment later the name of its twin, which is when Brave
   # reads the theme that was loaded. See `nshell apps`
-  gtkTwin = m: "nix-shell-${m}-twin";
+  gtkTwin = m: "nix-quickshell-${m}-twin";
   iconName = m: if m == "light" then cfg.integration.gtk.iconTheme.lightName else cfg.integration.gtk.iconTheme.name;
   # The GTK theme of a mode: adw-gtk3 in that mode, with the named colors of the palette after it, which win over its own, and the
   # rules of the user
@@ -72,7 +72,7 @@ let
   logomarkFile = m: ../assets/nixos-logomark-${if m == "light" then "black" else "white"}-flat.svg;
   wallpaper =
     m:
-    pkgs.runCommand "nix-shell-wallpaper-${m}.png" { nativeBuildInputs = [ pkgs.librsvg ]; } ''
+    pkgs.runCommand "nix-quickshell-wallpaper-${m}.png" { nativeBuildInputs = [ pkgs.librsvg ]; } ''
       # the drawing of the logomark, without its svg element: it is centered on 0, 0 and 1995 high
       logo="$(sed -e 's/^<svg[^>]*>//' -e 's#</svg>$##' ${logomarkFile m})"
       cat > wallpaper.svg <<SVG
@@ -89,8 +89,8 @@ let
   cursor = cfg.integration.cursor;
 in
 {
-  options.programs.nix-shell = {
-    enable = mkEnableOption "the nix-shell desktop shell";
+  options.programs.nix-quickshell = {
+    enable = mkEnableOption "the nix-quickshell desktop shell";
 
     package = mkOption {
       type = types.package;
@@ -163,7 +163,7 @@ in
       gtk = {
         enable = enableOption ''
           The look of the GTK apps: the settings (adw-gtk3 in the mode of the theme, the icons, the font), and gtk-3.0/gtk.css and
-          gtk-4.0/gtk.css with the named colors of the palette, which adw-gtk3 and libadwaita read. Owns those files, and two GTK themes in ~/.local/share/themes: nix-shell-dark and nix-shell-light
+          gtk-4.0/gtk.css with the named colors of the palette, which adw-gtk3 and libadwaita read. Owns those files, and two GTK themes in ~/.local/share/themes: nix-quickshell-dark and nix-quickshell-light
         '';
         iconTheme = {
           name = mkOption {
@@ -213,7 +213,7 @@ in
       cursor = {
         enable = enableOption ''
           The mouse cursor: the package, a default theme for X (icons/default/index.theme), the cursor of GTK, the cursor of Xresources,
-          and nix-shell/session.sh, which the session sources for XCURSOR_THEME, XCURSOR_SIZE and XCURSOR_PATH. Xcursor on NixOS does
+          and nix-quickshell/session.sh, which the session sources for XCURSOR_THEME, XCURSOR_SIZE and XCURSOR_PATH. Xcursor on NixOS does
           not look into the profile of the user by itself
         '';
         name = mkOption {
@@ -236,7 +236,7 @@ in
 
       wallpaper = {
         enable = enableOption ''
-          The wallpaper of the theme: ~/.config/nix-shell/wallpaper-<mode>.png, the surface color of the palette (not the one of the bar) with the logomark of NixOS in the
+          The wallpaper of the theme: ~/.config/nix-quickshell/wallpaper-<mode>.png, the surface color of the palette (not the one of the bar) with the logomark of NixOS in the
           middle, and `nshell apps` sets the one of the mode with feh, when the mode changes and at the start of the session
         '';
         image = mkOption {
@@ -246,8 +246,8 @@ in
         };
       };
 
-      xresources.enable = enableOption "~/.config/nix-shell/Xresources, the colors of xterm, for `xrdb -merge`";
-      i3.enable = enableOption "~/.config/nix-shell/i3.conf, the colors of the tabs, for `include` in the config of i3";
+      xresources.enable = enableOption "~/.config/nix-quickshell/Xresources, the colors of xterm, for `xrdb -merge`";
+      i3.enable = enableOption "~/.config/nix-quickshell/i3.conf, the colors of the tabs, for `include` in the config of i3";
     };
   };
 
@@ -265,7 +265,7 @@ in
 
     xdg.configFile = lib.optionalAttrs (cfg.theme.fallbackFont != null) {
       # the font has the Latin letters and little more: what it has not is drawn by the fallback, not by whatever fontconfig picks
-      "fontconfig/conf.d/60-nix-shell-fallback.conf".text = ''
+      "fontconfig/conf.d/60-nix-quickshell-fallback.conf".text = ''
         <?xml version="1.0"?>
         <!DOCTYPE fontconfig SYSTEM "urn:fontconfig:fonts.dtd">
         <fontconfig>
@@ -276,7 +276,7 @@ in
         </fontconfig>
       '';
     } // {
-      "nix-shell/theme.json".text = builtins.toJSON (
+      "nix-quickshell/theme.json".text = builtins.toJSON (
         lib.filterAttrs (_: v: v != null && v != { }) {
           flavour = cfg.theme.flavour;
           mode = cfg.theme.mode;
@@ -307,8 +307,8 @@ in
       }
       // lib.listToAttrs (
         lib.concatMap (m: [
-          (lib.nameValuePair "nix-shell/xsettings-${m}.conf" { text = xsettings m (gtkTheme m); })
-          (lib.nameValuePair "nix-shell/xsettings-${m}-twin.conf" { text = xsettings m (gtkTwin m); })
+          (lib.nameValuePair "nix-quickshell/xsettings-${m}.conf" { text = xsettings m (gtkTheme m); })
+          (lib.nameValuePair "nix-quickshell/xsettings-${m}-twin.conf" { text = xsettings m (gtkTwin m); })
         ]) modes
       )
     )
@@ -316,22 +316,22 @@ in
       lib.listToAttrs (
         map (
           m:
-          lib.nameValuePair "nix-shell/wallpaper-${m}.png" {
+          lib.nameValuePair "nix-quickshell/wallpaper-${m}.png" {
             source = if cfg.integration.wallpaper.image != null then cfg.integration.wallpaper.image else wallpaper m;
           }
         ) modes
       )
     )
     // lib.optionalAttrs cfg.integration.xresources.enable (
-      lib.listToAttrs (map (m: lib.nameValuePair "nix-shell/xresources-${m}" { text = files.${m}.xresources; }) modes)
+      lib.listToAttrs (map (m: lib.nameValuePair "nix-quickshell/xresources-${m}" { text = files.${m}.xresources; }) modes)
     )
     // lib.optionalAttrs cursor.enable {
       # mode-free, for `xrdb -merge` once, and the session
-      "nix-shell/Xresources".text = ''
+      "nix-quickshell/Xresources".text = ''
         Xcursor.theme: ${cursor.name}
         Xcursor.size: ${toString cursor.size}
       '';
-      "nix-shell/session.sh".text = ''
+      "nix-quickshell/session.sh".text = ''
         export XCURSOR_THEME=${cursor.name}
         export XCURSOR_SIZE=${toString cursor.size}
         export XCURSOR_PATH=${config.home.profileDirectory}/share/icons:/run/current-system/sw/share/icons
@@ -345,10 +345,10 @@ in
           ${cfg.integration.zathura.extraConfig}
         '';
       }
-      // lib.listToAttrs (map (m: lib.nameValuePair "nix-shell/zathurarc-${m}" { text = files.${m}.zathura; }) modes)
+      // lib.listToAttrs (map (m: lib.nameValuePair "nix-quickshell/zathurarc-${m}" { text = files.${m}.zathura; }) modes)
     )
     // lib.optionalAttrs cfg.integration.i3.enable (
-      lib.listToAttrs (map (m: lib.nameValuePair "nix-shell/i3-${m}.conf" { text = files.${m}.i3; }) modes)
+      lib.listToAttrs (map (m: lib.nameValuePair "nix-quickshell/i3-${m}.conf" { text = files.${m}.i3; }) modes)
     );
 
     xdg.dataFile =
@@ -370,7 +370,7 @@ in
                   [Desktop Entry]
                   Type=X-GNOME-Metatheme
                   Name=${name}
-                  Comment=adw-gtk3 in the palette of nix-shell, ${m}
+                  Comment=adw-gtk3 in the palette of nix-quickshell, ${m}
 
                   [X-GNOME-Metatheme]
                   GtkTheme=${name}
