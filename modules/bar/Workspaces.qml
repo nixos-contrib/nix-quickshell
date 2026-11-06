@@ -8,7 +8,9 @@ import qs.modules.common
 // The workspaces of i3 as squares: the one in use is a lighter block, the others only their number, and an urgent one is red. After the
 // number, the windows of the workspace, the same for every one: an icon for each (the one in front, or the one with the focus, lit), and
 // a title when the pointer stays on it. The windows that are side by side are one group. A tabbed container is a group of its own, with a
-// chevron that opens the list of its tabs, see modules/tabs, and a line is between the groups
+// chevron that opens the list of its tabs, see modules/tabs, and a line is between the groups.
+// On an icon: a click takes its window to the front, the right button opens a menu (close, move), and a drag along a group of tabs
+// moves the tab to where it is let go. The wheel on a group goes from one window to the next
 RowLayout {
     id: row
     spacing: Theme.spaceXs
@@ -16,6 +18,8 @@ RowLayout {
     property var tabs: null
     // a click on the chevron: the group, and where its list hangs from, in points of the screen
     signal listRequested(var container, real x, real y)
+    // the right button on an icon: the group, the tab, and where its menu hangs from
+    signal menuRequested(var group, var tab, real x, real y)
 
     // the chevrons that are in the bar, by the id of their group, for the list of a key to hang from one
     property var chevrons: ({})
@@ -78,14 +82,35 @@ RowLayout {
                 }
             }
 
+            // keyed by the id of the group: a change of a title or of the tab in front updates the icons and does not make them again,
+            // which a drag in the middle of it would not survive
             Repeater {
-                model: item.groups
+                model: ScriptModel { values: item.groups; objectProp: "id" }
                 delegate: Row {
                     id: group
                     required property var modelData
                     required property int index
                     spacing: 2
                     Layout.leftMargin: 2
+
+                    // the wheel on the group: the next window, or the one before it. A turn of a notch is a step, and a touchpad that
+                    // sends many small ones adds them up
+                    WheelHandler {
+                        id: wheel
+                        property real sum: 0
+                        enabled: group.modelData.tabs.length > 1
+                        onWheel: event => {
+                            sum += event.angleDelta.y !== 0 ? event.angleDelta.y : event.angleDelta.x;
+                            if (Math.abs(sum) >= 120) {
+                                if (!pause.running) {
+                                    row.tabs.cycle(group.modelData, sum < 0 ? 1 : -1);
+                                    pause.restart();
+                                }
+                                sum = 0;
+                            }
+                        }
+                    }
+                    Timer { id: pause; interval: 150 }
 
                     // the line between two groups
                     Rectangle {
@@ -97,15 +122,24 @@ RowLayout {
                         opacity: 0.4
                     }
                     Repeater {
-                        model: row.visibleTabs(group.modelData.tabs)
+                        model: ScriptModel { values: row.visibleTabs(group.modelData.tabs); objectProp: "id" }
                         delegate: Rectangle {
                             id: chip
                             required property var modelData
+                            // where it is in the group, for the drag
+                            readonly property int place: group.modelData.tabs.findIndex(t => t.id === modelData.id)
                             width: Theme.tile
                             height: Theme.tile
                             radius: Theme.radiusSm
                             color: modelData.current ? Theme.barFocus : (chipArea.containsMouse ? Qt.alpha(Theme.barFocus, 0.5) : "transparent")
                             Behavior on color { ColorAnimation { duration: 120 } }
+                            // a drag takes the icon with the pointer
+                            z: drag.active ? 2 : 0
+                            // how far it was dragged, kept: the handler says 0 again when the drag ends
+                            property real dragged: 0
+                            transform: Translate { x: drag.active ? chip.dragged : 0 }
+                            opacity: drag.active ? 0.85 : 1
+
                             Image {
                                 anchors.centerIn: parent
                                 source: row.iconFor(chip.modelData.cls)
@@ -132,13 +166,49 @@ RowLayout {
                             }
                             // an urgent window
                             Rectangle { visible: chip.modelData.urgent; anchors { right: parent.right; top: parent.top; margins: 3 } width: 6; height: 6; radius: 3; color: Theme.critical }
+
                             MouseArea {
                                 id: chipArea
                                 anchors.fill: parent
                                 hoverEnabled: true
                                 cursorShape: Qt.PointingHandCursor
-                                onClicked: { tip.hide(); row.tabs.focusTab(chip.modelData.id); }
-                                onContainsMouseChanged: containsMouse ? tip.show(chip, chip.modelData.count > 1 ? chip.modelData.name + " and " + (chip.modelData.count - 1) + " more" : chip.modelData.name) : tip.hide()
+                                acceptedButtons: Qt.LeftButton | Qt.RightButton
+                                onClicked: mouse => {
+                                    tip.hide();
+                                    if (mouse.button === Qt.RightButton) {
+                                        const p = chip.mapToItem(null, 0, 0);
+                                        row.menuRequested(group.modelData, chip.modelData, p.x + chip.width / 2, p.y + chip.height);
+                                    } else {
+                                        row.tabs.focusTab(chip.modelData.id);
+                                    }
+                                }
+                                onContainsMouseChanged: {
+                                    if (!containsMouse || drag.active)
+                                        tip.hide();
+                                    else
+                                        tip.show(chip, chip.modelData.count > 1 ? chip.modelData.name + " and " + (chip.modelData.count - 1) + " more" : chip.modelData.name);
+                                }
+                            }
+                            // along a group of tabs: the tab goes as many places as it was dragged, one for the width of an icon, and
+                            // never out of the group
+                            DragHandler {
+                                id: drag
+                                enabled: group.modelData.stack && group.modelData.tabs.length > 1
+                                target: null
+                                yAxis.enabled: false
+                                onTranslationChanged: if (active) chip.dragged = translation.x
+                                onActiveChanged: {
+                                    tip.hide();
+                                    if (active) {
+                                        chip.dragged = 0;
+                                        return;
+                                    }
+                                    const step = Theme.tile + 2;
+                                    let places = Math.round(chip.dragged / step);
+                                    places = Math.max(-chip.place, Math.min(group.modelData.tabs.length - 1 - chip.place, places));
+                                    if (places !== 0)
+                                        row.tabs.moveTab(chip.modelData, places);
+                                }
                             }
                         }
                     }

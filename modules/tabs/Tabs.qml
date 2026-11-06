@@ -27,8 +27,8 @@ Scope {
     property var workspaceGroups: ({})
     // the group of tabs that has the focus, or a group of tabs of the workspace in view: the list of the key is for it
     property var focusedContainer: null
-    readonly property bool listOpen: list.visible
-    function closeList() { list.visible = false; }
+    readonly property bool listOpen: list.visible || menu.visible
+    function closeList() { list.visible = false; menu.visible = false; }
 
     // --------------------------------------------------------------------------------------------------------- the tree of i3
     function leafOf(node) {
@@ -188,6 +188,23 @@ Scope {
     // ------------------------------------------------------------------------------------------------------------ the actions
     function focusTab(id) { I3.dispatch(`[con_id=${id}] focus`); }
     function closeTab(id) { I3.dispatch(`[con_id=${id}] kill`); }
+    // the wheel on a group: the window after the one that is in front, or before it, round. Not when none is in front: the workspace is
+    // not the one in view
+    function cycle(group, step) {
+        const n = group.tabs.length;
+        const at = group.tabs.findIndex(t => t.current);
+        if (n < 2 || at < 0)
+            return;
+        root.focusTab(group.tabs[(at + step + n) % n].id);
+    }
+    // a tab that is dragged: as many places as it was let go away, to the left when it is less than 0. The caller keeps it in its group
+    function moveTab(tab, places) {
+        const way = places < 0 ? "left" : "right";
+        const moves = [];
+        for (let i = 0; i < Math.abs(places); i++)
+            moves.push("move " + way);
+        I3.dispatch(`[con_id=${tab.id}] ${moves.join(", ")}`);
+    }
 
     // from the chevron of a group: where the list hangs from is given, in points
     function openListAt(container, x, y) {
@@ -199,6 +216,19 @@ Scope {
     IpcHandler {
         target: "tabs"
         function list(): void { if (root.focusedContainer) root.listKeyRequested(root.focusedContainer); }
+    }
+
+    // from the right button of an icon of the bar
+    function openMenuAt(group, tab, x, y) {
+        root.closeList();
+        menu.group = group;
+        menu.tab = tab;
+        menu.openAt(x - menu.panelWidth / 2, y + 4);
+    }
+    TabMenu {
+        id: menu
+        onCloseRequested: id => root.closeTab(id)
+        onMoveRequested: (tab, places) => root.moveTab(tab, places)
     }
 
     TabList {

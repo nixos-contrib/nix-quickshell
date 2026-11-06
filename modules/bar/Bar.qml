@@ -154,6 +154,10 @@ Scope {
                 Workspaces {
                     id: workspaces
                     tabs: root.tabs
+                    onMenuRequested: (group, tab, x, y) => {
+                        root.closePopups();
+                        root.tabs.openMenuAt(group, tab, x, y);
+                    }
                     onListRequested: (container, x, y) => {
                         root.closePopups();
                         root.tabs.openListAt(container, x, y);
