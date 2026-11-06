@@ -22,7 +22,7 @@
         i3 = prev.i3.overrideAttrs (old: {
           # the tests of i3 drag a tab with the pointer at the places of its default height, which the patch changes
           doCheck = false;
-          patches = (old.patches or [ ]) ++ [ ./patches/i3.patch ];
+          patches = (old.patches or [ ]) ++ [ ./nix/patches/i3.patch ];
         });
       };
 
