@@ -14,8 +14,8 @@ dark and light mode.
 
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/img/desktop-dark.png">
-    <img src="docs/img/desktop-light.png" alt="The shell: the bar, the toasts, a terminal and Thunar in the palette of NixOS">
+    <source media="(prefers-color-scheme: dark)" srcset="docs/img/wallpaper-dark.png">
+    <img src="docs/img/wallpaper-light.png" alt="The wallpaper and the bar, with the logomark of NixOS in the middle">
   </picture>
 </p>
 
@@ -138,8 +138,8 @@ with a band of font height and 4 px above the tabbed containers. See
 
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/img/wallpaper-dark.png">
-    <img src="docs/img/wallpaper-light.png" alt="The wallpaper and the bar, with the logomark of NixOS in the middle" width="720">
+    <source media="(prefers-color-scheme: dark)" srcset="docs/img/desktop-dark.png">
+    <img src="docs/img/desktop-light.png" alt="The shell: the bar, the toasts, a terminal and Thunar in the palette of NixOS">
   </picture>
 </p>
 
