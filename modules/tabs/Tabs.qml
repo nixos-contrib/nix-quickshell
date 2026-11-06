@@ -209,12 +209,13 @@ Scope {
         I3.dispatch(`[con_id=${tab.id}] ${moves.join(", ")}`);
     }
 
-    // from the chevron of a group: where the list hangs from is given, in points
+    // from the chevron of a group: where the list hangs from is given, in points: its left edge is the one of the number of the workspace, as
+    // a menu lines up with its item, and its top is under the bar
     function openListAt(container, x, y) {
         if (!container)
             return;
         list.container = container;
-        list.openAt(x - list.panelWidth / 2, y + 4);
+        list.openAt(x, y + 4);
     }
     IpcHandler {
         target: "tabs"

@@ -17,7 +17,8 @@ RowLayout {
     spacing: Theme.spaceXs
     // the tabs of the shell, which has the windows; null when there are none
     property var tabs: null
-    // a click on the chevron: the group, and where its list hangs from, in points of the screen
+    // a click on the chevron: the group, and where its list hangs from, in points of the screen: the left edge of the number of its workspace, and
+    // the bottom of the bar
     signal listRequested(var container, real x, real y)
     // the right button on an icon: the group, the tab, and where its menu hangs from
     signal menuRequested(var group, var tab, real x, real y)
@@ -28,8 +29,8 @@ RowLayout {
         const c = row.chevrons[group.id];
         if (!c)
             return;
-        const p = c.mapToItem(null, 0, 0);
-        row.listRequested(group, p.x, p.y + c.height);
+        const p = c.owner.mapToItem(null, 0, 0);
+        row.listRequested(group, p.x, p.y + c.owner.height);
     }
     // a group of more windows than this is collapsed: the icon of the one in front, and the chevron of the list, which has them all. There
     // is no count: the list and the tip say how many
@@ -198,6 +199,8 @@ RowLayout {
                     // the chevron of the list, for tabs and for a collapsed group
                     Rectangle {
                         id: chevron
+                        // the number of the workspace, which the list lines up with
+                        property Item owner: tile
                         visible: group.modelData.stack || row.collapsed(group.modelData)
                         Component.onCompleted: row.chevrons[group.modelData.id] = chevron
                         Component.onDestruction: if (row.chevrons[group.modelData.id] === chevron) delete row.chevrons[group.modelData.id]
@@ -214,8 +217,8 @@ RowLayout {
                             cursorShape: Qt.PointingHandCursor
                             onClicked: {
                                 tip.hide();
-                                const p = chevron.mapToItem(null, 0, 0);
-                                row.listRequested(group.modelData, p.x, p.y + chevron.height);
+                                const p = chevron.owner.mapToItem(null, 0, 0);
+                                row.listRequested(group.modelData, p.x, p.y + chevron.owner.height);
                             }
                         }
                     }
