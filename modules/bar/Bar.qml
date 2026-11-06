@@ -128,7 +128,7 @@ Scope {
                     Image {
                         id: logo
                         anchors.centerIn: parent
-                        source: Qt.resolvedUrl(Theme.dark ? "../../assets/nixos-logomark-white-flat.svg" : "../../assets/nixos-logomark-black-flat.svg")
+                        source: Qt.resolvedUrl(Theme.barDark ? "../../assets/nixos-logomark-white-flat.svg" : "../../assets/nixos-logomark-black-flat.svg")
                         // the drawing is 2304 x 1995 and is kept in that proportion
                         sourceSize: Qt.size(Theme.logoHeight * 2 * 2304 / 1995, Theme.logoHeight * 2)
                         width: Math.round(Theme.logoHeight * 2304 / 1995)
@@ -214,7 +214,7 @@ Scope {
                         width: 10
                         height: 10
                         radius: 5
-                        color: Theme.primary
+                        color: Theme.barText
                         border { width: 2; color: Theme.barBg }
                     }
                     MouseArea {

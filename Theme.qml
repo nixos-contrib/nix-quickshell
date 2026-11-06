@@ -4,8 +4,8 @@ import Quickshell
 import Quickshell.Io
 
 // The design system of the shell: every color, size and space comes from here, and nothing else has a number of its own.
-// The base is the bar, and it is the color of the windows in both modes (white, and the navy that is nearly black), so that it is not
-// an element of its own. The cards are a step up from the windows, and the blues of nixos.org are only for what is active or can be
+// The base is the color of the windows in both modes (white, and the navy that is nearly black). The bar is the base on dark, so that it is
+// not an element of its own, and on light it is a blue, a header over the white windows. The cards are a step up from the windows, and the blues of nixos.org are only for what is active or can be
 // pressed
 Singleton {
     // The theme is data. A flavour of the package, flavours/<name>.json, has the roles of a dark and of a light palette: nixos-navy is the
@@ -120,11 +120,13 @@ Singleton {
     // The room under the bar before the first card
     readonly property int gap: 12
 
-    // The bar
-    readonly property color barBg: base
-    readonly property color barText: text
+    // The bar has roles of its own: on dark it is the base, as the windows, and on light it is a blue (a grey in graphite) with white text, a
+    // header over the white windows. The focus is the tile of the focused workspace and of an open menu, and the logomark is white on a dark bar
+    readonly property color barBg: palette.barBg
+    readonly property color barText: palette.barText
     readonly property color barMuted: palette.barMuted
-    readonly property color barFocus: surfaceHigh
+    readonly property color barFocus: palette.barFocus
+    readonly property bool barDark: barBg.hslLightness < 0.5
     // the text on the filled tile of the focused workspace, and on the red of an urgent one
     readonly property color textOnAccent: palette.textOnAccent
     // Every item of the bar sits in a slot of the same size, centered: the workspaces, the icons of the tray, the bell. The

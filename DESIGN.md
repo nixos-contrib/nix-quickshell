@@ -73,6 +73,7 @@ Files: the module writes both modes into `~/.config/nix-quickshell`; `nshell app
 | Dot, not count | the history is not "unread"; the bell has a dot for what came since it was opened, a window has a red dot when i3 marks it urgent | a count on the bell and a count on each icon: noisy, and wrong as soon as the history holds old entries |
 | Rounded corners, large radius 16 | the website of NixOS has them | 8 and 0 were tried: more technical, less like nixos.org |
 | Route 159, Regular and SemiBold, Inter for what it lacks | it is the typeface of NixOS; it has the Latin letters and little more, so a fontconfig rule adds Inter | Inter alone; Bold is reserved by the guide, Light was not used at small sizes |
+| Light mode: a blue bar (`#3b5487`, the primary blue of the palette) with white text, over white windows and a pale blue wallpaper; in graphite a dark grey | the guide has the blues for headers and navigation bars, and the bar is the anchor of the screen: a white bar on white windows had nothing to hold it. It is the same shape as dark, a coloured strip over a quiet surface | the white bar (blends into the windows, the only part of the light desktop with no colour), a near black bar (`#050b18`: the most contrast, but it looks like dark mode with a white window under it, and is heavy) |
 | The official logomark, 18 points in the bar | it is flat white or black, as the guide asks, with its clear space and no fill behind it | the older snowflake of nixos-artwork, painted in the text color; 24 points was too big for a bar |
 | Wallpaper: the `surface` color, the logomark at 12% of the height | a step off the bar, so the bar reads as a strip; quiet behind windows | the color of the bar (the bar dissolved), `surfaceHigh` (heavier), a bright blue (inverts the hierarchy), the nixos.org line pattern (cropped art, unknown license), the archived nixos-artwork wallpapers |
 | No clipboard history | a password manager and the clipboard sync of the Mac would be recorded | |
@@ -102,7 +103,9 @@ they have the large radius and a shadow. What is selected or pressed is `surface
 ### Color and mode (`Theme.qml`, `flavours/`)
 
 Two palettes with the same roles, dark and light, and the roles follow `Theme.mode`, live. Dark is **nixos-navy**: the bar and the windows
-in the blues of nixos.org. Light is the white of nixos.org with the same blue, darker so that it reads on white. Text on both is above
+in the blues of nixos.org. Light is the white of nixos.org with the same blue, darker so that it reads on white, and the bar is that blue
+with white text. The bar has roles of its own, `barBg`, `barText`, `barMuted` and `barFocus` (the tile of the focused workspace, white at
+20% on the blue bar), and the logomark is white or black by the brightness of `barBg`. Text on both is above
 7:1, the edge is a hairline of white on dark and of black on light, and the status colors are the lighter step on dark and the darker
 step on light. The values are in `flavours/*.json`, and not repeated here.
 
@@ -137,7 +140,7 @@ the corner radius of picom for the windows.
 
 **Deviations, on purpose**
 - `light.surfaceHigh` is `#cfdefd`, an L90 tint of Afghani Blue, which the ladder (L95, L85, ...) does not have. L95 is the same as `surface`,
-  and L85 (`#b7cefd`) makes the lit tile of the light bar a strong blue.
+  and L85 (`#b7cefd`) makes the lit tile of a light menu a strong blue.
 - SemiBold for titles and labels, which the guide does not name, to keep the hierarchy that the weights gave.
 - Light is not used at small sizes: it was not tried below 14 and may be too thin on dark.
 - Route 159 has the Latin letters and little more (no Cyrillic, no Greek, no arrows, half of the punctuation): a fontconfig rule makes Inter

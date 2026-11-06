@@ -62,7 +62,9 @@ one: it is an X11 shell, and runs wherever i3 does.
 - **Polkit agent.** A card for the touch of the key or the password, with its
   own layout for 1Password unlocking with the system.
 - **Theme.** Two flavours, `nixos-navy` (the blues of nixos.org) and
-  `nixos-graphite` (greys), each with a dark and a light mode.
+  `nixos-graphite` (greys), each with a dark and a light mode. The bar is the
+  color of the windows on dark, and a blue (a dark grey in graphite) with white
+  text on light.
   `nshell theme [dark|light|auto|toggle]` changes it live. The palettes are
   data, see [Theme](#theme).
 
