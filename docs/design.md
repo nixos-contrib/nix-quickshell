@@ -34,12 +34,12 @@ button). The names do not start with `on`: QML reads such a property as a signal
 The look follows the branding of NixOS, [NixOS/branding](https://github.com/NixOS/branding) (its guide is `nixos-branding-guide.typ`, its
 palette `nixos-color-palette/colors.toml`, in OKLCH), and where it does not, the reason is here. Checked on 2026-11-06.
 
-**Color.** Every color of both flavours (`flavours/navy.json`, `flavours/graphite.json`, dark and light) is a color or a tint of the palette,
+**Color.** Every color of both flavours (`flavours/nixos-navy.json`, `flavours/nixos-graphite.json`, dark and light) is a color or a tint of the palette,
 converted from OKLCH, with one exception below. The neutrals are the greys and the tints of Afghani Blue (NixOS Dark Blue, `#4d6fb7` is
 the hex that the palette file gives for it), the status colors are the tints of Zambian Green, Persian Orange and Norwegian Pink, and the
 terminal colors are the tints of the accents. The guide says the primary colors (black, white, greys) are for text, backgrounds and
 borders, the blues for headers, icons and navigation, and the accents for emphasis, sparingly. Navy has tinted backgrounds, which the guide
-allows as tints "for layering and different themes"; graphite is the reading with grey backgrounds.
+allows as tints "for layering and different themes"; nixos-graphite is the reading with grey backgrounds.
 
 **Logo.** The bar has the official logomark, `assets/nixos-logomark-white-flat.svg` on dark and `nixos-logomark-black-flat.svg` on light,
 made with `nixoslogo` from the branding repo and not changed or painted in another color: the guide has the black and white logomarks

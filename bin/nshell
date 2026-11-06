@@ -67,6 +67,12 @@ apply_apps() {
 			pkill -HUP -x xsettingsd 2>/dev/null || true
 		fi
 	fi
+	# the wallpaper of the mode, when the module wrote one: set when it is not the one that is set already
+	local wp="$cfg/wallpaper-$mode.png" wpstate="$state/wallpaper.png"
+	if [ -f "$wp" ] && ! cmp -s "$wp" "$wpstate"; then
+		install -m644 "$wp" "$wpstate"
+		if command -v feh >/dev/null 2>&1; then feh --no-fehbg --bg-fill "$wpstate" 2>/dev/null || true; fi
+	fi
 	copy zathurarc "" zathurarc || true
 	if copy i3 .conf i3.conf; then changed=1; fi
 	[ -f "$cfg/xresources-$mode" ] && xrdb -merge "$cfg/xresources-$mode" 2>/dev/null || true

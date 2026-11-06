@@ -67,6 +67,23 @@ let
       inherit description;
     };
 
+  # The wallpaper of a mode: the base color of the palette, and the official logomark of NixOS in the middle, white on dark and black on
+  # light as in the bar, 18% of the height of the screen. 5120 x 2880: it is scaled to the screen, and the logo stays in the middle
+  logomarkFile = m: ../assets/nixos-logomark-${if m == "light" then "black" else "white"}-flat.svg;
+  wallpaper =
+    m:
+    pkgs.runCommand "nix-shell-wallpaper-${m}.png" { nativeBuildInputs = [ pkgs.librsvg ]; } ''
+      # the drawing of the logomark, without its svg element: it is centered on 0, 0 and 1995 high
+      logo="$(sed -e 's/^<svg[^>]*>//' -e 's#</svg>$##' ${logomarkFile m})"
+      cat > wallpaper.svg <<SVG
+      <svg xmlns="http://www.w3.org/2000/svg" width="5120" height="2880" viewBox="0 0 5120 2880">
+        <rect width="5120" height="2880" fill="${palettes.${m}.base}"/>
+        <g transform="translate(2560 1440) scale(0.26)">$logo</g>
+      </svg>
+      SVG
+      rsvg-convert wallpaper.svg -o $out
+    '';
+
   font = if cfg.theme.font != null then cfg.theme.font else "Route 159";
   fontSize = toString cfg.integration.fontSize;
   cursor = cfg.integration.cursor;
@@ -85,11 +102,11 @@ in
     theme = {
       flavour = mkOption {
         type = types.enum [
-          "navy"
-          "graphite"
+          "nixos-navy"
+          "nixos-graphite"
         ];
-        default = "navy";
-        description = "The flavour of the theme, a set of palettes of the package: navy is the blues of nixos.org, graphite is the same with greys.";
+        default = "nixos-navy";
+        description = "The flavour of the theme, a set of palettes of the package: nixos-navy is the blues of nixos.org, nixos-graphite is the same with greys.";
       };
       mode = mkOption {
         type = types.enum [
@@ -217,6 +234,18 @@ in
         };
       };
 
+      wallpaper = {
+        enable = enableOption ''
+          The wallpaper of the theme: ~/.config/nix-shell/wallpaper-<mode>.png, the base color of the palette with the logomark of NixOS in the
+          middle, and `nshell apps` sets the one of the mode with feh, when the mode changes and at the start of the session
+        '';
+        image = mkOption {
+          type = types.nullOr types.path;
+          default = null;
+          description = "An image of your own, set in both modes instead of the generated wallpapers.";
+        };
+      };
+
       xresources.enable = enableOption "~/.config/nix-shell/Xresources, the colors of xterm, for `xrdb -merge`";
       i3.enable = enableOption "~/.config/nix-shell/i3.conf, the colors of the tabs, for `include` in the config of i3";
     };
@@ -231,7 +260,8 @@ in
       pkgs.xsettingsd
       cfg.integration.gtk.iconTheme.package
     ]
-    ++ lib.optional cursor.enable cursor.package;
+    ++ lib.optional cursor.enable cursor.package
+    ++ lib.optional cfg.integration.wallpaper.enable pkgs.feh;
 
     xdg.configFile = lib.optionalAttrs (cfg.theme.fallbackFont != null) {
       # the font has the Latin letters and little more: what it has not is drawn by the fallback, not by whatever fontconfig picks
@@ -280,6 +310,16 @@ in
           (lib.nameValuePair "nix-shell/xsettings-${m}.conf" { text = xsettings m (gtkTheme m); })
           (lib.nameValuePair "nix-shell/xsettings-${m}-twin.conf" { text = xsettings m (gtkTwin m); })
         ]) modes
+      )
+    )
+    // lib.optionalAttrs cfg.integration.wallpaper.enable (
+      lib.listToAttrs (
+        map (
+          m:
+          lib.nameValuePair "nix-shell/wallpaper-${m}.png" {
+            source = if cfg.integration.wallpaper.image != null then cfg.integration.wallpaper.image else wallpaper m;
+          }
+        ) modes
       )
     )
     // lib.optionalAttrs cfg.integration.xresources.enable (

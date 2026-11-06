@@ -1,5 +1,5 @@
 {
-  "name": "graphite",
+  "name": "nixos-graphite",
   "dark": {
     "base": "#0b0b0b",
     "bg": "#0b0b0b",

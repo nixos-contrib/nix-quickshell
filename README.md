@@ -55,13 +55,13 @@ The window of the toasts is floated by i3, see the rules in `docs/i3.md`.
 
 ## Theme
 
-The palettes are flavours, files of the package, `flavours/navy.json` (the default, the blues of nixos.org) and `flavours/graphite.json` (greys),
+The palettes are flavours, files of the package, `flavours/nixos-navy.json` (the default, the blues of nixos.org) and `flavours/nixos-graphite.json` (greys),
 each with the roles of a `dark` and a `light` palette. `~/.config/nix-shell/theme.json`, or the file of `NSHELL_THEME`, is read over
 it, and the shell reads both again when they change:
 
 ```json
 {
-  "flavour": "navy",
+  "flavour": "nixos-navy",
   "mode": "dark",
   "font": "Route 159",
   "radius": 16,
@@ -70,7 +70,7 @@ it, and the shell reads both again when they change:
 }
 ```
 
-Every key is optional: `flavour` is `navy` or `graphite`, `mode` is `dark`, `light` or `auto` (a choice of `nshell theme` lasts over
+Every key is optional: `flavour` is `nixos-navy` or `nixos-graphite`, `mode` is `dark`, `light` or `auto` (a choice of `nshell theme` lasts over
 it), `font` is the family (Route 159 by default, the typeface of NixOS, which has to be installed: nixpkgs has it as `route159`; it has the Latin letters and little more, and the module adds a fontconfig rule that makes Inter, `theme.fallbackFont`, draw the rest), `radius` is the large one and the other two follow it, and
 `dark` and `light` name the roles to change.
 
@@ -82,7 +82,7 @@ it), `font` is the family (Route 159 by default, the typeface of NixOS, which ha
 programs.nix-shell = {
   enable = true;
   theme = {
-    flavour = "navy";
+    flavour = "nixos-navy";
     mode = "auto";
     font = "SF Pro Text";
     dark.primary = "#7ebae4";
@@ -100,6 +100,7 @@ programs.nix-shell = {
 |---|---|---|
 | `integration.gtk` | two GTK themes in `~/.local/share/themes`, `nix-shell-dark` and `nix-shell-light` (adw-gtk3 with the named colors of the palette after it), each with a twin of the same look (`-twin`), `gtk-3.0/settings.ini` and `gtk-4.0/gtk.css`, and `xsettings-<mode>.conf` and its twin for xsettingsd | `gtk.menuImages` (icons in the menus, on), `gtk.extraCss` (layout rules that can use the colors, as `@window_bg_color`), `gtk.xsettings` (as `Xft/DPI`), `gtk.iconTheme` |
 | `integration.zathura` | `zathura/zathurarc`, which includes the colors of the mode from the state folder, and the font | `zathura.extraConfig` |
+| `integration.wallpaper` | `wallpaper-<mode>.png`, the base color of the palette with the logomark of NixOS in the middle (white on dark, black on light), and `nshell apps` sets the one of the mode with feh | `wallpaper.image`, an image of your own for both modes |
 | `integration.xresources` | `xresources-<mode>`, the colors of xterm and its sixteen: the hues of the NixOS palette, light on dark and darker on light | |
 | `integration.i3` | `i3-<mode>.conf`, the colors of the tabs | `include ~/.local/state/nix-shell/i3.conf` in the config of i3 |
 | `integration.cursor` | the cursor theme (capitaine-cursors, the arrow of macOS, by default): its package, `icons/default/index.theme`, the cursor of GTK and `Xresources`, and `session.sh` | `. ~/.config/nix-shell/session.sh` in the session, and `cursor.size`: 24 by default, 48 on a screen with twice the pixels |
