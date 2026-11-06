@@ -130,10 +130,10 @@ Singleton {
     // Every item of the bar sits in a slot of the same size, centered: the workspaces, the icons of the tray, the bell. The
     // bar has the same room above and below the slot
     readonly property int slot: 24
-    // The logomark of NixOS in the bar: 20 points high, the size of the other icons of the bar, which is 40 pixels on a screen of twice the
-    // pixels, over the 24 that the branding guide has as the least for a screen. A quarter of its height is free around it, the least
+    // The logomark of NixOS in the bar: 18 points high, which is 36 pixels on a screen of twice the pixels, over the 24 that the branding guide
+    // has as the least for a screen. It is a solid, wide shape, which reads larger than the thin icons of the bar at the same height. A quarter of its height is free around it, the least
     // that the guide asks for, see assets/
-    readonly property int logoHeight: 20
+    readonly property int logoHeight: 18
     readonly property int logoClear: 5
     readonly property int barHeight: 40
     readonly property int tile: slot

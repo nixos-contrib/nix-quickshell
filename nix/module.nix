@@ -68,7 +68,7 @@ let
     };
 
   # The wallpaper of a mode: the surface color of the palette, a step off the bar (which is the base) so that the bar is seen as a strip, and the official logomark of NixOS in the middle, white on dark and black on
-  # light as in the bar, 18% of the height of the screen. 5120 x 2880: it is scaled to the screen, and the logo stays in the middle
+  # light as in the bar, 12% of the height of the screen: it is the signature of an empty desktop, and does not draw the eye. 5120 x 2880: it is scaled to the screen, and the logo stays in the middle
   logomarkFile = m: ../assets/nixos-logomark-${if m == "light" then "black" else "white"}-flat.svg;
   wallpaper =
     m:
@@ -78,7 +78,7 @@ let
       cat > wallpaper.svg <<SVG
       <svg xmlns="http://www.w3.org/2000/svg" width="5120" height="2880" viewBox="0 0 5120 2880">
         <rect width="5120" height="2880" fill="${palettes.${m}.surface}"/>
-        <g transform="translate(2560 1440) scale(0.26)">$logo</g>
+        <g transform="translate(2560 1440) scale(0.17)">$logo</g>
       </svg>
       SVG
       rsvg-convert wallpaper.svg -o $out
