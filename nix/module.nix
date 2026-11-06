@@ -12,12 +12,12 @@ let
   cfg = config.programs.nix-shell;
   inherit (lib) mkEnableOption mkOption mkIf types;
 
-  variant = builtins.fromJSON (builtins.readFile ../themes/${cfg.theme.variant}.json);
+  flavour = builtins.fromJSON (builtins.readFile ../flavours/${cfg.theme.flavour}.json);
   modes = [
     "dark"
     "light"
   ];
-  palettes = lib.genAttrs modes (m: variant.${m} // cfg.theme.${m});
+  palettes = lib.genAttrs modes (m: flavour.${m} // cfg.theme.${m});
   files = lib.mapAttrs (_: import ./generators.nix) palettes;
   # The mode the apps have until the shell says its own: the files that the shell copies when the mode changes, see `nshell apps`.
   # Dark, unless the theme is light
@@ -56,7 +56,7 @@ let
     example = {
       primary = "#7ebae4";
     };
-    description = "Roles of the palette to change, by name, as in themes/*.json. A color is #rrggbb, or #aarrggbb with alpha.";
+    description = "Roles of the palette to change, by name, as in flavours/*.json. A color is #rrggbb, or #aarrggbb with alpha.";
   };
 
   enableOption =
@@ -83,13 +83,13 @@ in
     };
 
     theme = {
-      variant = mkOption {
+      flavour = mkOption {
         type = types.enum [
           "navy"
           "graphite"
         ];
         default = "navy";
-        description = "The theme of the package: navy is the blues of nixos.org, graphite is the same with greys.";
+        description = "The flavour of the theme, a set of palettes of the package: navy is the blues of nixos.org, graphite is the same with greys.";
       };
       mode = mkOption {
         type = types.enum [
@@ -248,7 +248,7 @@ in
     } // {
       "nix-shell/theme.json".text = builtins.toJSON (
         lib.filterAttrs (_: v: v != null && v != { }) {
-          variant = cfg.theme.variant;
+          flavour = cfg.theme.flavour;
           mode = cfg.theme.mode;
           hours = cfg.theme.hours;
           inherit (cfg.theme) font radius dark light;

@@ -1,4 +1,4 @@
-# The files of the apps that are not the shell, from a palette: the roles of one mode of a theme, as in themes/*.json. Each is a
+# The files of the apps that are not the shell, from a palette: the roles of one mode of a theme, as in flavours/*.json. Each is a
 # fragment that a config of the user includes, so that the user keeps the rest of the file
 palette:
 

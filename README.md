@@ -55,13 +55,13 @@ The window of the toasts is floated by i3, see the rules in `docs/i3.md`.
 
 ## Theme
 
-The palettes are files of the package, `themes/navy.json` (the default, the blues of nixos.org) and `themes/graphite.json` (greys),
+The palettes are flavours, files of the package, `flavours/navy.json` (the default, the blues of nixos.org) and `flavours/graphite.json` (greys),
 each with the roles of a `dark` and a `light` palette. `~/.config/nix-shell/theme.json`, or the file of `NSHELL_THEME`, is read over
 it, and the shell reads both again when they change:
 
 ```json
 {
-  "variant": "navy",
+  "flavour": "navy",
   "mode": "dark",
   "font": "Route 159",
   "radius": 16,
@@ -70,7 +70,7 @@ it, and the shell reads both again when they change:
 }
 ```
 
-Every key is optional: `variant` is `navy` or `graphite`, `mode` is `dark`, `light` or `auto` (a choice of `nshell theme` lasts over
+Every key is optional: `flavour` is `navy` or `graphite`, `mode` is `dark`, `light` or `auto` (a choice of `nshell theme` lasts over
 it), `font` is the family (Route 159 by default, the typeface of NixOS, which has to be installed: nixpkgs has it as `route159`; it has the Latin letters and little more, and the module adds a fontconfig rule that makes Inter, `theme.fallbackFont`, draw the rest), `radius` is the large one and the other two follow it, and
 `dark` and `light` name the roles to change.
 
@@ -82,7 +82,7 @@ it), `font` is the family (Route 159 by default, the typeface of NixOS, which ha
 programs.nix-shell = {
   enable = true;
   theme = {
-    variant = "navy";
+    flavour = "navy";
     mode = "auto";
     font = "SF Pro Text";
     dark.primary = "#7ebae4";

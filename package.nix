@@ -17,7 +17,7 @@ stdenvNoCC.mkDerivation {
     fileset = lib.fileset.unions [
       ./Clock.qml
       ./Theme.qml
-      ./themes
+      ./flavours
       ./shell.qml
       ./assets
       ./modules
@@ -33,7 +33,7 @@ stdenvNoCC.mkDerivation {
     runHook preInstall
 
     mkdir -p $out/share/nshell $out/bin
-    cp -r Clock.qml Theme.qml shell.qml assets modules themes $out/share/nshell/
+    cp -r Clock.qml Theme.qml shell.qml assets modules flavours $out/share/nshell/
     install -Dm755 bin/nshell $out/bin/nshell
     wrapProgram $out/bin/nshell \
       --set-default NSHELL_PATH $out/share/nshell \

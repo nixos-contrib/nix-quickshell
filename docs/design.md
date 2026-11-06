@@ -34,7 +34,7 @@ button). The names do not start with `on`: QML reads such a property as a signal
 The look follows the branding of NixOS, [NixOS/branding](https://github.com/NixOS/branding) (its guide is `nixos-branding-guide.typ`, its
 palette `nixos-color-palette/colors.toml`, in OKLCH), and where it does not, the reason is here. Checked on 2026-11-06.
 
-**Color.** Every color of both themes (`themes/navy.json`, `themes/graphite.json`, dark and light) is a color or a tint of the palette,
+**Color.** Every color of both flavours (`flavours/navy.json`, `flavours/graphite.json`, dark and light) is a color or a tint of the palette,
 converted from OKLCH, with one exception below. The neutrals are the greys and the tints of Afghani Blue (NixOS Dark Blue, `#4d6fb7` is
 the hex that the palette file gives for it), the status colors are the tints of Zambian Green, Persian Orange and Norwegian Pink, and the
 terminal colors are the tints of the accents. The guide says the primary colors (black, white, greys) are for text, backgrounds and
