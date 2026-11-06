@@ -1,2 +1,7 @@
 result
 .direnv
+
+# env file
+.env
+.env.local
+.envrc.local

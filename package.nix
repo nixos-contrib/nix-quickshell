@@ -10,7 +10,7 @@
 # The shell: the QML next to the command, which runs Quickshell on it
 stdenvNoCC.mkDerivation {
   pname = "nshell";
-  version = "0.1.0";
+  version = "0.0.0"; # x-release-please-version
 
   src = lib.fileset.toSource {
     root = ./.;

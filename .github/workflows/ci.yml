@@ -1,0 +1,72 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@v23
+
+      - name: Run ShellCheck
+        run: nix develop --command shellcheck bin/nshell bin/preview
+
+      - name: Run actionlint
+        run: nix develop --command actionlint
+
+  # Builds the shell and the i3 with its patch, which has to apply, and checks
+  # the flavours, on both systems that the flake supports.
+  check:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, ubuntu-24.04-arm]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@v23
+
+      - name: Run Flake Checks
+        run: nix flake check -L
+
+  release:
+    needs: [lint, check]
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Create Release PR
+        uses: googleapis/release-please-action@v5
+        with:
+          manifest-file: .github/config/release-please-manifest.json
+          config-file: .github/config/release-please-config.json
+          target-branch: main
