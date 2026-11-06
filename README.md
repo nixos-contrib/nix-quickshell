@@ -12,6 +12,13 @@ process, in the palette, the typeface and the logo of NixOS. A home-manager
 module makes the GTK apps, xterm, zathura, i3 and the wallpaper follow its
 dark and light mode.
 
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/img/desktop-dark.png">
+    <img src="docs/img/desktop-light.png" alt="The shell: the bar, the toasts, a terminal and Thunar in the palette of NixOS">
+  </picture>
+</p>
+
 > [!WARNING]
 > This project is a work in progress and has no release yet. Interfaces may
 > change without notice.
@@ -69,6 +76,10 @@ one: it is an X11 shell, and runs wherever i3 does.
   `nshell theme [dark|light|auto|toggle]` changes it live. The palettes are
   data, see [Theme](#theme).
 
+<p align="center">
+  <img src="docs/img/tabs.png" alt="The list of the tabs of a workspace, hanging from its number in the bar" width="720">
+</p>
+
 Not done yet: brightness (needs a screen with a backlight), and network and
 Bluetooth in the bar.
 
@@ -124,6 +135,13 @@ with a band of font height and 4 px above the tabbed containers. See
 [`docs/i3.md`](docs/i3.md).
 
 ## Theme
+
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/img/wallpaper-dark.png">
+    <img src="docs/img/wallpaper-light.png" alt="The wallpaper and the bar, with the logomark of NixOS in the middle" width="720">
+  </picture>
+</p>
 
 The palettes are flavours, files of the package: `flavours/nixos-navy.json`
 (the default) and `flavours/nixos-graphite.json`, each with the roles of a
