@@ -54,8 +54,18 @@ apply_apps() {
 		fi
 		return 1
 	}
-	if copy xsettings .conf xsettings.conf; then
+	# xsettingsd tells the GTK apps the theme of the mode and, 0.4 s later, its twin, which looks the same: Brave reads the colors of the
+	# theme when its name changes, before GTK has loaded it, so with one change it shows the mode before. The state is already this mode
+	# when it is the theme or its twin
+	local xs="$cfg/xsettings-$mode.conf" xt="$cfg/xsettings-$mode-twin.conf" xstate="$state/xsettings.conf"
+	if [ -f "$xs" ] && ! cmp -s "$xs" "$xstate" && ! cmp -s "$xt" "$xstate"; then
+		install -m644 "$xs" "$xstate"
 		pkill -HUP -x xsettingsd 2>/dev/null || true
+		if [ -f "$xt" ]; then
+			sleep 0.4
+			install -m644 "$xt" "$xstate"
+			pkill -HUP -x xsettingsd 2>/dev/null || true
+		fi
 	fi
 	copy zathurarc "" zathurarc || true
 	if copy i3 .conf i3.conf; then changed=1; fi

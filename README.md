@@ -98,7 +98,7 @@ programs.nix-shell = {
 
 | Option | Writes | Yours to add |
 |---|---|---|
-| `integration.gtk` | two GTK themes in `~/.local/share/themes`, `nix-shell-dark` and `nix-shell-light` (adw-gtk3 with the named colors of the palette after it), `gtk-3.0/settings.ini` and `gtk-4.0/gtk.css`, and `xsettings-<mode>.conf` for xsettingsd | `gtk.extraCss` (layout rules that can use the colors, as `@window_bg_color`), `gtk.xsettings` (as `Xft/DPI`), `gtk.iconTheme` |
+| `integration.gtk` | two GTK themes in `~/.local/share/themes`, `nix-shell-dark` and `nix-shell-light` (adw-gtk3 with the named colors of the palette after it), each with a twin of the same look (`-twin`), `gtk-3.0/settings.ini` and `gtk-4.0/gtk.css`, and `xsettings-<mode>.conf` and its twin for xsettingsd | `gtk.extraCss` (layout rules that can use the colors, as `@window_bg_color`), `gtk.xsettings` (as `Xft/DPI`), `gtk.iconTheme` |
 | `integration.zathura` | `zathura/zathurarc`, which includes the colors of the mode from the state folder, and the font | `zathura.extraConfig` |
 | `integration.xresources` | `xresources-<mode>`, the colors of xterm and its sixteen: the hues of the NixOS palette, light on dark and darker on light | |
 | `integration.i3` | `i3-<mode>.conf`, the colors of the tabs | `include ~/.local/state/nix-shell/i3.conf` in the config of i3 |
@@ -110,7 +110,7 @@ The module writes the files of both modes into `~/.config/nix-shell`. `nshell ap
 `~/.local/state/nix-shell` (where the configs of zathura and i3 include them), and the shell runs it when it starts and each time the
 mode changes. Then:
 
-- **GTK 3 apps** change live: `xsettingsd` tells them the theme changed from `nix-shell-dark` to `nix-shell-light`. Start it in the
+- **GTK 3 apps** change live: `xsettingsd` tells them the theme changed from `nix-shell-dark` to `nix-shell-light`, and 0.4 s later to its twin, which looks the same: Brave reads the colors of a theme when its name changes, before GTK has loaded it, so with one change it shows the mode before. Start it in the
   session after `nshell apps`: `xsettingsd -c ~/.local/state/nix-shell/xsettings.conf &`, and do not set `GTK_THEME`, which GTK
   puts before everything.
 - **i3** reads its include again (`i3-msg reload`), so the tabs change.

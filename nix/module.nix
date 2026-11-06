@@ -25,6 +25,10 @@ let
   stateDir = "${config.xdg.stateHome}/nix-shell";
 
   gtkTheme = m: "nix-shell-${m}";
+  # The same theme under another name. Brave (Chromium) reads the colors of the GTK theme when its name changes, before GTK has loaded it, and
+  # so it shows the mode before: the apps are told the name of the theme, and a moment later the name of its twin, which is when Brave
+  # reads the theme that was loaded. See `nshell apps`
+  gtkTwin = m: "nix-shell-${m}-twin";
   iconName = m: if m == "light" then cfg.integration.gtk.iconTheme.lightName else cfg.integration.gtk.iconTheme.name;
   # The GTK theme of a mode: adw-gtk3 in that mode, with the named colors of the palette after it, which win over its own, and the
   # rules of the user
@@ -34,8 +38,8 @@ let
     ${cfg.integration.gtk.extraCss}
   '';
   # What xsettingsd tells the GTK apps, which then draw themselves again: the theme of the mode, and the rest of the look
-  xsettings = m: ''
-    Net/ThemeName "${gtkTheme m}"
+  xsettings = m: theme: ''
+    Net/ThemeName "${theme}"
     Net/IconThemeName "${iconName m}"
     Gtk/FontName "${font} ${fontSize}"
     Gtk/ApplicationPreferDarkTheme ${if m == "light" then "0" else "1"}
@@ -244,7 +248,10 @@ in
         '';
       }
       // lib.listToAttrs (
-        map (m: lib.nameValuePair "nix-shell/xsettings-${m}.conf" { text = xsettings m; }) modes
+        lib.concatMap (m: [
+          (lib.nameValuePair "nix-shell/xsettings-${m}.conf" { text = xsettings m (gtkTheme m); })
+          (lib.nameValuePair "nix-shell/xsettings-${m}-twin.conf" { text = xsettings m (gtkTwin m); })
+        ]) modes
       )
     )
     // lib.optionalAttrs cfg.integration.xresources.enable (
@@ -287,20 +294,23 @@ in
       }
       // lib.optionalAttrs cfg.integration.gtk.enable (
         lib.listToAttrs (
-          lib.concatMap (m: [
-            (lib.nameValuePair "themes/${gtkTheme m}/index.theme" {
-              text = ''
-                [Desktop Entry]
-                Type=X-GNOME-Metatheme
-                Name=${gtkTheme m}
-                Comment=adw-gtk3 in the palette of nix-shell, ${m}
+          lib.concatMap (
+            m:
+            lib.concatMap (name: [
+              (lib.nameValuePair "themes/${name}/index.theme" {
+                text = ''
+                  [Desktop Entry]
+                  Type=X-GNOME-Metatheme
+                  Name=${name}
+                  Comment=adw-gtk3 in the palette of nix-shell, ${m}
 
-                [X-GNOME-Metatheme]
-                GtkTheme=${gtkTheme m}
-              '';
-            })
-            (lib.nameValuePair "themes/${gtkTheme m}/gtk-3.0/gtk.css" { text = gtkThemeCss m; })
-          ]) modes
+                  [X-GNOME-Metatheme]
+                  GtkTheme=${name}
+                '';
+              })
+              (lib.nameValuePair "themes/${name}/gtk-3.0/gtk.css" { text = gtkThemeCss m; })
+            ]) [ (gtkTheme m) (gtkTwin m) ]
+          ) modes
         )
       );
   };
