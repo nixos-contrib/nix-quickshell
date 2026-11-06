@@ -67,10 +67,11 @@ apply_apps() {
 			pkill -HUP -x xsettingsd 2>/dev/null || true
 		fi
 	fi
-	# the wallpaper of the mode, when the module wrote one: set when it is not the one that is set already
+	# the wallpaper of the mode, when the module wrote one. The copy in the state folder outlives the session, and the root window of a new
+	# X server has no image, so it is drawn each time and not only when the copy changed
 	local wp="$cfg/wallpaper-$mode.png" wpstate="$state/wallpaper.png"
-	if [ -f "$wp" ] && ! cmp -s "$wp" "$wpstate"; then
-		install -m644 "$wp" "$wpstate"
+	if [ -f "$wp" ]; then
+		cmp -s "$wp" "$wpstate" || install -m644 "$wp" "$wpstate"
 		if command -v feh >/dev/null 2>&1; then feh --no-fehbg --bg-fill "$wpstate" 2>/dev/null || true; fi
 	fi
 	copy zathurarc "" zathurarc || true
