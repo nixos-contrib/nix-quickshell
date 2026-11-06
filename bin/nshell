@@ -74,13 +74,28 @@ apply_apps() {
 		cmp -s "$wp" "$wpstate" || install -m644 "$wp" "$wpstate"
 		if command -v feh >/dev/null 2>&1; then feh --no-fehbg --bg-fill "$wpstate" 2>/dev/null || true; fi
 	fi
-	copy zathurarc "" zathurarc || true
-	# the open terminals of Alacritty read it again by themselves
-	copy alacritty .toml alacritty.toml || true
-	# kitty reads its config again, in every window, on SIGUSR1. The process of the package is .kitty-wrapped
-	if copy kitty .conf kitty.conf; then pkill -USR1 -x '\.?kitty(-wrapped)?' 2>/dev/null || true; fi
+	# the apps of apps/ in the module, each with the file of its mode and a file of variables that says what it is called in the state folder
+	# and how it is asked to read it again. The file in the state folder outlives the session, so an app that lives in the X server (always) is
+	# told at each run, as the wallpaper is, and the others when it changed
+	local def name target reload always src dst
+	for def in "$cfg"/apps/*.app; do
+		[ -f "$def" ] || continue
+		name="$(basename "$def" .app)"
+		src="$cfg/apps/$name-$mode"
+		[ -f "$src" ] || continue
+		target="" reload="" always=0
+		# shellcheck disable=SC1090
+		. "$def"
+		[ -n "$target" ] || continue
+		dst="$state/$target"
+		if ! cmp -s "$src" "$dst"; then
+			install -m644 "$src" "$dst"
+		elif [ "$always" != 1 ]; then
+			continue
+		fi
+		if [ -n "$reload" ]; then NSHELL_FILE="$dst" sh -c "$reload" 2>/dev/null || true; fi
+	done
 	if copy i3 .conf i3.conf; then changed=1; fi
-	[ -f "$cfg/xresources-$mode" ] && xrdb -merge "$cfg/xresources-$mode" 2>/dev/null || true
 	# the tabs of i3 are drawn again with the colors of the mode
 	if [ "$changed" = 1 ]; then i3-msg reload >/dev/null 2>&1 || true; fi
 }

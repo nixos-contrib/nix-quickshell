@@ -1,5 +1,5 @@
-# The files of the apps that are not the shell, from a palette: the roles of one mode of a theme, as in flavours/*.json. Each is a
-# fragment that a config of the user includes, so that the user keeps the rest of the file
+# The files of the desktop that is not the shell, from a palette: the roles of one mode of a theme, as in flavours/*.json. The GTK theme and
+# the tabs of i3 are here, the apps that follow the theme are each a file of apps/
 palette:
 
 let
@@ -64,118 +64,6 @@ in
     /* a tip is a card of the palette, and not black on both modes */
     tooltip.background { background-color: @popover_bg_color; color: @popover_fg_color; border: 1px solid alpha(currentColor, 0.15); border-radius: 10px; }
     tooltip.background * { background-color: transparent; color: @popover_fg_color; }
-  '';
-
-  # xterm: load it with xrdb -merge. The sixteen colors of the terminal are the hues of the palette of NixOS: light ones on dark, and
-  # darker ones on light, so that a prompt is read in both
-  xresources = ''
-    XTerm*background: ${p.bg}
-    XTerm*foreground: ${p.text}
-    XTerm*cursorColor: ${p.primary}
-    XTerm*color0: ${p.black}
-    XTerm*color1: ${p.red}
-    XTerm*color2: ${p.green}
-    XTerm*color3: ${p.yellow}
-    XTerm*color4: ${p.blue}
-    XTerm*color5: ${p.magenta}
-    XTerm*color6: ${p.cyan}
-    XTerm*color7: ${p.white}
-    XTerm*color8: ${p.brightBlack}
-    XTerm*color9: ${p.brightRed}
-    XTerm*color10: ${p.brightGreen}
-    XTerm*color11: ${p.brightYellow}
-    XTerm*color12: ${p.brightBlue}
-    XTerm*color13: ${p.brightMagenta}
-    XTerm*color14: ${p.brightCyan}
-    XTerm*color15: ${p.brightWhite}
-  '';
-
-  # alacritty: import it from the config, `general.import = ["~/.local/state/nix-quickshell/alacritty.toml"]`: Alacritty reads an imported file
-  # again when it changes, so the open terminals follow the mode. The sixteen colors are the ones of xterm
-  alacritty = ''
-    [colors.primary]
-    background = "${p.bg}"
-    foreground = "${p.text}"
-
-    [colors.cursor]
-    text = "${p.bg}"
-    cursor = "${p.primary}"
-
-    [colors.selection]
-    text = "${p.text}"
-    background = "${p.surfaceHigh}"
-
-    [colors.normal]
-    black = "${p.black}"
-    red = "${p.red}"
-    green = "${p.green}"
-    yellow = "${p.yellow}"
-    blue = "${p.blue}"
-    magenta = "${p.magenta}"
-    cyan = "${p.cyan}"
-    white = "${p.white}"
-
-    [colors.bright]
-    black = "${p.brightBlack}"
-    red = "${p.brightRed}"
-    green = "${p.brightGreen}"
-    yellow = "${p.brightYellow}"
-    blue = "${p.brightBlue}"
-    magenta = "${p.brightMagenta}"
-    cyan = "${p.brightCyan}"
-    white = "${p.brightWhite}"
-  '';
-
-  # kitty: `include` it from kitty.conf, `include ~/.local/state/nix-quickshell/kitty.conf`: `nshell apps` sends SIGUSR1 to kitty when the file
-  # changes, which reads its config again in every window, so the open terminals follow the mode
-  kitty = ''
-    background ${p.bg}
-    foreground ${p.text}
-    cursor ${p.primary}
-    cursor_text_color ${p.bg}
-    selection_foreground ${p.text}
-    selection_background ${p.surfaceHigh}
-    color0 ${p.black}
-    color1 ${p.red}
-    color2 ${p.green}
-    color3 ${p.yellow}
-    color4 ${p.blue}
-    color5 ${p.magenta}
-    color6 ${p.cyan}
-    color7 ${p.white}
-    color8 ${p.brightBlack}
-    color9 ${p.brightRed}
-    color10 ${p.brightGreen}
-    color11 ${p.brightYellow}
-    color12 ${p.brightBlue}
-    color13 ${p.brightMagenta}
-    color14 ${p.brightCyan}
-    color15 ${p.brightWhite}
-  '';
-
-  # zathura: `include` it from zathurarc
-  zathura = ''
-    set default-bg "${p.surface}"
-    set default-fg "${p.text}"
-    set statusbar-bg "${p.bg}"
-    set statusbar-fg "${p.text}"
-    set inputbar-bg "${p.bg}"
-    set inputbar-fg "${p.text}"
-    set notification-bg "${p.surface}"
-    set notification-fg "${p.text}"
-    set notification-error-bg "${p.critical}"
-    set notification-error-fg "${p.textOnPrimary}"
-    set notification-warning-bg "${p.warning}"
-    set notification-warning-fg "${p.textOnPrimary}"
-    set completion-bg "${p.surface}"
-    set completion-fg "${p.text}"
-    set completion-highlight-bg "${p.surfaceHigh}"
-    set completion-highlight-fg "${p.text}"
-    set highlight-color "${p.warning}"
-    set highlight-active-color "${p.accent}"
-    set recolor-lightcolor "${p.bg}"
-    set recolor-darkcolor "${p.text}"
-    set recolor-keephue true
   '';
 
   # i3: `include` it from the config. The tabs of the tabbed containers are shown by the shell, in its bar (modules/tabs), and i3 draws

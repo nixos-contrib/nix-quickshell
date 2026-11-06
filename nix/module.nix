@@ -19,6 +19,11 @@ let
   ];
   palettes = lib.genAttrs modes (m: flavour.${m} // cfg.theme.${m});
   files = lib.mapAttrs (_: import ./generators.nix) palettes;
+  # The apps that follow the theme: each file of apps/ is one, see there. Enabled when Home Manager has the program enabled, or when the user says so
+  appDefs = lib.mapAttrs' (n: _: lib.nameValuePair (lib.removeSuffix ".nix" n) (import ./apps/${n})) (
+    lib.filterAttrs (n: t: t == "regular" && lib.hasSuffix ".nix" n) (builtins.readDir ./apps)
+  );
+  enabledApps = lib.filterAttrs (n: _: cfg.integration.apps.${n}.enable) appDefs;
   # The mode the apps have until the shell says its own: the files that the shell copies when the mode changes, see `nshell apps`.
   # Dark, unless the theme is light
   startMode = if cfg.theme.mode == "light" then "light" else "dark";
@@ -90,6 +95,21 @@ let
   cursor = cfg.integration.cursor;
 in
 {
+  # the apps are `integration.apps.<name>` now, each a file of apps/
+  imports =
+    let
+      at = path: [ "programs" "nix-quickshell" "integration" ] ++ path;
+    in
+    (map (n: lib.mkRenamedOptionModule (at [ n "enable" ]) (at [ "apps" n "enable" ])) [
+      "alacritty"
+      "kitty"
+      "xresources"
+    ])
+    ++ [
+      (lib.mkRemovedOptionModule (at [ "zathura" "enable" ]) "zathura is an app like the others: `integration.apps.zathura.enable`, and the include of the file, which is no longer written for you, see the README")
+      (lib.mkRemovedOptionModule (at [ "zathura" "extraConfig" ]) "write your own zathurarc, see the README")
+    ];
+
   options.programs.nix-quickshell = {
     enable = mkEnableOption "the nix-quickshell desktop shell";
 
@@ -202,15 +222,6 @@ in
         };
       };
 
-      zathura = {
-        enable = enableOption "zathura/zathurarc with the colors of the palette and the font. Owns that file";
-        extraConfig = mkOption {
-          type = types.lines;
-          default = "";
-          description = "Lines added to zathurarc.";
-        };
-      };
-
       cursor = {
         enable = enableOption ''
           The mouse cursor: the package, a default theme for X (icons/default/index.theme), the cursor of GTK, the cursor of Xresources,
@@ -247,15 +258,25 @@ in
         };
       };
 
-      alacritty.enable = enableOption "~/.config/nix-quickshell/alacritty-<mode>.toml, the colors of Alacritty, which `nshell apps` puts in the state folder, for `general.import`";
-      kitty.enable = enableOption "~/.config/nix-quickshell/kitty-<mode>.conf, the colors of kitty, which `nshell apps` puts in the state folder, for `include`";
+      detectApps = mkOption {
+        type = types.bool;
+        default = true;
+        description = "Turn on the apps below that Home Manager has enabled as programs.<app>.enable. An `enable` of an app says what it says, whatever this is.";
+      };
+      apps = lib.mapAttrs (name: def: {
+        enable = mkOption {
+          type = types.bool;
+          default = cfg.integration.detectApps && def.program != null && (config.programs.${def.program}.enable or false);
+          defaultText = lib.literalMD "`programs.${name}.enable` when `detectApps` is on, otherwise false";
+          description = "~/.config/nix-quickshell/apps/${name}-<mode>, the colors of ${name}, which `nshell apps` puts in the state folder as ${def.target}, and the include of it in the config of ${name} when Home Manager has it.";
+        };
+      }) appDefs;
 
-      xresources.enable = enableOption "~/.config/nix-quickshell/Xresources, the colors of xterm, for `xrdb -merge`";
       i3.enable = enableOption "~/.config/nix-quickshell/i3.conf, the colors of the tabs, for `include` in the config of i3";
     };
   };
 
-  config = mkIf cfg.enable {
+  config = mkIf cfg.enable (lib.mkMerge [ {
     home.packages = [
       cfg.package
     ]
@@ -326,15 +347,6 @@ in
         ) modes
       )
     )
-    // lib.optionalAttrs cfg.integration.alacritty.enable (
-      lib.listToAttrs (map (m: lib.nameValuePair "nix-quickshell/alacritty-${m}.toml" { text = files.${m}.alacritty; }) modes)
-    )
-    // lib.optionalAttrs cfg.integration.kitty.enable (
-      lib.listToAttrs (map (m: lib.nameValuePair "nix-quickshell/kitty-${m}.conf" { text = files.${m}.kitty; }) modes)
-    )
-    // lib.optionalAttrs cfg.integration.xresources.enable (
-      lib.listToAttrs (map (m: lib.nameValuePair "nix-quickshell/xresources-${m}" { text = files.${m}.xresources; }) modes)
-    )
     // lib.optionalAttrs cursor.enable {
       # mode-free, for `xrdb -merge` once, and the session
       "nix-quickshell/Xresources".text = ''
@@ -347,16 +359,18 @@ in
         export XCURSOR_PATH=${config.home.profileDirectory}/share/icons:/run/current-system/sw/share/icons
       '';
     }
-    // lib.optionalAttrs cfg.integration.zathura.enable (
+    # the apps: the colors of each mode, and what `nshell apps` needs to know of the app, which is a file of shell variables
+    // lib.concatMapAttrs (
+      name: def:
       {
-        "zathura/zathurarc".text = ''
-          include ${stateDir}/zathurarc
-          set font "${font} ${fontSize}"
-          ${cfg.integration.zathura.extraConfig}
+        "nix-quickshell/apps/${name}.app".text = ''
+          target=${lib.escapeShellArg def.target}
+          reload=${lib.escapeShellArg (if def.reload == null then "" else def.reload)}
+          always=${if def.always then "1" else "0"}
         '';
       }
-      // lib.listToAttrs (map (m: lib.nameValuePair "nix-quickshell/zathurarc-${m}" { text = files.${m}.zathura; }) modes)
-    )
+      // lib.listToAttrs (map (m: lib.nameValuePair "nix-quickshell/apps/${name}-${m}" { text = def.colors palettes.${m}; }) modes)
+    ) enabledApps
     // lib.optionalAttrs cfg.integration.i3.enable (
       lib.listToAttrs (map (m: lib.nameValuePair "nix-quickshell/i3-${m}.conf" { text = files.${m}.i3; }) modes)
     );
@@ -391,5 +405,9 @@ in
           ) modes
         )
       );
-  };
+  }
+    # the include of each app in its config, where Home Manager has the program: the file is in the state folder
+    # (the condition is inside, not on the list: which options are set must not depend on `enable`, which reads programs.<app>.enable)
+    (lib.mkMerge (lib.mapAttrsToList (n: def: lib.mkIf cfg.integration.apps.${n}.enable (def.wire "${stateDir}/${def.target}")) appDefs))
+  ]);
 }

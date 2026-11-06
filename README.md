@@ -184,13 +184,10 @@ programs.nix-quickshell = {
     dark.primary = "#7ebae4";
   };
   integration = {
-    gtk.enable = true;        # the settings and the colors of the GTK apps (adw-gtk3), GTK 3 and 4
-    zathura.enable = true;    # zathurarc with the colors and the font
-    alacritty.enable = true;  # the colors of Alacritty, which follow the mode live
-    kitty.enable = true;      # the colors of kitty, which follow the mode live
-    xresources.enable = true; # ~/.config/nix-quickshell/Xresources, for xrdb -merge
-    i3.enable = true;         # ~/.config/nix-quickshell/i3.conf, the colors of the tabs, for include
-    wallpaper.enable = true;  # the wallpaper of the theme, for each mode
+    gtk.enable = true;          # the settings and the colors of the GTK apps (adw-gtk3), GTK 3 and 4
+    i3.enable = true;           # ~/.config/nix-quickshell/i3.conf, the colors of the tabs, for include
+    wallpaper.enable = true;    # the wallpaper of the theme, for each mode
+    apps.zathura.enable = true; # the colors of an app, see Apps below
   };
 };
 ```
@@ -198,22 +195,19 @@ programs.nix-quickshell = {
 | Option | Writes | Yours to add |
 |---|---|---|
 | `integration.gtk` | two GTK themes in `~/.local/share/themes`, `nix-quickshell-dark` and `nix-quickshell-light` (adw-gtk3 with the named colors of the palette after it), each with a twin of the same look (`-twin`), `gtk-3.0/settings.ini` and `gtk-4.0/gtk.css`, and `xsettings-<mode>.conf` and its twin for xsettingsd | `gtk.menuImages` (icons in the menus, on), `gtk.extraCss` (layout rules that can use the colors, as `@window_bg_color`), `gtk.xsettings` (as `Xft/DPI`), `gtk.iconTheme` |
-| `integration.zathura` | `zathura/zathurarc`, which includes the colors of the mode from the state folder, and the font | `zathura.extraConfig` |
 | `integration.wallpaper` | `wallpaper-<mode>.png`, the surface color of the palette, a step off the bar, with the logomark of NixOS, the one with the gradient, in the middle, and `nshell apps` sets the one of the mode with feh | `wallpaper.image`, an image of your own for both modes |
-| `integration.alacritty` | `alacritty-<mode>.toml`, the colors of Alacritty: the background, the foreground, the cursor, the selection and its sixteen colors | `general.import = ["~/.local/state/nix-quickshell/alacritty.toml"]` in the config of Alacritty, which reads it again when the mode changes |
-| `integration.kitty` | `kitty-<mode>.conf`, the colors of kitty: the background, the foreground, the cursor, the selection and its sixteen colors | `include ~/.local/state/nix-quickshell/kitty.conf` in `kitty.conf`; `nshell apps` sends SIGUSR1 to kitty, which reads its config again in every window |
-| `integration.xresources` | `xresources-<mode>`, the colors of xterm and its sixteen: the hues of the NixOS palette, light on dark and darker on light | |
+| `integration.apps.<name>` | one file of `nix/apps/` each, see below | |
 | `integration.i3` | `i3-<mode>.conf`, the colors of the tabs | `include ~/.local/state/nix-quickshell/i3.conf` in the config of i3 |
 | `integration.cursor` | the cursor theme (capitaine-cursors, the arrow of macOS, by default): its package, `icons/default/index.theme`, the cursor of GTK and `Xresources`, and `session.sh` | `. ~/.config/nix-quickshell/session.sh` in the session, and `cursor.size`: 24 by default, 48 on a screen with twice the pixels |
 
-`integration.fontSize` is the size of the text of GTK and zathura, 11 by
+`integration.fontSize` is the size of the text of the GTK apps, 11 by
 default.
 
 ### The apps follow the mode
 
 The module writes the files of both modes into `~/.config/nix-quickshell`.
 `nshell apps [dark|light]` copies the ones of a mode into
-`~/.local/state/nix-quickshell` (where the configs of zathura and i3 include
+`~/.local/state/nix-quickshell` (where the configs of the apps and of i3 include
 them), and the shell runs it when it starts and each time the mode changes.
 Then:
 
@@ -226,9 +220,33 @@ Then:
   `GTK_THEME`, which GTK puts before everything.
 - **i3** reads its include again (`i3-msg reload`), so the tabs change.
 - **The wallpaper** is set with feh.
-- **Alacritty** reads its colors again when they change, so the open terminals follow.
-- **kitty** reads its config again on SIGUSR1, which `nshell apps` sends, so the open terminals follow.
-- **xterm** and **zathura** take the colors when they start.
+- **The apps** (below) get their file, and are asked to read it again when it changed.
+
+### Apps
+
+The apps that paint their own colors, and that GTK does not reach, are one file
+each in [`nix/apps/`](nix/apps): `alacritty`, `kitty`, `xresources` (xterm) and
+`zathura`. Each makes the colors of a palette, in the format of the app, for
+both modes. They are **off** unless you ask for one, or Home Manager has the
+program on: `programs.kitty.enable` turns `integration.apps.kitty.enable` on, and
+puts the include of the file in `programs.kitty.extraConfig`. An `enable` you
+write always wins, and `integration.detectApps = false` turns the detection off.
+
+```nix
+integration.apps.kitty.enable = false;  # I have my own theme
+integration.apps.zathura.enable = true; # not a Home Manager program here: include the file yourself
+```
+
+`nshell apps` copies the file of the mode to `~/.local/state/nix-quickshell/`
+(`kitty.conf`, `zathurarc`, `alacritty.toml`, `xresources`) and runs what the app
+needs to read it again: kitty gets a SIGUSR1, xterm's resources are merged with
+`xrdb`, and Alacritty and zathura need nothing. Without Home Manager's program
+the include is yours: `include ~/.local/state/nix-quickshell/kitty.conf`,
+`general.import = ["~/.local/state/nix-quickshell/alacritty.toml"]`, and
+`include` in `zathurarc`.
+
+An app of your own is a file in `nix/apps/`: its `target`, an optional `reload`,
+and `colors`, a function of the palette. `integration.apps.<name>` is then there.
 
 ## Design
 
