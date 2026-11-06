@@ -1,5 +1,4 @@
 import QtQuick
-import QtQuick.Effects
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.I3
@@ -117,31 +116,25 @@ Scope {
             anchors { fill: parent; leftMargin: Theme.edge; rightMargin: Theme.edge }
             spacing: 0
 
-            // The logo of NixOS in the color of the text of the bar, as the one of Apple in the menu bar, and the workspaces
+            // The logomark of NixOS, as the one of Apple in the menu bar, and the workspaces. It opens the launcher
             RowLayout {
                 spacing: Theme.spaceSm
-                // The logo is an item like the others, as the Apple of the menu bar: the same size, and it fills while it is pressed.
-                // It opens the launcher
-                Rectangle {
-                    Layout.preferredWidth: Theme.slot
+                // The official flat logomark, white on the dark bar and black on the light one, as the branding guide has them: not painted in
+                // any other color. It has no fill behind it, which would cut its clear space, and it dims while it is pressed
+                Item {
+                    Layout.preferredWidth: logo.width + Theme.logoClear * 2
                     Layout.preferredHeight: Theme.slot
-                    radius: Theme.radiusSm
-                    color: logoArea.pressed ? Theme.barFocus : "transparent"
-                    Behavior on color { ColorAnimation { duration: 120 } }
-                    // a white drawing that the effect paints in the color of the text: white in dark, black in light
                     Image {
                         id: logo
                         anchors.centerIn: parent
-                        source: Qt.resolvedUrl("../../assets/nix-snowflake-mono.svg")
-                        sourceSize: Qt.size(Theme.statusIcon * 2, Theme.statusIcon * 2)
-                        width: Theme.statusIcon
-                        height: Theme.statusIcon
+                        source: Qt.resolvedUrl(Theme.dark ? "../../assets/nixos-logomark-white-flat.svg" : "../../assets/nixos-logomark-black-flat.svg")
+                        // the drawing is 2304 x 1995 and is kept in that proportion
+                        sourceSize: Qt.size(Theme.logoHeight * 2 * 2304 / 1995, Theme.logoHeight * 2)
+                        width: Math.round(Theme.logoHeight * 2304 / 1995)
+                        height: Theme.logoHeight
                         fillMode: Image.PreserveAspectFit
-                        layer.enabled: true
-                        layer.effect: MultiEffect {
-                            colorization: 1
-                            colorizationColor: Theme.barText
-                        }
+                        opacity: logoArea.pressed ? 0.6 : (logoArea.containsMouse ? 0.85 : 1)
+                        Behavior on opacity { NumberAnimation { duration: 120 } }
                     }
                     MouseArea {
                         id: logoArea

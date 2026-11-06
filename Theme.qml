@@ -130,6 +130,10 @@ Singleton {
     // Every item of the bar sits in a slot of the same size, centered: the workspaces, the icons of the tray, the bell. The
     // bar has the same room above and below the slot
     readonly property int slot: 24
+    // The logomark of NixOS in the bar: 24 px high, the least that the branding guide allows on a screen, and with a quarter of its height
+    // free around it, the least that it asks for, see assets/
+    readonly property int logoHeight: 24
+    readonly property int logoClear: 6
     readonly property int barHeight: 40
     readonly property int tile: slot
     // The tiles of the status area, the tray, the sound, the battery, the bell and the clock, have the same room inside, on each
