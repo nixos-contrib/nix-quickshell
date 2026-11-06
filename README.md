@@ -41,15 +41,16 @@ one: it is an X11 shell, and runs wherever i3 does.
   battery, the bell, with a dot when something came since the history was last
   opened, and the clock.
 - **Windows in the bar.** After the number of every workspace, an icon for
-  each of its windows (three at most, then +N), the one in front or with the
-  focus lit, a title when the pointer stays on an icon, and a click takes the
-  window to the front. Windows side by side are one group; a tabbed container of
-  i3 is a group of its own with a chevron, which, or `nshell tabs list`, opens
-  the list of its tabs with titles and a filter. The right button on an icon
-  opens a menu (close, and move a tab left or right), a drag along a group of
-  tabs moves the tab to where it is let go, and the wheel on a group goes from
-  one window to the next. i3 draws nothing for its tabs, see
-  [`docs/i3.md`](docs/i3.md).
+  each of its windows, the one in front or with the focus lit, a title when the
+  pointer stays on an icon, and a click takes the window to the front. Windows
+  side by side are one group; a tabbed container of i3 is a group of its own
+  with a chevron, which, or `nshell tabs list`, opens the list of its tabs with
+  titles and a filter. A group of more than five windows is one icon, the one in
+  front, with the same chevron and its list: there are no counts in the bar. The
+  right button on an icon opens a menu (close, and move a tab left or right), a
+  drag along a group of tabs moves the tab to where it is let go, and the wheel
+  on a group goes from one window to the next. i3 draws nothing for its tabs,
+  see [`docs/i3.md`](docs/i3.md).
 - **Launcher.** Apps (ordered by how often they are run) and the windows of
   i3, Tab goes from one to the other (`nshell launcher`,
   `nshell launcher windows`). An app that has a window is focused and not

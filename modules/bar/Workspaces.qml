@@ -8,7 +8,8 @@ import qs.modules.common
 // The workspaces of i3 as squares: the one in use is a lighter block, the others only their number, and an urgent one is red. After the
 // number, the windows of the workspace, the same for every one: an icon for each (the one in front, or the one with the focus, lit), and
 // a title when the pointer stays on it. The windows that are side by side are one group. A tabbed container is a group of its own, with a
-// chevron that opens the list of its tabs, see modules/tabs, and a line is between the groups.
+// chevron that opens the list of its tabs, see modules/tabs, and a line is between the groups. A group of more than five windows is one icon,
+// the one in front, with the same chevron.
 // On an icon: a click takes its window to the front, the right button opens a menu (close, move), and a drag along a group of tabs
 // moves the tab to where it is let go. The wheel on a group goes from one window to the next
 RowLayout {
@@ -30,18 +31,15 @@ RowLayout {
         const p = c.mapToItem(null, 0, 0);
         row.listRequested(group, p.x, p.y + c.height);
     }
-    // the icons of a group: more than this are a count
-    readonly property int shown: 3
-    // the icons of a group: the first ones, and the one in front in the last place when it would not be among them, so that the lit
-    // icon is always there
-    function visibleTabs(tabs) {
-        if (tabs.length <= row.shown)
-            return tabs;
-        const head = tabs.slice(0, row.shown);
-        const front = tabs.findIndex(t => t.current);
-        if (front >= row.shown)
-            head[row.shown - 1] = tabs[front];
-        return head;
+    // a group of more windows than this is collapsed: the icon of the one in front, and the chevron of the list, which has them all. There
+    // is no count: the list and the tip say how many
+    readonly property int shown: 5
+    function collapsed(group) { return group.tabs.length > row.shown; }
+    // the icons of a group: all of them, or the one in front (the first, when none is) of a collapsed one
+    function visibleTabs(group) {
+        if (!row.collapsed(group))
+            return group.tabs;
+        return [group.tabs.find(t => t.current) ?? group.tabs[0]];
     }
     function iconFor(cls) {
         const entry = DesktopEntries.heuristicLookup(cls) ?? DesktopEntries.byId(cls.toLowerCase());
@@ -122,7 +120,7 @@ RowLayout {
                         opacity: 0.4
                     }
                     Repeater {
-                        model: ScriptModel { values: row.visibleTabs(group.modelData.tabs); objectProp: "id" }
+                        model: ScriptModel { values: row.visibleTabs(group.modelData); objectProp: "id" }
                         delegate: Rectangle {
                             id: chip
                             required property var modelData
@@ -144,25 +142,10 @@ RowLayout {
                                 anchors.centerIn: parent
                                 source: row.iconFor(chip.modelData.cls)
                                 sourceSize: Qt.size(48, 48)
-                                width: 16
-                                height: 16
+                                width: Theme.iconBar
+                                height: Theme.iconBar
                                 fillMode: Image.PreserveAspectFit
                                 opacity: chip.modelData.current ? 1 : 0.75
-                            }
-                            // a tab that is a split of several windows: how many
-                            Rectangle {
-                                visible: chip.modelData.count > 1
-                                anchors { right: parent.right; bottom: parent.bottom; margins: 1 }
-                                width: 13
-                                height: 13
-                                radius: 7
-                                color: Theme.barMuted
-                                Text {
-                                    anchors.centerIn: parent
-                                    text: chip.modelData.count
-                                    color: Theme.barBg
-                                    font { family: Theme.font; pixelSize: 9; weight: Font.DemiBold }
-                                }
                             }
                             // an urgent window
                             Rectangle { visible: chip.modelData.urgent; anchors { right: parent.right; top: parent.top; margins: 3 } width: 6; height: 6; radius: 3; color: Theme.critical }
@@ -186,14 +169,14 @@ RowLayout {
                                     if (!containsMouse || drag.active)
                                         tip.hide();
                                     else
-                                        tip.show(chip, chip.modelData.count > 1 ? chip.modelData.name + " and " + (chip.modelData.count - 1) + " more" : chip.modelData.name);
+                                        tip.show(chip, row.collapsed(group.modelData) ? chip.modelData.name + " and " + (group.modelData.tabs.length - 1) + " more" : (chip.modelData.count > 1 ? chip.modelData.name + " and " + (chip.modelData.count - 1) + " more" : chip.modelData.name));
                                 }
                             }
                             // along a group of tabs: the tab goes as many places as it was dragged, one for the width of an icon, and
                             // never out of the group
                             DragHandler {
                                 id: drag
-                                enabled: group.modelData.stack && group.modelData.tabs.length > 1
+                                enabled: group.modelData.stack && group.modelData.tabs.length > 1 && !row.collapsed(group.modelData)
                                 target: null
                                 yAxis.enabled: false
                                 onTranslationChanged: if (active) chip.dragged = translation.x
@@ -212,18 +195,10 @@ RowLayout {
                             }
                         }
                     }
-                    // more than the icons: the count
-                    Label {
-                        visible: group.modelData.tabs.length > row.shown
-                        anchors.verticalCenter: parent.verticalCenter
-                        role: "caption"
-                        text: "+" + (group.modelData.tabs.length - row.shown)
-                        color: Theme.barMuted
-                    }
-                    // the chevron of the list, only for tabs
+                    // the chevron of the list, for tabs and for a collapsed group
                     Rectangle {
                         id: chevron
-                        visible: group.modelData.stack
+                        visible: group.modelData.stack || row.collapsed(group.modelData)
                         Component.onCompleted: row.chevrons[group.modelData.id] = chevron
                         Component.onDestruction: if (row.chevrons[group.modelData.id] === chevron) delete row.chevrons[group.modelData.id]
                         width: Theme.tile
