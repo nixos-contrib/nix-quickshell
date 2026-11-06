@@ -16,7 +16,12 @@ One process that replaces the notification daemon, the bar, the launcher and the
 the palette, the typeface and the logo of NixOS. It is for a developer desktop where windows are tiled and tabbed, the keyboard is the
 main input, and the screen is mostly the windows. The shell is the frame around them and stays quiet.
 
-It is private and not released: there are no tags. The system that uses it pins a commit in its `flake.lock`.
+The aim is modern aesthetics for i3, and a desktop that works well in a virtual machine on macOS. There are many shells for Wayland, but in
+our tests Wayland under Parallels Desktop on Apple Silicon did not let the display follow the window of the VM, so the shell stays on X11
+and i3. It is not tied to a VM: it is an X11 shell.
+
+It is a work in progress and has no release yet: release-please keeps the pull request for 0.0.1 open until the shell is stable, and
+merging it is what tags the first release. The system that uses it pins a commit in its `flake.lock`.
 
 ## Principles
 
