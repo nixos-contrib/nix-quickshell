@@ -67,7 +67,7 @@ let
       inherit description;
     };
 
-  # The wallpaper of a mode: the base color of the palette, and the official logomark of NixOS in the middle, white on dark and black on
+  # The wallpaper of a mode: the surface color of the palette, a step off the bar (which is the base) so that the bar is seen as a strip, and the official logomark of NixOS in the middle, white on dark and black on
   # light as in the bar, 18% of the height of the screen. 5120 x 2880: it is scaled to the screen, and the logo stays in the middle
   logomarkFile = m: ../assets/nixos-logomark-${if m == "light" then "black" else "white"}-flat.svg;
   wallpaper =
@@ -77,7 +77,7 @@ let
       logo="$(sed -e 's/^<svg[^>]*>//' -e 's#</svg>$##' ${logomarkFile m})"
       cat > wallpaper.svg <<SVG
       <svg xmlns="http://www.w3.org/2000/svg" width="5120" height="2880" viewBox="0 0 5120 2880">
-        <rect width="5120" height="2880" fill="${palettes.${m}.base}"/>
+        <rect width="5120" height="2880" fill="${palettes.${m}.surface}"/>
         <g transform="translate(2560 1440) scale(0.26)">$logo</g>
       </svg>
       SVG
@@ -236,7 +236,7 @@ in
 
       wallpaper = {
         enable = enableOption ''
-          The wallpaper of the theme: ~/.config/nix-shell/wallpaper-<mode>.png, the base color of the palette with the logomark of NixOS in the
+          The wallpaper of the theme: ~/.config/nix-shell/wallpaper-<mode>.png, the surface color of the palette (not the one of the bar) with the logomark of NixOS in the
           middle, and `nshell apps` sets the one of the mode with feh, when the mode changes and at the start of the session
         '';
         image = mkOption {
