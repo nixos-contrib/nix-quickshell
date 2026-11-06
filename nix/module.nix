@@ -67,14 +67,15 @@ let
       inherit description;
     };
 
-  # The wallpaper of a mode: the surface color of the palette, a step off the bar (which is the base) so that the bar is seen as a strip, and the official logomark of NixOS in the middle, white on dark and black on
-  # light as in the bar, 12% of the height of the screen: it is the signature of an empty desktop, and does not draw the eye. 5120 x 2880: it is scaled to the screen, and the logo stays in the middle
-  logomarkFile = m: ../assets/nixos-logomark-${if m == "light" then "black" else "white"}-flat.svg;
+  # The wallpaper of a mode: the surface color of the palette, a step off the bar so that the bar is seen as a strip, and the official logomark of NixOS in
+  # the middle, the one with the gradient, the same on both modes, 12% of the height of the screen: it is the signature of an empty desktop, and does not draw the eye. 5120 x 2880: it is scaled to the
+  # screen, and the logo stays in the middle. The bar has the flat white one: the blues of the gradient would not show on it
+  logomarkFile = ../assets/nixos-logomark-default-gradient-recommended.svg;
   wallpaper =
     m:
     pkgs.runCommand "nix-quickshell-wallpaper-${m}.png" { nativeBuildInputs = [ pkgs.librsvg ]; } ''
-      # the drawing of the logomark, without its svg element: it is centered on 0, 0 and 1995 high
-      logo="$(sed -e 's/^<svg[^>]*>//' -e 's#</svg>$##' ${logomarkFile m})"
+      # the drawing of the logomark, without its svg element: it is centered on 0, 0 and 1995 high, with its clear space around
+      logo="$(sed -e 's/^<svg[^>]*>//' -e 's#</svg>$##' ${logomarkFile})"
       cat > wallpaper.svg <<SVG
       <svg xmlns="http://www.w3.org/2000/svg" width="5120" height="2880" viewBox="0 0 5120 2880">
         <rect width="5120" height="2880" fill="${palettes.${m}.surface}"/>

@@ -76,7 +76,7 @@ Files: the module writes both modes into `~/.config/nix-quickshell`; `nshell app
 | Route 159, Regular and SemiBold, Inter for what it lacks | it is the typeface of NixOS; it has the Latin letters and little more, so a fontconfig rule adds Inter | Inter alone; Bold is reserved by the guide, Light was not used at small sizes |
 | Light mode: a blue bar (`#3b5487`, the primary blue of the palette) with white text, over white windows and a pale blue wallpaper; in graphite a dark grey | the guide has the blues for headers and navigation bars, and the bar is the anchor of the screen: a white bar on white windows had nothing to hold it. It is the same shape as dark, a coloured strip over a quiet surface | the white bar (blends into the windows, the only part of the light desktop with no colour), a near black bar (`#050b18`: the most contrast, but it looks like dark mode with a white window under it, and is heavy) |
 | The official logomark, 18 points in the bar | it is flat white or black, as the guide asks, with its clear space and no fill behind it | the older snowflake of nixos-artwork, painted in the text color; 24 points was too big for a bar |
-| Wallpaper: the `surface` color, the logomark at 12% of the height | a step off the bar, so the bar reads as a strip; quiet behind windows | the color of the bar (the bar dissolved), `surfaceHigh` (heavier), a bright blue (inverts the hierarchy), the nixos.org line pattern (cropped art, unknown license), the archived nixos-artwork wallpapers |
+| Wallpaper: the `surface` color, the logomark with the gradient at 12% of the height, the same on both modes | a step off the bar, so the bar reads as a strip; quiet behind windows; the bar has the small flat mark and the wallpaper has the brand one, in its own colors, from one file | the flat white and black marks (the same as the bar, and two files), the lockups with the wordmark, vertical and horizontal (the name twice, and heavier), | the color of the bar (the bar dissolved), `surfaceHigh` (heavier), a bright blue (inverts the hierarchy), the nixos.org line pattern (cropped art, unknown license), the archived nixos-artwork wallpapers |
 | No clipboard history | a password manager and the clipboard sync of the Mac would be recorded | |
 | App icons, no thumbnails, in the lists | enough to tell windows apart, and cheap | thumbnails: heavy, and not needed in the first version |
 | 2026-11-06: the design pass is done | the tokens, the radius scale, the hairline edge and the shadows, a navy flavour as the default and a graphite one, `theme.json` over the flavour, and the home-manager module that writes the files of the apps | |
@@ -125,9 +125,10 @@ terminal colors are the tints of the accents. The guide says the primary colors 
 borders, the blues for headers, icons and navigation, and the accents for emphasis, sparingly. Navy has tinted backgrounds, which the guide
 allows as tints "for layering and different themes"; nixos-graphite is the reading with grey backgrounds.
 
-**Logo.** The bar has the official logomark, `assets/nixos-logomark-white-flat.svg` on dark and `nixos-logomark-black-flat.svg` on light,
-made with `nixoslogo` from the branding repo and not changed or painted in another color: the guide has the black and white logomarks
-flat. It is 20 points high, the size of the other icons of the bar, which is 40 pixels on this screen: the guide has 24 px as the least for
+**Logo.** The bar has the official logomark, `assets/nixos-logomark-white-flat.svg` on a dark bar (both modes of nixos-navy and nixos-graphite)
+and `nixos-logomark-black-flat.svg` on a light one (a theme of your own), made with `nixoslogo` from the branding repo and not changed or
+painted in another color: the guide has the black and white logomarks flat. The gradient one would not show on the blue bar, and its thin
+strokes are too fine at this size, so it is only for the wallpaper. The flat one is 18 points high, which is 36 pixels on this screen: the guide has 24 px as the least for
 a screen, which is read in the pixels of the screen and not in points (it was 24 points, and too big for a bar). A quarter of its height is
 free around it, the least that the guide asks for, so there is no fill behind it. The credit is in `CREDITS.md` (the guide asks for it in the TASL form).
 
