@@ -14,7 +14,7 @@ Popover {
     signal tabClosed(real id)
 
     heading: "Tabs"
-    headerValue: container ? container.tabs.length + " windows" : ""
+    headerValue: container ? container.tabs.length + (container.tabs.length === 1 ? " tab" : " tabs") : ""
     panelWidth: 380
 
     property int index: 0
@@ -85,12 +85,14 @@ Popover {
                         Layout.fillWidth: true
                         spacing: 0
                         Label { text: item.modelData.name; elide: Text.ElideRight; Layout.fillWidth: true; strong: true }
-                        Label { role: "caption"; text: item.modelData.count > 1 ? item.modelData.cls + " · " + item.modelData.count + " windows, closing it closes them all" : item.modelData.cls; elide: Text.ElideRight; Layout.fillWidth: true }
+                        Label { role: "caption"; text: item.modelData.count > 1 ? item.modelData.cls + " · " + item.modelData.count + " windows" : item.modelData.cls; elide: Text.ElideRight; Layout.fillWidth: true }
                     }
                     Rectangle { visible: item.modelData.urgent; Layout.preferredWidth: 8; Layout.preferredHeight: 8; radius: 4; color: Theme.critical }
                     // the window that is in front
                     Text { visible: item.modelData.current; text: "✓"; color: Theme.primary; font.pixelSize: 13 }
+                    // not for a tab that is a split: it would close all its windows
                     Item {
+                        visible: item.modelData.count <= 1
                         Layout.preferredWidth: 20; Layout.preferredHeight: 20
                         opacity: area.containsMouse ? 1 : 0
                         Rectangle { anchors.fill: parent; radius: 10; color: closeArea.containsMouse ? Qt.alpha(Theme.text, 0.14) : "transparent" }
