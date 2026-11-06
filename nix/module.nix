@@ -246,6 +246,8 @@ in
         };
       };
 
+      alacritty.enable = enableOption "~/.config/nix-quickshell/alacritty-<mode>.toml, the colors of Alacritty, which `nshell apps` puts in the state folder, for `general.import`";
+
       xresources.enable = enableOption "~/.config/nix-quickshell/Xresources, the colors of xterm, for `xrdb -merge`";
       i3.enable = enableOption "~/.config/nix-quickshell/i3.conf, the colors of the tabs, for `include` in the config of i3";
     };
@@ -321,6 +323,9 @@ in
           }
         ) modes
       )
+    )
+    // lib.optionalAttrs cfg.integration.alacritty.enable (
+      lib.listToAttrs (map (m: lib.nameValuePair "nix-quickshell/alacritty-${m}.toml" { text = files.${m}.alacritty; }) modes)
     )
     // lib.optionalAttrs cfg.integration.xresources.enable (
       lib.listToAttrs (map (m: lib.nameValuePair "nix-quickshell/xresources-${m}" { text = files.${m}.xresources; }) modes)

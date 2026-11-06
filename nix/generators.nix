@@ -80,6 +80,42 @@ in
     XTerm*color15: ${p.brightWhite}
   '';
 
+  # alacritty: import it from the config, `general.import = ["~/.local/state/nix-quickshell/alacritty.toml"]`: Alacritty reads an imported file
+  # again when it changes, so the open terminals follow the mode. The sixteen colors are the ones of xterm
+  alacritty = ''
+    [colors.primary]
+    background = "${p.bg}"
+    foreground = "${p.text}"
+
+    [colors.cursor]
+    text = "${p.bg}"
+    cursor = "${p.primary}"
+
+    [colors.selection]
+    text = "${p.text}"
+    background = "${p.surfaceHigh}"
+
+    [colors.normal]
+    black = "${p.black}"
+    red = "${p.red}"
+    green = "${p.green}"
+    yellow = "${p.yellow}"
+    blue = "${p.blue}"
+    magenta = "${p.magenta}"
+    cyan = "${p.cyan}"
+    white = "${p.white}"
+
+    [colors.bright]
+    black = "${p.brightBlack}"
+    red = "${p.brightRed}"
+    green = "${p.brightGreen}"
+    yellow = "${p.brightYellow}"
+    blue = "${p.brightBlue}"
+    magenta = "${p.brightMagenta}"
+    cyan = "${p.brightCyan}"
+    white = "${p.brightWhite}"
+  '';
+
   # zathura: `include` it from zathurarc
   zathura = ''
     set default-bg "${p.surface}"

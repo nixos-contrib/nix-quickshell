@@ -165,6 +165,7 @@ programs.nix-quickshell = {
   integration = {
     gtk.enable = true;        # the settings and the colors of the GTK apps (adw-gtk3), GTK 3 and 4
     zathura.enable = true;    # zathurarc with the colors and the font
+    alacritty.enable = true;  # the colors of Alacritty, which follow the mode live
     xresources.enable = true; # ~/.config/nix-quickshell/Xresources, for xrdb -merge
     i3.enable = true;         # ~/.config/nix-quickshell/i3.conf, the colors of the tabs, for include
     wallpaper.enable = true;  # the wallpaper of the theme, for each mode
@@ -177,6 +178,7 @@ programs.nix-quickshell = {
 | `integration.gtk` | two GTK themes in `~/.local/share/themes`, `nix-quickshell-dark` and `nix-quickshell-light` (adw-gtk3 with the named colors of the palette after it), each with a twin of the same look (`-twin`), `gtk-3.0/settings.ini` and `gtk-4.0/gtk.css`, and `xsettings-<mode>.conf` and its twin for xsettingsd | `gtk.menuImages` (icons in the menus, on), `gtk.extraCss` (layout rules that can use the colors, as `@window_bg_color`), `gtk.xsettings` (as `Xft/DPI`), `gtk.iconTheme` |
 | `integration.zathura` | `zathura/zathurarc`, which includes the colors of the mode from the state folder, and the font | `zathura.extraConfig` |
 | `integration.wallpaper` | `wallpaper-<mode>.png`, the surface color of the palette, a step off the bar, with the logomark of NixOS in the middle (white on dark, black on light), and `nshell apps` sets the one of the mode with feh | `wallpaper.image`, an image of your own for both modes |
+| `integration.alacritty` | `alacritty-<mode>.toml`, the colors of Alacritty: the background, the foreground, the cursor, the selection and its sixteen colors | `general.import = ["~/.local/state/nix-quickshell/alacritty.toml"]` in the config of Alacritty, which reads it again when the mode changes |
 | `integration.xresources` | `xresources-<mode>`, the colors of xterm and its sixteen: the hues of the NixOS palette, light on dark and darker on light | |
 | `integration.i3` | `i3-<mode>.conf`, the colors of the tabs | `include ~/.local/state/nix-quickshell/i3.conf` in the config of i3 |
 | `integration.cursor` | the cursor theme (capitaine-cursors, the arrow of macOS, by default): its package, `icons/default/index.theme`, the cursor of GTK and `Xresources`, and `session.sh` | `. ~/.config/nix-quickshell/session.sh` in the session, and `cursor.size`: 24 by default, 48 on a screen with twice the pixels |
@@ -201,6 +203,7 @@ Then:
   `GTK_THEME`, which GTK puts before everything.
 - **i3** reads its include again (`i3-msg reload`), so the tabs change.
 - **The wallpaper** is set with feh.
+- **Alacritty** reads its colors again when they change, so the open terminals follow.
 - **xterm** and **zathura** take the colors when they start.
 
 ## Design
