@@ -49,6 +49,11 @@ for, so there is no fill behind it. The credit is in `CREDITS.md` (the guide ask
 **Typeface.** Route 159, `Theme.font`, installed from nixpkgs as `route159` (OFL-1.1). The guide has Regular as the standard weight, Light
 for secondary uses and Bold reserved: the shell uses Regular and SemiBold, and no Medium or Bold.
 
+**Shape.** The corners are rounded, as the website of NixOS has them: the guide gives no rules for the shape of a window or a control, so the
+website is the reference. The large radius is 16 and the others follow it (`radius` in the theme). Tried at 8 and at 0 on 2026-11-06: the
+panels and the selected row look flat and technical, which is not the look of nixos.org, and a square look is one `radius` away, and
+the corner radius of picom for the windows.
+
 **Deviations, on purpose**
 - `light.surfaceHigh` is `#cfdefd`, an L90 tint of Afghani Blue, which the ladder (L95, L85, ...) does not have. L95 is the same as `surface`,
   and L85 (`#b7cefd`) makes the lit tile of the light bar a strong blue.
