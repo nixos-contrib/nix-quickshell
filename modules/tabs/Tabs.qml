@@ -26,6 +26,10 @@ Scope {
     property bool dockMissing: false
     signal remapBar
 
+    // The windows of every workspace, by its name, for the group of the bar: a list of groups in the order they have on the screen, each
+    // { id, stack (a tabbed container: it has a list), active (the focus is in it), tabs }, and a tab as in the containers. The windows
+    // that are not tabs, side by side, are one group without a list. A tab is lit (current) only in the workspace in view
+    property var workspaceGroups: ({})
     // The tabbed containers in view, each { id, x, y, w, h (the strip, in pixels of the screen), active (the focus is in it), tabs }, and
     // a tab { id, name, cls, current (the tab in front), urgent }
     property var containers: []
@@ -125,6 +129,52 @@ Scope {
         }
         return out;
     }
+    function groupsOf(ws, inView) {
+        const out = [];
+        let loose = null;
+        const walk = node => {
+            const kids = node.nodes ?? [];
+            if ((node.layout === "tabbed" || node.layout === "stacked") && kids.length > 1) {
+                loose = null;
+                const front = node.focus && node.focus.length > 0 ? node.focus[0] : kids[0].id;
+                out.push({ id: node.id, stack: true, active: root.holdsFocus(node), tabs: kids.map(k => root.tabOf(k, inView && k.id === front)) });
+                return;
+            }
+            if (node.window) {
+                // the windows of the shell itself (a popup, a toast) are not windows of the workspace
+                const cls = node.window_properties ? (node.window_properties.class ?? "") : "";
+                if (cls === "quickshell" || (node.name ?? "").startsWith("nshell-") || node.name === "polkit")
+                    return;
+                if (!loose) {
+                    loose = { id: node.id, stack: false, active: false, tabs: [] };
+                    out.push(loose);
+                }
+                loose.tabs.push(root.tabOf(node, inView && !!node.focused));
+                loose.active = loose.active || !!node.focused;
+                return;
+            }
+            for (const c of kids.concat(node.floating_nodes ?? []))
+                walk(c);
+        };
+        walk(ws);
+        return out;
+    }
+    function groups(tree) {
+        const out = {};
+        for (const output of tree.nodes ?? []) {
+            if (output.name === "__i3")
+                continue;
+            for (const content of output.nodes ?? []) {
+                if (content.type !== "con")
+                    continue;
+                const shown = content.focus && content.focus.length > 0 ? content.focus[0] : -1;
+                for (const ws of content.nodes ?? [])
+                    if (ws.type === "workspace" && !ws.name.startsWith("__i3"))
+                        out[ws.name] = root.groupsOf(ws, ws.id === shown);
+            }
+        }
+        return out;
+    }
     // where the windows of the strips are, by the id of their container: x, y, w, h in pixels of the screen
     function actualStrips(tree) {
         const found = {};
@@ -167,7 +217,22 @@ Scope {
         // the same value does not rebuild the windows
         if (JSON.stringify(built) !== JSON.stringify(root.containers))
             root.containers = built;
-        root.focusedContainer = built.find(c => c.active && c.inView) ?? null;
+        const grouped = root.groups(tree);
+        if (JSON.stringify(grouped) !== JSON.stringify(root.workspaceGroups))
+            root.workspaceGroups = grouped;
+        if (root.look === "group") {
+            // the stack that holds the focus, or else a stack of the workspace in view
+            let found = null;
+            for (const output of tree.nodes ?? [])
+                for (const content of output.nodes ?? [])
+                    for (const ws of content.nodes ?? [])
+                        if (ws.type === "workspace" && content.focus && content.focus[0] === ws.id) {
+                            const stacks = (grouped[ws.name] ?? []).filter(g => g.stack);
+                            found = stacks.find(g => g.active) ?? stacks[0] ?? null;
+                        }
+            root.focusedContainer = found;
+        } else
+            root.focusedContainer = built.find(c => c.active && c.inView) ?? null;
     }
 
     Process {
