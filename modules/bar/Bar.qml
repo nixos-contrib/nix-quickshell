@@ -152,9 +152,12 @@ Scope {
                         root.closePopups();
                         root.tabs.openMenuAt(group, tab, x, y);
                     }
+                    // the chevron of the list that is open closes it; the chevron of another group opens its own
                     onListRequested: (container, x, y) => {
+                        const wasOpen = root.tabs.listShows(container);
                         root.closePopups();
-                        root.tabs.openListAt(container, x, y);
+                        if (!wasOpen)
+                            root.tabs.openListAt(container, x, y);
                     }
                 }
             }

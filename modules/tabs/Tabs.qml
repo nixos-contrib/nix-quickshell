@@ -28,6 +28,8 @@ Scope {
     // the group of tabs that has the focus, or a group of tabs of the workspace in view: the list of the key is for it
     property var focusedContainer: null
     readonly property bool listOpen: list.visible || menu.visible
+    // the list that is open is the one of this group: its chevron closes it, as the item of a popup of the bar does
+    function listShows(group) { return list.visible && list.container !== null && group !== null && list.container.id === group.id; }
     function closeList() { list.visible = false; menu.visible = false; }
 
     // --------------------------------------------------------------------------------------------------------- the tree of i3
@@ -186,7 +188,8 @@ Scope {
     Component.onCompleted: refresh.restart()
 
     // ------------------------------------------------------------------------------------------------------------ the actions
-    function focusTab(id) { I3.dispatch(`[con_id=${id}] focus`); }
+    // a window that is taken to the front is the answer to the list, or to a click on an icon: the list and the menu are done
+    function focusTab(id) { root.closeList(); I3.dispatch(`[con_id=${id}] focus`); }
     function closeTab(id) { I3.dispatch(`[con_id=${id}] kill`); }
     // the wheel on a group: the window after the one that is in front, or before it, round. Not when none is in front: the workspace is
     // not the one in view
