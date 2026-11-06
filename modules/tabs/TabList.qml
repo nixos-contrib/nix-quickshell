@@ -5,7 +5,7 @@ import qs
 import qs.modules.bar
 import qs.modules.common
 
-// The list of the windows of a tabbed container, from the button at the end of its strip or from a key: an icon and the title of each,
+// The list of the windows of a tabbed container, from the chevron of its group in the bar or from a key: an icon and the title of each,
 // and a field that filters them. Up and down choose, Enter takes the window to the front
 Popover {
     id: win

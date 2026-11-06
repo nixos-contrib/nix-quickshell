@@ -8,7 +8,7 @@ import qs.modules.common
 // The workspaces of i3 as squares: the one in use is a lighter block, the others only their number, and an urgent one is red. After the
 // number, the windows of the workspace, the same for every one: an icon for each (the one in front, or the one with the focus, lit), and
 // a title when the pointer stays on it. The windows that are side by side are one group. A tabbed container is a group of its own, with a
-// chevron that opens the list of its tabs, see modules/tabs, and a line is between the groups. Only in the group look of the tabs
+// chevron that opens the list of its tabs, see modules/tabs, and a line is between the groups
 RowLayout {
     id: row
     spacing: Theme.spaceXs
@@ -17,7 +17,15 @@ RowLayout {
     // a click on the chevron: the group, and where its list hangs from, in points of the screen
     signal listRequested(var container, real x, real y)
 
-    readonly property bool grouped: tabs !== null && tabs.look === "group"
+    // the chevrons that are in the bar, by the id of their group, for the list of a key to hang from one
+    property var chevrons: ({})
+    function openListFor(group) {
+        const c = row.chevrons[group.id];
+        if (!c)
+            return;
+        const p = c.mapToItem(null, 0, 0);
+        row.listRequested(group, p.x, p.y + c.height);
+    }
     // the icons of a group: more than this are a count
     readonly property int shown: 3
     function iconFor(cls) {
@@ -33,7 +41,7 @@ RowLayout {
             id: item
             required property I3Workspace modelData
             // its groups, in the order of the screen
-            readonly property var groups: row.grouped ? (row.tabs.workspaceGroups[modelData.name] ?? []) : []
+            readonly property var groups: row.tabs ? (row.tabs.workspaceGroups[modelData.name] ?? []) : []
             spacing: 2
 
             Rectangle {
@@ -135,6 +143,8 @@ RowLayout {
                     Rectangle {
                         id: chevron
                         visible: group.modelData.stack
+                        Component.onCompleted: row.chevrons[group.modelData.id] = chevron
+                        Component.onDestruction: if (row.chevrons[group.modelData.id] === chevron) delete row.chevrons[group.modelData.id]
                         width: Theme.tile
                         height: Theme.tile
                         radius: Theme.radiusSm

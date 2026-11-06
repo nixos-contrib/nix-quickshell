@@ -6,36 +6,27 @@ import Quickshell.Io
 import qs
 import qs.modules.common
 
-// The tabs of the tabbed containers of i3. i3 reserves the strip of a tabbed container and draws nothing in it, see
-// the colors that nix-shell writes for it, and a window of the shell is put over each strip: the shell knows where from the tree of i3
-// (the rectangles of the tabs), and does what a click says with the commands of i3. There is no stacked layout: a container is tabbed,
-// and the button at the end of its strip opens the list of its windows, for when there are many
+// The windows of every workspace, for the bar (modules/bar/Workspaces): the groups of each one, as they are on the screen, a group for a
+// tabbed container of i3 and one for the windows that are side by side. i3 reserves almost nothing for its tabs and draws nothing in it,
+// see the colors that nix-shell writes for it: the shell knows the windows from the tree of i3, and does what a click says with the
+// commands of i3. There is no stacked layout in the design, but one that is there is a group of tabs too. The list of the tabs of a
+// group, for when there are many, is a popup under the chevron of the group
 Scope {
     id: root
 
-    // group: no strip, the windows of a workspace are in the bar, at its number. The others are strips over the room that i3 reserves, which
-    // has to be as high as a strip (the patch of i3), and are not used with the group.
-    // The look of a strip that has the width of the workspace and is under the bar: flush, square, as a second row of the bar, or card,
-    // the width of its container, rounded. Any other strip is a card. `nshell tabs style` changes it
-    property string look: "group"
-    property var lastTree: null
-    // Windows that i3 moved when the screen changed, which is what leaving full screen in the window of the VM does: the strip is put in
-    // its place again. The number of times it was, by container
-    property var nonces: ({})
-    // The bar is not a dock of i3: the output has none at the top while the shell runs. The shell shows its bar again
-    property bool dockMissing: false
+    // The bar is not a dock of i3: the output has none at the top while the shell runs, as after a change of the screen. The shell shows
+    // its bar again
     signal remapBar
+    // the key of the list: the group that has the focus, for the bar to open its list under its chevron
+    signal listKeyRequested(var group)
 
     // The windows of every workspace, by its name, for the group of the bar: a list of groups in the order they have on the screen, each
-    // { id, stack (a tabbed container: it has a list), active (the focus is in it), tabs }, and a tab as in the containers. The windows
-    // that are not tabs, side by side, are one group without a list. A tab is lit (current) only in the workspace in view
+    // { id, stack (a tabbed container: it has a list), active (the focus is in it), tabs }, and a tab { id, name, cls, current (the one in
+    // front, or with the focus, and only in the workspace in view), count (windows in it, more than one for a split), urgent }. The
+    // windows that are not tabs, side by side, are one group without a list
     property var workspaceGroups: ({})
-    // The tabbed containers in view, each { id, x, y, w, h (the strip, in pixels of the screen), active (the focus is in it), tabs }, and
-    // a tab { id, name, cls, current (the tab in front), urgent }
-    property var containers: []
-    // the container that holds the focus: the list of a key opens for it
+    // the group of tabs that has the focus, or a group of tabs of the workspace in view: the list of the key is for it
     property var focusedContainer: null
-
     readonly property bool listOpen: list.visible
     function closeList() { list.visible = false; }
 
@@ -76,66 +67,6 @@ Scope {
             count: Math.max(1, root.windowsIn(child)),
             urgent: root.anyUrgent(child)
         };
-    }
-    function collect(node, out, output, ws, inView) {
-        if (node.type === "con" && node.layout === "tabbed" && (node.nodes ?? []).length > 0) {
-            const kids = node.nodes;
-            const strips = kids.map(k => k.deco_rect).filter(d => d && d.height > 0);
-            const hidden = kids.some(k => (k.fullscreen_mode ?? 0) !== 0 || (node.fullscreen_mode ?? 0) !== 0);
-            if (strips.length > 0 && !hidden) {
-                const front = node.focus && node.focus.length > 0 ? node.focus[0] : kids[0].id;
-                // the strip is at the top of the container, as wide as it: the rectangle of the container, with the height of the tabs.
-                // The deco_rect of i3 is not in the same coordinates in x and in y
-                // the container fills the width of the output and is just under the bar: the strip can be a row of the bar
-                const scale = Quickshell.screens.length > 0 ? Quickshell.screens[0].devicePixelRatio : 1;
-                const left = node.rect.x - output.rect.x;
-                const right = output.rect.x + output.rect.width - node.rect.x - node.rect.width;
-                const flush = root.look === "flush" && Math.abs(node.rect.y - (output.rect.y + Theme.barHeight * scale)) <= 2 && Math.abs(left - right) <= 2 && left < output.rect.width / 8;
-                // attached (experimental): moved down against the window, which leaves the corners of the window round under its corners
-                const attached = root.look === "attached";
-                const frontKid = kids.find(k => k.id === front) ?? kids[0];
-                out.push({
-                    id: node.id,
-                    ws: ws,
-                    inView: inView,
-                    attached: attached,
-                    full: flush,
-                    // the window of the strip, and how far in from its left edge the tabs start
-                    x: flush ? output.rect.x : node.rect.x,
-                    // the strip is the height of the strip that i3 keeps, and the window is under it with the gap between them: the
-                    // attached row is moved down to the window, which leaves the gap above it, the same as the one under the window
-                    y: attached ? frontKid.rect.y - strips[0].height : node.rect.y,
-                    ear: 0,
-                    nonce: root.nonces[node.id] ?? 0,
-                    w: flush ? output.rect.width : node.rect.width,
-                    h: strips[0].height,
-                    inset: flush ? left : 0,
-                    active: root.holdsFocus(node),
-                    tabs: kids.map(k => root.tabOf(k, k.id === front))
-                });
-            }
-        }
-        for (const c of (node.nodes ?? []).concat(node.floating_nodes ?? []))
-            root.collect(c, out, output, ws, inView);
-    }
-    // every workspace has the strips of its containers, in windows that i3 hides with the workspace, so that they are not seen for a
-    // moment on the next one when it changes. The ones of the workspace in view are the ones that count for the focus
-    function build(tree) {
-        const out = [];
-        for (const output of tree.nodes ?? []) {
-            if (output.name === "__i3")
-                continue;
-            for (const content of output.nodes ?? []) {
-                if (content.type !== "con")
-                    continue;
-                // the workspace in view is the first of the focus of the content of the output
-                const shown = content.focus && content.focus.length > 0 ? content.focus[0] : -1;
-                for (const ws of content.nodes ?? [])
-                    if (ws.type === "workspace" && !ws.name.startsWith("__i3"))
-                        root.collect(ws, out, output, ws.name, ws.id === shown);
-            }
-        }
-        return out;
     }
     function groupsOf(ws, inView) {
         const out = [];
@@ -183,19 +114,6 @@ Scope {
         }
         return out;
     }
-    // where the windows of the strips are, by the id of their container: x, y, w, h in pixels of the screen
-    function actualStrips(tree) {
-        const found = {};
-        const walk = n => {
-            const m = /^nshell-tabs-(\d+)$/.exec(n.name ?? "");
-            if (m && n.window)
-                found[m[1]] = n.rect;
-            for (const c of (n.nodes ?? []).concat(n.floating_nodes ?? []))
-                walk(c);
-        };
-        walk(tree);
-        return found;
-    }
     function docked(tree) {
         for (const output of tree.nodes ?? [])
             if (output.name !== "__i3" && (output.nodes ?? []).some(c => c.type === "dockarea" && c.name === "topdock" && (c.nodes ?? []).length === 0))
@@ -205,7 +123,6 @@ Scope {
     property int dockStrikes: 0
     property double lastRemap: 0
     function apply(tree) {
-        root.lastTree = tree;
         // two reads in a row without a dock, and not more often than every ten seconds
         root.dockStrikes = root.docked(tree) ? 0 : root.dockStrikes + 1;
         if (root.dockStrikes >= 2 && Date.now() - root.lastRemap > 10000) {
@@ -213,34 +130,19 @@ Scope {
             root.dockStrikes = 0;
             root.remapBar();
         }
-        const actual = root.actualStrips(tree);
-        const built = root.build(tree);
-        for (const c of built) {
-            const a = actual[String(c.id)];
-            if (c.inView && a && (Math.abs(a.x - c.x) > 2 || Math.abs(a.y - c.y) > 2 || Math.abs(a.width - c.w) > 2 || Math.abs(a.height - (c.h + c.ear)) > 2)) {
-                root.nonces[c.id] = (root.nonces[c.id] ?? 0) + 1;
-                c.nonce = root.nonces[c.id];
-            }
-        }
-        // the same value does not rebuild the windows
-        if (JSON.stringify(built) !== JSON.stringify(root.containers))
-            root.containers = built;
         const grouped = root.groups(tree);
+        // the same value does not rebuild the bar
         if (JSON.stringify(grouped) !== JSON.stringify(root.workspaceGroups))
             root.workspaceGroups = grouped;
-        if (root.look === "group") {
-            // the stack that holds the focus, or else a stack of the workspace in view
-            let found = null;
-            for (const output of tree.nodes ?? [])
-                for (const content of output.nodes ?? [])
-                    for (const ws of content.nodes ?? [])
-                        if (ws.type === "workspace" && content.focus && content.focus[0] === ws.id) {
-                            const stacks = (grouped[ws.name] ?? []).filter(g => g.stack);
-                            found = stacks.find(g => g.active) ?? stacks[0] ?? null;
-                        }
-            root.focusedContainer = found;
-        } else
-            root.focusedContainer = built.find(c => c.active && c.inView) ?? null;
+        let found = null;
+        for (const output of tree.nodes ?? [])
+            for (const content of output.nodes ?? [])
+                for (const ws of content.nodes ?? [])
+                    if (ws.type === "workspace" && content.focus && content.focus[0] === ws.id) {
+                        const stacks = (grouped[ws.name] ?? []).filter(g => g.stack);
+                        found = stacks.find(g => g.active) ?? stacks[0] ?? null;
+                    }
+        root.focusedContainer = found;
     }
 
     Process {
@@ -286,61 +188,22 @@ Scope {
     // ------------------------------------------------------------------------------------------------------------ the actions
     function focusTab(id) { I3.dispatch(`[con_id=${id}] focus`); }
     function closeTab(id) { I3.dispatch(`[con_id=${id}] kill`); }
-    // the click on a strip took the focus from the window that had it: it goes back
-    function refocus() {
-        const c = root.focusedContainer;
-        if (c) {
-            const front = c.tabs.find(t => t.current);
-            if (front)
-                root.focusTab(front.id);
-        }
-    }
 
-    // from a button of the bar: where the list hangs from is given, in points
+    // from the chevron of a group: where the list hangs from is given, in points
     function openListAt(container, x, y) {
         if (!container)
             return;
         list.container = container;
         list.openAt(x - list.panelWidth / 2, y + 4);
     }
-    function openList(container) {
-        if (!container)
-            return;
-        list.container = container;
-        const scale = Quickshell.screens.length > 0 ? Quickshell.screens[0].devicePixelRatio : 1;
-        // at the end of the strip, under its button
-        list.openAt((container.x + container.w - container.inset) / scale - list.panelWidth - 6, (container.y + container.h) / scale);
-    }
-
-    onLookChanged: if (root.lastTree) root.apply(root.lastTree)
-
     IpcHandler {
         target: "tabs"
-        function list(): void { root.openList(root.focusedContainer); }
-        function style(look: string): string {
-            if (look === "flush" || look === "card" || look === "attached" || look === "group")
-                root.look = look;
-            return root.look;
-        }
+        function list(): void { if (root.focusedContainer) root.listKeyRequested(root.focusedContainer); }
     }
 
     TabList {
         id: list
         onPicked: id => { root.focusTab(id); list.visible = false; }
         onTabClosed: id => root.closeTab(id)
-    }
-
-    // keyed by the id of the container: a change of a title or a tab updates the window and does not make it again
-    Instantiator {
-        // no strips in the group look: the tabs are in the bar
-        model: ScriptModel { values: root.look === "group" ? [] : root.containers; objectProp: "id" }
-        delegate: TabStrip {
-            required property var modelData
-            spec: modelData
-            onTabClicked: id => root.focusTab(id)
-            onTabClosed: id => root.closeTab(id)
-            onListRequested: root.openList(modelData)
-            onBlankClicked: root.refocus()
-        }
     }
 }

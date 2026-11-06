@@ -21,7 +21,7 @@ ShellRoot {
         active: Quickshell.env("NSHELL_NO_BAR") !== "1"
         sourceComponent: Bar { notifications: center; launcher: appLauncher; tabs: containerTabs }
     }
-    // The tabs of the tabbed containers of i3
+    // The windows of the workspaces and the tabs of i3, for the bar
     Tabs {
         id: containerTabs
         onRemapBar: if (barLoader.item) barLoader.item.remap()

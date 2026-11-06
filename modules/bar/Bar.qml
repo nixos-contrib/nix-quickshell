@@ -74,6 +74,14 @@ Scope {
         notifications.closeCenter();
     }
     // the history of the notifications, from the bell and from the clock, as the clock opens it in macOS and in Windows 11
+    // the key of the list of tabs: it hangs from the chevron of the group
+    Connections {
+        target: root.tabs
+        function onListKeyRequested(group) {
+            root.closePopups();
+            workspaces.openListFor(group);
+        }
+    }
     // the workspace changes, from a click on its number or from a key: the popups are on every workspace, and have no business on the new one
     Connections {
         target: I3
@@ -144,6 +152,7 @@ Scope {
                     }
                 }
                 Workspaces {
+                    id: workspaces
                     tabs: root.tabs
                     onListRequested: (container, x, y) => {
                         root.closePopups();
