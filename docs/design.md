@@ -43,8 +43,9 @@ allows as tints "for layering and different themes"; nixos-graphite is the readi
 
 **Logo.** The bar has the official logomark, `assets/nixos-logomark-white-flat.svg` on dark and `nixos-logomark-black-flat.svg` on light,
 made with `nixoslogo` from the branding repo and not changed or painted in another color: the guide has the black and white logomarks
-flat. It is 24 px high, the least for a screen, with a quarter of its height of clear space around it, the least that the guide asks
-for, so there is no fill behind it. The credit is in `CREDITS.md` (the guide asks for it in the TASL form).
+flat. It is 20 points high, the size of the other icons of the bar, which is 40 pixels on this screen: the guide has 24 px as the least for
+a screen, which is read in the pixels of the screen and not in points (it was 24 points, and too big for a bar). A quarter of its height is
+free around it, the least that the guide asks for, so there is no fill behind it. The credit is in `CREDITS.md` (the guide asks for it in the TASL form).
 
 **Typeface.** Route 159, `Theme.font`, installed from nixpkgs as `route159` (OFL-1.1). The guide has Regular as the standard weight, Light
 for secondary uses and Bold reserved: the shell uses Regular and SemiBold, and no Medium or Bold.
