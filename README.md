@@ -63,7 +63,7 @@ it, and the shell reads both again when they change:
 {
   "variant": "navy",
   "mode": "dark",
-  "font": "Inter",
+  "font": "Route 159",
   "radius": 16,
   "hours": { "light": 7, "dark": 19 },
   "dark": { "primary": "#7ebae4" }
@@ -71,7 +71,7 @@ it, and the shell reads both again when they change:
 ```
 
 Every key is optional: `variant` is `navy` or `graphite`, `mode` is `dark`, `light` or `auto` (a choice of `nshell theme` lasts over
-it), `font` is the family (Inter by default, which has to be installed; the brand font of NixOS, Route 159, is in [NixOS/branding](https://github.com/NixOS/branding) under the OFL, and works too), `radius` is the large one and the other two follow it, and
+it), `font` is the family (Route 159 by default, the typeface of NixOS, which has to be installed: nixpkgs has it as `route159`; it has the Latin letters and little more, and the module adds a fontconfig rule that makes Inter, `theme.fallbackFont`, draw the rest), `radius` is the large one and the other two follow it, and
 `dark` and `light` name the roles to change.
 
 ### With Nix

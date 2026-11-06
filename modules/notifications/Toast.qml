@@ -91,7 +91,7 @@ Rectangle {
             anchors.centerIn: parent
             text: "\u2715"
             color: closeArea.containsMouse ? Theme.text : Theme.muted
-            font { pixelSize: 10; weight: Font.Medium }
+            font { pixelSize: 10; weight: Font.Normal }
         }
         MouseArea {
             id: closeArea
@@ -126,7 +126,7 @@ Rectangle {
             Text {
                 text: root.notification.appName
                 color: Theme.muted
-                font { family: Theme.font; pixelSize: Theme.fontSmall; weight: Font.Medium; capitalization: Font.AllUppercase; letterSpacing: 0.6 }
+                font { family: Theme.font; pixelSize: Theme.fontSmall; weight: Font.Normal; capitalization: Font.AllUppercase; letterSpacing: 0.6 }
                 elide: Text.ElideRight
                 Layout.fillWidth: true
                 Layout.rightMargin: 24
@@ -174,7 +174,7 @@ Rectangle {
                             anchors.centerIn: parent
                             text: modelData.text
                             color: press.pressed ? Theme.textOnAccent : Theme.primary
-                            font { family: Theme.font; pixelSize: Theme.fontSmall + 1; weight: Font.Medium }
+                            font { family: Theme.font; pixelSize: Theme.fontSmall + 1; weight: Font.Normal }
                         }
                     }
                 }

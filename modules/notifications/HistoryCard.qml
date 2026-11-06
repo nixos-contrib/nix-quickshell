@@ -63,7 +63,7 @@ Rectangle {
                 Text {
                     text: card.appName
                     color: Theme.muted
-                    font { family: Theme.font; pixelSize: Theme.fontSmall; weight: Font.Medium; capitalization: Font.AllUppercase; letterSpacing: 0.6 }
+                    font { family: Theme.font; pixelSize: Theme.fontSmall; weight: Font.Normal; capitalization: Font.AllUppercase; letterSpacing: 0.6 }
                     elide: Text.ElideRight
                     Layout.fillWidth: true
                 }
@@ -112,7 +112,7 @@ Rectangle {
             anchors.centerIn: parent
             text: "✕"
             color: closeArea.containsMouse ? Theme.text : Theme.muted
-            font { pixelSize: 10; weight: Font.Medium }
+            font { pixelSize: 10; weight: Font.Normal }
         }
         MouseArea {
             id: closeArea

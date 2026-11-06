@@ -42,7 +42,7 @@ Rectangle {
             anchors.verticalCenter: parent.verticalCenter
             text: Math.round(item.level) + "%"
             color: item.low ? Theme.critical : Theme.barText
-            font { family: Theme.font; pixelSize: Theme.fontBar; weight: Font.Medium }
+            font { family: Theme.font; pixelSize: Theme.fontBar; weight: Font.Normal }
         }
         Text {
             visible: item.charging

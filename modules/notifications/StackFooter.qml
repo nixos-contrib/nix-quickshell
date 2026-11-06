@@ -28,7 +28,7 @@ Item {
                 anchors.centerIn: parent
                 text: root.expanded ? "Show less" : "Show " + root.hidden + " more"
                 color: moreArea.pressed ? Theme.textOnAccent : Theme.primary
-                font { family: Theme.font; pixelSize: Theme.fontSmall; weight: Font.Medium }
+                font { family: Theme.font; pixelSize: Theme.fontSmall; weight: Font.Normal }
             }
             MouseArea {
                 id: moreArea
@@ -52,7 +52,7 @@ Item {
                 anchors.centerIn: parent
                 text: "Clear all"
                 color: clearArea.pressed ? Theme.textOnAccent : Theme.primary
-                font { family: Theme.font; pixelSize: Theme.fontSmall; weight: Font.Medium }
+                font { family: Theme.font; pixelSize: Theme.fontSmall; weight: Font.Normal }
             }
             MouseArea {
                 id: clearArea

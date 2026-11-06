@@ -19,7 +19,7 @@ Rectangle {
         anchors.centerIn: parent
         text: button.text
         color: area.pressed ? Theme.textOnAccent : (button.active ? Theme.textOnPrimary : Theme.primary)
-        font { family: Theme.font; pixelSize: Theme.textCaption; weight: Font.Medium }
+        font { family: Theme.font; pixelSize: Theme.textCaption; weight: Font.Normal }
     }
     MouseArea {
         id: area

@@ -71,7 +71,7 @@ RowLayout {
                     anchors.centerIn: parent
                     text: item.modelData.name
                     color: item.modelData.urgent ? Theme.textOnPrimary : (item.modelData.focused || item.modelData.active ? Theme.barText : Theme.barMuted)
-                    font { family: Theme.font; pixelSize: Theme.fontBar; weight: Font.Medium }
+                    font { family: Theme.font; pixelSize: Theme.fontBar; weight: Font.Normal }
                 }
                 MouseArea {
                     id: area
@@ -161,7 +161,7 @@ RowLayout {
                                     anchors.centerIn: parent
                                     text: chip.modelData.count
                                     color: Theme.barBg
-                                    font { family: Theme.font; pixelSize: 9; weight: Font.Bold }
+                                    font { family: Theme.font; pixelSize: 9; weight: Font.DemiBold }
                                 }
                             }
                             // an urgent window

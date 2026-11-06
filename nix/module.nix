@@ -67,7 +67,7 @@ let
       inherit description;
     };
 
-  font = if cfg.theme.font != null then cfg.theme.font else "Inter";
+  font = if cfg.theme.font != null then cfg.theme.font else "Route 159";
   fontSize = toString cfg.integration.fontSize;
   cursor = cfg.integration.cursor;
 in
@@ -116,7 +116,16 @@ in
         type = types.nullOr types.str;
         default = null;
         example = "SF Pro Text";
-        description = "The family of the font. The default is Inter, which has to be installed: the shell carries no font.";
+        description = "The family of the font. The default is Route 159, the typeface of NixOS, which has to be installed (nixpkgs has it as route159): the shell carries no font.";
+      };
+      fallbackFont = mkOption {
+        type = types.nullOr types.str;
+        default = "Inter";
+        example = "Noto Sans";
+        description = ''
+          The family that draws what the font has not: Route 159 has the Latin letters and little more, no Cyrillic, no Greek and no arrows. A
+          fontconfig rule in ~/.config/fontconfig/conf.d adds it after the font, for the shell and the GTK apps. It has to be installed. null: no rule.
+        '';
       };
       radius = mkOption {
         type = types.nullOr types.ints.positive;
@@ -224,7 +233,19 @@ in
     ]
     ++ lib.optional cursor.enable cursor.package;
 
-    xdg.configFile = {
+    xdg.configFile = lib.optionalAttrs (cfg.theme.fallbackFont != null) {
+      # the font has the Latin letters and little more: what it has not is drawn by the fallback, not by whatever fontconfig picks
+      "fontconfig/conf.d/60-nix-shell-fallback.conf".text = ''
+        <?xml version="1.0"?>
+        <!DOCTYPE fontconfig SYSTEM "urn:fontconfig:fonts.dtd">
+        <fontconfig>
+          <alias binding="same">
+            <family>${font}</family>
+            <accept><family>${cfg.theme.fallbackFont}</family></accept>
+          </alias>
+        </fontconfig>
+      '';
+    } // {
       "nix-shell/theme.json".text = builtins.toJSON (
         lib.filterAttrs (_: v: v != null && v != { }) {
           variant = cfg.theme.variant;

@@ -242,7 +242,7 @@ Scope {
                         anchors.verticalCenter: parent.verticalCenter
                         text: Qt.formatDateTime(Clock.date, "ddd d MMM HH:mm")
                         color: Theme.barText
-                        font { family: Theme.font; pixelSize: Theme.fontBar; weight: Font.Medium }
+                        font { family: Theme.font; pixelSize: Theme.fontBar; weight: Font.Normal }
                     }
                     MouseArea {
                         id: clockArea

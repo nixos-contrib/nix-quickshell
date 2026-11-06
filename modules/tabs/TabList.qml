@@ -96,7 +96,7 @@ Popover {
                         Layout.preferredWidth: 20; Layout.preferredHeight: 20
                         opacity: area.containsMouse ? 1 : 0
                         Rectangle { anchors.fill: parent; radius: 10; color: closeArea.containsMouse ? Qt.alpha(Theme.text, 0.14) : "transparent" }
-                        Text { anchors.centerIn: parent; text: "✕"; color: Theme.muted; font { pixelSize: 10; weight: Font.Medium } }
+                        Text { anchors.centerIn: parent; text: "✕"; color: Theme.muted; font { pixelSize: 10; weight: Font.Normal } }
                         MouseArea { id: closeArea; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: win.tabClosed(item.modelData.id) }
                     }
                 }

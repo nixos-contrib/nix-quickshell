@@ -66,8 +66,8 @@ Singleton {
     readonly property color critical: palette.critical
     readonly property color warning: palette.warning
 
-    // Type: Inter unless the theme names another, and the sizes of the roles. The bar and the cards have their own, the bar is read from further
-    readonly property string font: user.font || variant.font || "Inter"
+    // Type: Route 159, the typeface of NixOS, unless the theme names another (Inter is the fallback for what it has not: fontconfig, see the module), and the sizes of the roles. The bar and the cards have their own, the bar is read from further
+    readonly property string font: user.font || variant.font || "Route 159"
     readonly property string iconFont: "JetBrainsMono Nerd Font Mono"
     readonly property int fontSmall: 10
     readonly property int fontBody: 12
