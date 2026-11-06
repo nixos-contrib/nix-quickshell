@@ -72,6 +72,7 @@ Files: the module writes both modes into `~/.config/nix-shell`; `nshell apps` co
 | Wallpaper: the `surface` color, the logomark at 12% of the height | a step off the bar, so the bar reads as a strip; quiet behind windows | the color of the bar (the bar dissolved), `surfaceHigh` (heavier), a bright blue (inverts the hierarchy), the nixos.org line pattern (cropped art, unknown license), the archived nixos-artwork wallpapers |
 | No clipboard history | a password manager and the clipboard sync of the Mac would be recorded | |
 | App icons, no thumbnails, in the lists | enough to tell windows apart, and cheap | thumbnails: heavy, and not needed in the first version |
+| 2026-11-06: the design pass is done | the tokens, the radius scale, the hairline edge and the shadows, a navy flavour as the default and a graphite one, `theme.json` over the flavour, and the home-manager module that writes the files of the apps | |
 | The mode is only written by `nshell theme` | the saved choice survives restarts and deploys | |
 | Brave gets the theme twice | Brave reads the colors of a GTK theme when its name changes, before GTK has loaded it, and so shows the mode before | one change; nudging other settings did nothing |
 
