@@ -28,6 +28,17 @@ RowLayout {
     }
     // the icons of a group: more than this are a count
     readonly property int shown: 3
+    // the icons of a group: the first ones, and the one in front in the last place when it would not be among them, so that the lit
+    // icon is always there
+    function visibleTabs(tabs) {
+        if (tabs.length <= row.shown)
+            return tabs;
+        const head = tabs.slice(0, row.shown);
+        const front = tabs.findIndex(t => t.current);
+        if (front >= row.shown)
+            head[row.shown - 1] = tabs[front];
+        return head;
+    }
     function iconFor(cls) {
         const entry = DesktopEntries.heuristicLookup(cls) ?? DesktopEntries.byId(cls.toLowerCase());
         return Quickshell.iconPath(entry ? entry.icon : cls.toLowerCase(), "application-x-executable");
@@ -86,7 +97,7 @@ RowLayout {
                         opacity: 0.4
                     }
                     Repeater {
-                        model: group.modelData.tabs.slice(0, row.shown)
+                        model: row.visibleTabs(group.modelData.tabs)
                         delegate: Rectangle {
                             id: chip
                             required property var modelData
