@@ -73,6 +73,7 @@ Files: the module writes both modes into `~/.config/nix-quickshell`; `nshell app
 | No clipboard history | a password manager and the clipboard sync of the Mac would be recorded | |
 | App icons, no thumbnails, in the lists | enough to tell windows apart, and cheap | thumbnails: heavy, and not needed in the first version |
 | 2026-11-06: the design pass is done | the tokens, the radius scale, the hairline edge and the shadows, a navy flavour as the default and a graphite one, `theme.json` over the flavour, and the home-manager module that writes the files of the apps | |
+| 2026-11-06: fields, the hover of a row and tips of GTK apps are tints of the palette | adw-gtk3 draws them as a veil of the text color (`alpha(currentColor, 0.1)`), which is grey on white and almost grey on the navy, and no named color changes it; the shell uses the `surface` role for its own fields and cards, so GTK does too | leaving the veils: a grey address field in a blue theme |
 | The mode is only written by `nshell theme` | the saved choice survives restarts and deploys | |
 | Brave gets the theme twice | Brave reads the colors of a GTK theme when its name changes, before GTK has loaded it, and so shows the mode before | one change; nudging other settings did nothing |
 
@@ -236,6 +237,7 @@ exported as `overlays.i3` and checked by `nix build .#i3`. See `docs/i3.md`.
 - `deco_rect` of i3 is not in the same coordinates in x and in y: use the rectangle of the container. The rectangles of a workspace that is
   not in view are stale.
 - A drag in a model that is rebuilt on every change ends in the middle of it: keep the delegates (`ScriptModel` with `objectProp`).
+- adw-gtk3 takes the palette through named colors, but some states are `alpha(currentColor, x)`: those need a rule of their own (`nix/generators.nix`).
 - A key that is held repeats the command: `nshell` catches a run less than 400 ms after the one before, so scripts need a pause between
   two `nshell theme` calls.
 - A loss of focus is also reported when a key grab starts: ask i3 before closing a window (`FocusGuard`).
