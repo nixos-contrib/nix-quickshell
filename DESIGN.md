@@ -238,6 +238,7 @@ exported as `overlays.i3` and checked by `nix build .#i3`. See `docs/i3.md`.
   not in view are stale.
 - A drag in a model that is rebuilt on every change ends in the middle of it: keep the delegates (`ScriptModel` with `objectProp`).
 - adw-gtk3 takes the palette through named colors, but some states are `alpha(currentColor, x)`: those need a rule of their own (`nix/generators.nix`).
+- The menus of GTK 3 apps here are opaque windows (depth 24), so a rounded corner of the theme shows black outside the round: the menus of a menu bar are square, as the context menus are. Tooltips have an alpha channel and stay round.
 - A key that is held repeats the command: `nshell` catches a run less than 400 ms after the one before, so scripts need a pause between
   two `nshell theme` calls.
 - A loss of focus is also reported when a key grab starts: ask i3 before closing a window (`FocusGuard`).
