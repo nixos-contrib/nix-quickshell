@@ -90,7 +90,8 @@ FloatingWindow {
         ListView {
             id: list
             width: parent.width
-            height: count > 0 ? Math.min(contentHeight, Math.max(120, win.height - 24 - panel.chromeHeight)) : 0
+            // what is left in the panel under its header: the panel has the gap above it and the room of its shadow under it
+            height: count > 0 ? Math.min(contentHeight, Math.max(120, win.height - Theme.gap - win.room - panel.chromeHeight)) : 0
             visible: count > 0
             model: win.history
             spacing: Theme.spaceSm + 2
