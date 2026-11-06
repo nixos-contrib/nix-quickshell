@@ -96,6 +96,21 @@ RowLayout {
                                 fillMode: Image.PreserveAspectFit
                                 opacity: chip.modelData.current ? 1 : 0.75
                             }
+                            // a tab that is a split of several windows: how many
+                            Rectangle {
+                                visible: chip.modelData.count > 1
+                                anchors { right: parent.right; bottom: parent.bottom; margins: 1 }
+                                width: 13
+                                height: 13
+                                radius: 7
+                                color: Theme.barMuted
+                                Text {
+                                    anchors.centerIn: parent
+                                    text: chip.modelData.count
+                                    color: Theme.barBg
+                                    font { family: Theme.font; pixelSize: 9; weight: Font.Bold }
+                                }
+                            }
                             // an urgent window
                             Rectangle { visible: chip.modelData.urgent; anchors { right: parent.right; top: parent.top; margins: 3 } width: 6; height: 6; radius: 3; color: Theme.critical }
                             MouseArea {
@@ -104,7 +119,7 @@ RowLayout {
                                 hoverEnabled: true
                                 cursorShape: Qt.PointingHandCursor
                                 onClicked: { tip.hide(); row.tabs.focusTab(chip.modelData.id); }
-                                onContainsMouseChanged: containsMouse ? tip.show(chip, chip.modelData.name) : tip.hide()
+                                onContainsMouseChanged: containsMouse ? tip.show(chip, chip.modelData.count > 1 ? chip.modelData.name + " and " + (chip.modelData.count - 1) + " more" : chip.modelData.name) : tip.hide()
                             }
                         }
                     }

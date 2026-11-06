@@ -85,7 +85,7 @@ Popover {
                         Layout.fillWidth: true
                         spacing: 0
                         Label { text: item.modelData.name; elide: Text.ElideRight; Layout.fillWidth: true; strong: true }
-                        Label { role: "caption"; text: item.modelData.cls; elide: Text.ElideRight; Layout.fillWidth: true }
+                        Label { role: "caption"; text: item.modelData.count > 1 ? item.modelData.cls + " · " + item.modelData.count + " windows, closing it closes them all" : item.modelData.cls; elide: Text.ElideRight; Layout.fillWidth: true }
                     }
                     Rectangle { visible: item.modelData.urgent; Layout.preferredWidth: 8; Layout.preferredHeight: 8; radius: 4; color: Theme.critical }
                     // the window that is in front

@@ -59,6 +59,12 @@ Scope {
             return true;
         return (node.nodes ?? []).concat(node.floating_nodes ?? []).some(k => root.anyUrgent(k));
     }
+    // the windows in a node: a tab can be a split of several
+    function windowsIn(node) {
+        if (node.window)
+            return 1;
+        return (node.nodes ?? []).concat(node.floating_nodes ?? []).reduce((n, k) => n + root.windowsIn(k), 0);
+    }
     function tabOf(child, front) {
         const leaf = root.leafOf(child);
         return {
@@ -66,6 +72,8 @@ Scope {
             name: leaf.name ?? "",
             cls: leaf.window_properties ? (leaf.window_properties.class ?? "") : "",
             current: front,
+            // more than one when the tab is a split: the icon and the title are the ones of its first window
+            count: Math.max(1, root.windowsIn(child)),
             urgent: root.anyUrgent(child)
         };
     }
