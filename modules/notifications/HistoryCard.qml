@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Layouts
 import qs
+import qs.modules.common
 
 // A notification of the history: the same card as the toast, without its timer, and it says how long ago it came
 Rectangle {

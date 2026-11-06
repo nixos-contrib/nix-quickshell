@@ -5,6 +5,7 @@ import Quickshell.I3
 import Quickshell.Io
 import Quickshell.Services.SystemTray
 import qs
+import qs.modules.common
 import qs.modules.notifications
 
 // The bar of the screen, as the menu bar of macOS has it: the logo and the workspaces at the left, the tray, the bell and the
