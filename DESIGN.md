@@ -28,8 +28,8 @@ merging it is what tags the first release. The system that uses it pins a commit
 1. **One process, one set of tokens.** Nothing in the shell has a size, a color or a radius of its own: it all comes from `Theme.qml`.
    A window is a panel with the same parts in the same order (the rules of the windows, below).
 2. **The theme is data.** A flavour (`flavours/*.json`) has the roles of a dark and a light palette. A user file and the home-manager
-   module change roles, not code. The desktop that is not the shell (GTK, i3, the wallpaper) is written from the same palette and follows
-   the mode live. The apps with their own colors (kitty, Alacritty, xterm, zathura) are a file each in `nix/apps/`, off unless asked for or
+   module change roles, not code. The desktop that is not the shell (GTK, the wallpaper) is written from the same palette and follows
+   the mode live. The apps with their own colors (i3, kitty, Alacritty, xterm, zathura) are a file each in `nix/apps/`, off unless asked for or
    found as a Home Manager program, so that a theme of your own is never overruled.
 3. **Branding first, but not strictly.** The palette, the logomark and the typeface are the ones of NixOS, from NixOS/branding. Where the
    shell leaves the guide, the reason is written (Branding, below). The guide has no rules for UI shape or density, so those

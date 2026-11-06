@@ -18,7 +18,7 @@ let
     "light"
   ];
   palettes = lib.genAttrs modes (m: flavour.${m} // cfg.theme.${m});
-  files = lib.mapAttrs (_: import ./generators.nix) palettes;
+  gtkColors = lib.mapAttrs (_: import ./gtk.nix) palettes;
   # The apps that follow the theme: each file of apps/ is one, see there. Enabled when Home Manager has the program enabled, or when the user says so
   appDefs = lib.mapAttrs' (n: _: lib.nameValuePair (lib.removeSuffix ".nix" n) (import ./apps/${n})) (
     lib.filterAttrs (n: t: t == "regular" && lib.hasSuffix ".nix" n) (builtins.readDir ./apps)
@@ -39,7 +39,7 @@ let
   # rules of the user
   gtkThemeCss = m: ''
     @import url("file://${pkgs.adw-gtk3}/share/themes/${if m == "light" then "adw-gtk3" else "adw-gtk3-dark"}/gtk-3.0/gtk.css");
-    ${files.${m}.gtk}
+    ${gtkColors.${m}}
     ${cfg.integration.gtk.extraCss}
   '';
   # What xsettingsd tells the GTK apps, which then draw themselves again: the theme of the mode, and the rest of the look
@@ -104,6 +104,7 @@ in
       "alacritty"
       "kitty"
       "xresources"
+      "i3"
     ])
     ++ [
       (lib.mkRemovedOptionModule (at [ "zathura" "enable" ]) "zathura is an app like the others: `integration.apps.zathura.enable`, and the include of the file, which is no longer written for you, see the README")
@@ -272,7 +273,6 @@ in
         };
       }) appDefs;
 
-      i3.enable = enableOption "~/.config/nix-quickshell/i3.conf, the colors of the tabs, for `include` in the config of i3";
     };
   };
 
@@ -326,7 +326,7 @@ in
           gtk-cursor-theme-size=${toString cursor.size}
         '';
         "gtk-4.0/gtk.css".text = ''
-          ${files.${startMode}.gtk}
+          ${gtkColors.${startMode}}
           ${cfg.integration.gtk.extraCss}
         '';
       }
@@ -370,10 +370,7 @@ in
         '';
       }
       // lib.listToAttrs (map (m: lib.nameValuePair "nix-quickshell/apps/${name}-${m}" { text = def.colors palettes.${m}; }) modes)
-    ) enabledApps
-    // lib.optionalAttrs cfg.integration.i3.enable (
-      lib.listToAttrs (map (m: lib.nameValuePair "nix-quickshell/i3-${m}.conf" { text = files.${m}.i3; }) modes)
-    );
+    ) enabledApps;
 
     xdg.dataFile =
       lib.optionalAttrs cursor.enable {

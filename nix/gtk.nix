@@ -1,15 +1,13 @@
-# The files of the desktop that is not the shell, from a palette: the roles of one mode of a theme, as in flavours/*.json. The GTK theme and
-# the tabs of i3 are here, the apps that follow the theme are each a file of apps/
+# The GTK theme from a palette, the roles of one mode of a theme, as in flavours/*.json: the named colors that adw-gtk3 reads, and libadwaita. With
+# them the theme draws every GTK app in the palette, and the few rules for what the theme draws with a veil of the text color, which no named
+# color changes (a field, the hover of a row, a tip). GTK is not one of the apps of apps/: it is the base of the desktop, and the shell tells the
+# GTK apps the theme of the mode itself, see `nshell apps`
 palette:
 
 let
   p = palette;
 in
-{
-  # The named colors that adw-gtk3 reads, and libadwaita: with them the theme draws every GTK app in the palette. And the few rules for what the
-  # theme draws with a veil of the text color, which no named color changes (a field, the hover of a row, a tip). Import it from
-  # gtk-3.0/gtk.css and gtk-4.0/gtk.css: @import url("../nix-quickshell/gtk.css");
-  gtk = ''
+''
     @define-color window_bg_color ${p.bg};
     @define-color window_fg_color ${p.text};
     @define-color view_bg_color ${p.bg};
@@ -64,18 +62,4 @@ in
     /* a tip is a card of the palette, and not black on both modes */
     tooltip.background { background-color: @popover_bg_color; color: @popover_fg_color; border: 1px solid alpha(currentColor, 0.15); border-radius: 10px; }
     tooltip.background * { background-color: transparent; color: @popover_fg_color; }
-  '';
-
-  # i3: `include` it from the config. The tabs of the tabbed containers are shown by the shell, in its bar (modules/tabs), and i3 draws
-  # nothing for them, no colors, no title and no icon: the little room that it keeps for them is transparent. The same for both modes
-  i3 = ''
-    client.focused          #00000000 #00000000 #00000000 #00000000 #00000000
-    client.focused_inactive #00000000 #00000000 #00000000 #00000000 #00000000
-    client.unfocused        #00000000 #00000000 #00000000 #00000000 #00000000
-    client.urgent           #00000000 #00000000 #00000000 #00000000 #00000000
-    client.placeholder      #00000000 #00000000 #00000000 #00000000 #00000000
-    client.background       #00000000
-    for_window [all] title_format " "
-    for_window [all] title_window_icon off
-  '';
-}
+''
