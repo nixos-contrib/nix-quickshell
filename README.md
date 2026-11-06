@@ -21,7 +21,9 @@ It is a work in progress. So far:
 - windows in the bar: after the number of every workspace, an icon for each of its windows (three at most, then +N), the one in front or
   with the focus lit, a title when the pointer stays on an icon, and a click takes the window to the front. Windows side by side are one
   group; a tabbed container of i3 is a group of its own with a chevron, which, or `nshell tabs list`, opens the list of its tabs with
-  titles and a filter; a line is between the groups. i3 draws nothing for its tabs, see `docs/i3.md`
+  titles and a filter; a line is between the groups. The right button on an icon opens a menu (close, and move a tab left or right), a drag
+  along a group of tabs moves the tab to where it is let go, and the wheel on a group goes from one window to the next. i3 draws nothing for
+  its tabs, see `docs/i3.md`
 
 - volume OSD: a pill at the bottom of the screen that shows the volume (or muted) for a moment when it changes, whatever changed it:
   the keys, the wheel on the bar, the slider, another app. It watches the sound, so there is no command for it. The keys are
