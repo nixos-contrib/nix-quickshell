@@ -142,8 +142,8 @@ RowLayout {
                                 anchors.centerIn: parent
                                 source: row.iconFor(chip.modelData.cls)
                                 sourceSize: Qt.size(48, 48)
-                                width: Theme.iconBar
-                                height: Theme.iconBar
+                                width: Theme.statusIcon
+                                height: Theme.statusIcon
                                 fillMode: Image.PreserveAspectFit
                                 opacity: chip.modelData.current ? 1 : 0.75
                             }
