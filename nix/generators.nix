@@ -126,6 +126,33 @@ in
     white = "${p.brightWhite}"
   '';
 
+  # kitty: `include` it from kitty.conf, `include ~/.local/state/nix-quickshell/kitty.conf`: `nshell apps` sends SIGUSR1 to kitty when the file
+  # changes, which reads its config again in every window, so the open terminals follow the mode
+  kitty = ''
+    background ${p.bg}
+    foreground ${p.text}
+    cursor ${p.primary}
+    cursor_text_color ${p.bg}
+    selection_foreground ${p.text}
+    selection_background ${p.surfaceHigh}
+    color0 ${p.black}
+    color1 ${p.red}
+    color2 ${p.green}
+    color3 ${p.yellow}
+    color4 ${p.blue}
+    color5 ${p.magenta}
+    color6 ${p.cyan}
+    color7 ${p.white}
+    color8 ${p.brightBlack}
+    color9 ${p.brightRed}
+    color10 ${p.brightGreen}
+    color11 ${p.brightYellow}
+    color12 ${p.brightBlue}
+    color13 ${p.brightMagenta}
+    color14 ${p.brightCyan}
+    color15 ${p.brightWhite}
+  '';
+
   # zathura: `include` it from zathurarc
   zathura = ''
     set default-bg "${p.surface}"

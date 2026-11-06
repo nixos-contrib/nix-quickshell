@@ -76,6 +76,8 @@ apply_apps() {
 	copy zathurarc "" zathurarc || true
 	# the open terminals of Alacritty read it again by themselves
 	copy alacritty .toml alacritty.toml || true
+	# kitty reads its config again, in every window, on SIGUSR1
+	if copy kitty .conf kitty.conf; then pkill -USR1 -x kitty 2>/dev/null || true; fi
 	if copy i3 .conf i3.conf; then changed=1; fi
 	[ -f "$cfg/xresources-$mode" ] && xrdb -merge "$cfg/xresources-$mode" 2>/dev/null || true
 	# the tabs of i3 are drawn again with the colors of the mode
