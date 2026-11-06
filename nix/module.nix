@@ -43,6 +43,7 @@ let
     Net/IconThemeName "${iconName m}"
     Gtk/FontName "${font} ${fontSize}"
     Gtk/ApplicationPreferDarkTheme ${if m == "light" then "0" else "1"}
+    Gtk/MenuImages ${if cfg.integration.gtk.menuImages then "1" else "0"}
     ${lib.optionalString cursor.enable ''
       Gtk/CursorThemeName "${cursor.name}"
       Gtk/CursorThemeSize ${toString cursor.size}
@@ -156,6 +157,11 @@ in
             description = "The package of the icon theme, installed with the theme adw-gtk3.";
           };
         };
+        menuImages = mkOption {
+          type = types.bool;
+          default = true;
+          description = "Icons in the menus of the GTK apps, as in the context menu of Thunar. GTK 3 draws none unless it is told to.";
+        };
         extraCss = mkOption {
           type = types.lines;
           default = "";
@@ -237,6 +243,7 @@ in
           gtk-icon-theme-name=${iconName startMode}
           gtk-font-name=${font} ${fontSize}
           gtk-application-prefer-dark-theme=${if startMode == "light" then "0" else "1"}
+          gtk-menu-images=${if cfg.integration.gtk.menuImages then "1" else "0"}
         ''
         + lib.optionalString cursor.enable ''
           gtk-cursor-theme-name=${cursor.name}
