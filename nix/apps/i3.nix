@@ -1,5 +1,6 @@
 # i3: `include` it from the config. The tabs of the tabbed containers are shown by the shell, in its bar (modules/tabs), and i3 draws
 # nothing for them, no colors, no title and no icon: the little room that it keeps for them is transparent. The same for both modes
+# The patch of i3 that the tabs need is beside this file, i3.patch, and flake.nix applies it as an overlay, see docs/i3.md
 # The apps have `program`, `target`, `reload`, `always` and `wire`: see the others in this folder. i3 is no Home Manager program, so it is on when asked for
 {
   program = null;

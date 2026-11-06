@@ -37,7 +37,7 @@ merging it is what tags the first release. The system that uses it pins a commit
 4. **Quiet.** The background recedes and the content leads. No counts where a dot says enough, no color for decoration, no motion that
    does not explain something. A control has the weight of its neighbours: the logo in the bar is a button, not a billboard.
 5. **Ask i3, do not replace it.** The shell reads the tree of i3 and runs its commands (`con_id` criteria). What i3 cannot do, the shell
-   draws. What has to change inside i3 is a small patch (`nix/patches/i3.patch`), not a rewrite.
+   draws. What has to change inside i3 is a small patch (`nix/apps/i3.patch`), not a rewrite.
 6. **Reliable over clever.** A trick that flashes, polls or guesses is a cost: the swap of the location bar of Thunar to refresh an icon
    was removed because it flashed. Where X sends no event (i3 does not for a layout change), the tree is read again every second, and the
    shell repairs what it can detect (a bar that lost its place as a dock is shown again).
@@ -55,7 +55,7 @@ merging it is what tags the first release. The system that uses it pins a commit
 | OSD, polkit | `modules/osd`, `modules/polkit` | the volume pill, the card for the key or the password |
 | Theme | `Theme.qml`, `modules/theme` | the tokens, the mode (dark, light, auto), the files of the apps |
 | `nshell` | `bin/nshell` | the commands: the IPC of the shell, `apps` (the files of a mode into place), `theme`, `tabs list` |
-| Nix | `nix/`, `flake.nix` | the home-manager module, the generators, the i3 patch as an overlay, the packages |
+| Nix | `nix/`, `flake.nix` | the home-manager module, the GTK theme, the apps that follow the theme (the colors of i3 and its patch among them), the i3 patch as an overlay, the packages |
 
 Files: the module writes both modes into `~/.config/nix-quickshell`; `nshell apps` copies the ones of the current mode into the state folder
 (`~/.local/state/nix-quickshell`), which the configs of the apps include. The mode is saved there, and is only changed by `nshell theme`.
