@@ -68,6 +68,8 @@ FloatingWindow {
         width: 376
         height: Math.min(win.height - Theme.gap - win.room, implicitHeight)
         title: "Notifications"
+        // how many are in the history, which the bar no longer says
+        value: win.history.count > 0 ? String(win.history.count) : ""
         opacity: win.placed ? 1 : 0
         focus: true
         Keys.onEscapePressed: win.visible = false

@@ -10,7 +10,7 @@ It is a work in progress. So far:
   (Vesktop, Discord) while it is on, see `modules/notifications/QuietSound.qml`
 
 - bar: the logo, the workspaces of i3, the tray (StatusNotifierItem) with menus in the style of the shell, the sound (volume,
-  mute, outputs), the battery, the bell with the count of the history, and the clock
+  mute, outputs), the battery, the bell, with a dot when something came since the history was last opened (its count is in the panel), and the clock
 
 - polkit agent: a card for the touch of the key or the password, with its own layout for 1Password unlocking with the system
 

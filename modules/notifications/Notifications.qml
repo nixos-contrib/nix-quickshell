@@ -25,8 +25,10 @@ Scope {
         return first;
     }
 
-    // For the bar: how many are in the history, and the two things its bell does
-    readonly property int unread: history.count
+    // For the bar: something came since the history was last opened, which the bell says with a dot, and the two things its bell does.
+    // How many are in the history is in the panel
+    property bool hasNew: false
+    readonly property int stored: history.count
     readonly property bool centerOpen: center.visible
     function toggleCenter() { center.visible = !center.visible; }
     function closeCenter() { center.visible = false; }
@@ -68,6 +70,8 @@ Scope {
         entry.nid = n.id;
         entry.time = Math.floor(Date.now() / 1000);
         history.insert(0, entry);
+        // the panel that is open shows it already
+        root.hasNew = !center.visible;
         while (history.count > 100)
             history.remove(history.count - 1);
         // the app may update it, and may take it back
@@ -287,11 +291,16 @@ Scope {
         }
     }
 
+    // opening the history is seeing what came
+    Connections {
+        target: center
+        function onVisibleChanged() { if (center.visible) root.hasNew = false; }
+    }
     Center {
         id: center
         history: history
         dnd: root.dnd
         onToggleDnd: root.dnd = !root.dnd
-        onClearAll: history.clear()
+        onClearAll: { history.clear(); root.hasNew = false; }
     }
 }

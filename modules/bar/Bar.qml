@@ -208,13 +208,17 @@ Scope {
                             color: root.notifications.dnd ? Theme.barMuted : Theme.barText
                             font { family: Theme.iconFont; pixelSize: Theme.statusIcon }
                         }
-                        Text {
-                            anchors.verticalCenter: parent.verticalCenter
-                            visible: root.notifications.unread > 0
-                            text: root.notifications.unread
-                            color: Theme.barText
-                            font { family: Theme.font; pixelSize: Theme.fontBar; weight: Font.Medium }
-                        }
+                    }
+                    // something came since the history was last opened: a dot at the corner of the bell, with a ring of the color of the bar
+                    Rectangle {
+                        visible: root.notifications.hasNew
+                        x: bell.x + bell.width - width + 3
+                        y: bell.y + 1
+                        width: 10
+                        height: 10
+                        radius: 5
+                        color: Theme.primary
+                        border { width: 2; color: Theme.barBg }
                     }
                     MouseArea {
                         id: bellArea
