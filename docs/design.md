@@ -29,6 +29,34 @@ the lighter step on dark and the darker step on light.
 `textOnPrimary` is the text on a fill of `primary` (the active button), and `textOnAccent` the text on a fill of `accent` (a pressed
 button). The names do not start with `on`: QML reads such a property as a signal handler, and it was always black. `modules/theme/Appearance.qml` holds the choice, dark, light or auto, and sets the mode.
 
+## Branding (NixOS/branding)
+
+The look follows the branding of NixOS, [NixOS/branding](https://github.com/NixOS/branding) (its guide is `nixos-branding-guide.typ`, its
+palette `nixos-color-palette/colors.toml`, in OKLCH), and where it does not, the reason is here. Checked on 2026-11-06.
+
+**Color.** Every color of both themes (`themes/navy.json`, `themes/graphite.json`, dark and light) is a color or a tint of the palette,
+converted from OKLCH, with one exception below. The neutrals are the greys and the tints of Afghani Blue (NixOS Dark Blue, `#4d6fb7` is
+the hex that the palette file gives for it), the status colors are the tints of Zambian Green, Persian Orange and Norwegian Pink, and the
+terminal colors are the tints of the accents. The guide says the primary colors (black, white, greys) are for text, backgrounds and
+borders, the blues for headers, icons and navigation, and the accents for emphasis, sparingly. Navy has tinted backgrounds, which the guide
+allows as tints "for layering and different themes"; graphite is the reading with grey backgrounds.
+
+**Logo.** The bar has the official logomark, `assets/nixos-logomark-white-flat.svg` on dark and `nixos-logomark-black-flat.svg` on light,
+made with `nixoslogo` from the branding repo and not changed or painted in another color: the guide has the black and white logomarks
+flat. It is 24 px high, the least for a screen, with a quarter of its height of clear space around it, the least that the guide asks
+for, so there is no fill behind it. The credit is in `CREDITS.md` (the guide asks for it in the TASL form).
+
+**Typeface.** Route 159, `Theme.font`, installed from nixpkgs as `route159` (OFL-1.1). The guide has Regular as the standard weight, Light
+for secondary uses and Bold reserved: the shell uses Regular and SemiBold, and no Medium or Bold.
+
+**Deviations, on purpose**
+- `light.surfaceHigh` is `#cfdefd`, an L90 tint of Afghani Blue, which the ladder (L95, L85, ...) does not have. L95 is the same as `surface`,
+  and L85 (`#b7cefd`) makes the lit tile of the light bar a strong blue.
+- SemiBold for titles and labels, which the guide does not name, to keep the hierarchy that the weights gave.
+- Light is not used at small sizes: it was not tried below 14 and may be too thin on dark.
+- Route 159 has the Latin letters and little more (no Cyrillic, no Greek, no arrows, half of the punctuation): a fontconfig rule makes Inter
+  draw the rest, see `theme.fallbackFont` in the module.
+
 ## Shape and depth (`Theme.qml`)
 
 - **Radius.** Three, from one: large (16) for what floats, medium (10) for rows, buttons and the cards inside a panel, small (6)
@@ -54,8 +82,8 @@ A popup (the ones of the bar, the history, the launcher) closes when it loses th
 
 | Role | Used for | Style |
 |---|---|---|
-| heading | the search field, the title of a dialog | 17, bold |
-| title | the header of a panel | 14, bold |
+| heading | the search field, the title of a dialog | 17, semibold |
+| title | the header of a panel | 14, semibold |
 | body | rows and descriptions | 13 |
 | caption | a value, a subtitle, a hint | 12, muted |
 | label | a section, the name of the app of a card | 10, capitals, muted |
