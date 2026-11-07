@@ -36,15 +36,19 @@ FloatingWindow {
     readonly property int room: Theme.marginLow
     readonly property int top: 4
     implicitWidth: panelWidth + room * 2
+    // where the panel hangs from, kept inside the screen, and the room at its left that the window can have: the window cannot start before the edge of
+    // the screen (i3 moves it back), so a panel that hangs near the edge has less room for its shadow there, and still is where it was asked to be
+    readonly property real hangX: Math.min(win.anchorX, win.screen.width - Theme.edge - panelWidth)
+    readonly property real leftRoom: Math.max(0, Math.min(room, hangX))
     // As tall as it can be, like the toasts and the center: i3 does not follow a floating window that grows
     implicitHeight: Math.max(400, win.screen.height - 72)
     // the panel and its shadow: the shape of the window is the one of the mask, and a shadow outside of it is cut
-    mask: Region { x: panel.x - win.room; y: 0; width: panel.width + win.room * 2; height: panel.y + panel.height + win.room }
+    mask: Region { x: panel.x - win.leftRoom; y: 0; width: panel.width + win.room * 2; height: panel.y + panel.height + win.room }
 
     function place() {
         const scale = win.devicePixelRatio;
         // the panel is a room in from the window, and it hangs from the item, kept inside the screen
-        const x = Math.round((Math.min(win.anchorX, win.screen.width - Theme.edge - panel.width) - room) * scale);
+        const x = Math.round((win.hangX - win.leftRoom) * scale);
         const y = Math.round((anchorY >= 0 ? anchorY : Theme.barHeight) * scale);
         // and takes the focus, which i3 may have given to the window of the popup that was closing
         I3.dispatch(`[title="^nshell-menu$"] move absolute position ${x}px ${y}px, focus`);
@@ -82,7 +86,7 @@ FloatingWindow {
 
     Panel {
         id: panel
-        x: win.room
+        x: win.leftRoom
         y: win.top
         width: win.panelWidth
         height: Math.min(win.height - win.top - win.room, implicitHeight)
