@@ -64,7 +64,7 @@ RowLayout {
                 Layout.preferredHeight: Theme.tile
                 radius: Theme.radiusSm
                 color: item.modelData.urgent ? Theme.critical : (item.modelData.focused ? Theme.barFocus : "transparent")
-                Behavior on color { ColorAnimation { duration: 120 } }
+                Behavior on color { ColorAnimation { duration: Theme.motionFast } }
 
                 Text {
                     anchors.centerIn: parent
@@ -131,7 +131,7 @@ RowLayout {
                             height: Theme.tile
                             radius: Theme.radiusSm
                             color: modelData.current ? Theme.barFocus : (chipArea.containsMouse ? Qt.alpha(Theme.barFocus, 0.5) : "transparent")
-                            Behavior on color { ColorAnimation { duration: 120 } }
+                            Behavior on color { ColorAnimation { duration: Theme.motionFast } }
                             // a drag takes the icon with the pointer
                             z: drag.active ? 2 : 0
                             // how far it was dragged, kept: the handler says 0 again when the drag ends
@@ -208,7 +208,7 @@ RowLayout {
                         height: Theme.tile
                         radius: Theme.radiusSm
                         color: chevronArea.containsMouse ? Theme.barFocus : "transparent"
-                        Behavior on color { ColorAnimation { duration: 120 } }
+                        Behavior on color { ColorAnimation { duration: Theme.motionFast } }
                         ChevronIcon { anchors.centerIn: parent; size: 14; color: chevronArea.containsMouse ? Theme.barText : Theme.barMuted }
                         MouseArea {
                             id: chevronArea

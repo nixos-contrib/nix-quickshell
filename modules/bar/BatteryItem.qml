@@ -24,7 +24,7 @@ Rectangle {
     Layout.preferredHeight: Theme.slot
     radius: Theme.radiusSm
     color: area.pressed || (popover && popover.visible) ? Theme.barFocus : "transparent"
-    Behavior on color { ColorAnimation { duration: 120 } }
+    Behavior on color { ColorAnimation { duration: Theme.motionFast } }
 
     Row {
         id: row

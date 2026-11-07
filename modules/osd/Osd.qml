@@ -86,7 +86,7 @@ Scope {
             color: Theme.bg
             border { width: 1; color: Theme.border }
             opacity: root.active && win.placed ? 1 : 0
-            Behavior on opacity { NumberAnimation { duration: 160 } }
+            Behavior on opacity { NumberAnimation { duration: Theme.motionBase } }
             Shadow { elevation: 2 }
 
             RowLayout {

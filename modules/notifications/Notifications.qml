@@ -265,7 +265,7 @@ Scope {
                         y: win.room
                         width: viewport.width
                         spacing: Theme.spacing
-                        move: Transition { NumberAnimation { properties: "y"; duration: 200; easing.type: Easing.OutCubic } }
+                        move: Transition { NumberAnimation { properties: "y"; duration: Theme.motionBase; easing.type: Theme.motionEasing } }
                         Repeater {
                             model: ScriptModel { values: server.trackedNotifications.values.slice().reverse() }
                             delegate: Toast {

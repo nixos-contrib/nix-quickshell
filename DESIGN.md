@@ -113,7 +113,7 @@ Four Quickshell shells were read on 2026-11-06 (the QML, not run): [end-4/dots-h
 What is not done on purpose: the overview with live previews and the lock screen (they need Wayland protocols that X11 has no answer for),
 desktop widgets (they have no place in a tiling layout), a settings app, an assistant, a mascot, and colors from the wallpaper. What is
 taken is ideas, and each one is written here again for this shell and credited if it is close: a calendar on the clock, notifications with
-progress, a media item, a menu for the session, and one set of durations and easings for the motion. They are issues of the repo.
+progress, a media item, a menu for the session, and one set of durations and easings for the motion (done, see Motion). They are issues of the repo.
 
 ## The rules of the windows
 
@@ -190,6 +190,15 @@ the corner radius of picom for the windows.
   card by `marginLow` or `marginHigh`. The shape of the window (`mask`) is the card and that room: it is also the shape that is
   drawn, so a shadow outside of it would be cut. The cost is a dead ring of that width around a card, where a click does not go to
   the window under it. The windows that hang from the bar start under it, so that the ring never covers an item of the bar.
+
+### Motion (`Theme.qml`)
+
+Principle 4 is a rule for each animation: it has to explain something, and the explanation is one of three. A color or an opacity that
+**follows the pointer** (a press, a hover, an open menu) is `motionFast`, 120 ms. A surface that **comes or goes**, and a list that closes
+up after a card left, is `motionBase`, 180 ms. The one movement over a distance, a toast sliding in from the edge, is `motionSlow`,
+220 ms. What moves over a distance eases out (`motionEasing`, `OutCubic`), and a color or an opacity has no easing. Nothing in the shell
+has a duration of its own: a new animation picks the token that says why it moves. A popup or a tip does not move at all, it is there.
+There is one easing, not one for entering and one for leaving, because a `Behavior` runs the same curve in both directions.
 
 ### Popups close on a click anywhere
 

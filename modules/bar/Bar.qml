@@ -135,7 +135,7 @@ Scope {
                         height: Theme.logoHeight
                         fillMode: Image.PreserveAspectFit
                         opacity: logoArea.pressed ? 0.6 : (logoArea.containsMouse ? 0.85 : 1)
-                        Behavior on opacity { NumberAnimation { duration: 120 } }
+                        Behavior on opacity { NumberAnimation { duration: Theme.motionFast } }
                     }
                     MouseArea {
                         id: logoArea
@@ -193,7 +193,7 @@ Scope {
                     Layout.preferredWidth: bell.implicitWidth + Theme.tilePad * 2 - Theme.textBearing
                     radius: Theme.radiusSm
                     color: bellArea.pressed || root.notifications.centerOpen ? Theme.barFocus : "transparent"
-                    Behavior on color { ColorAnimation { duration: 120 } }
+                    Behavior on color { ColorAnimation { duration: Theme.motionFast } }
                     Row {
                         id: bell
                         x: Theme.tilePad
@@ -239,7 +239,7 @@ Scope {
                     Layout.preferredWidth: clock.implicitWidth + Theme.tilePad * 2 - Theme.textBearing
                     radius: Theme.radiusSm
                     color: clockArea.pressed || root.notifications.centerOpen ? Theme.barFocus : "transparent"
-                    Behavior on color { ColorAnimation { duration: 120 } }
+                    Behavior on color { ColorAnimation { duration: Theme.motionFast } }
                     Text {
                         id: clock
                         x: Theme.tilePad - Theme.textBearing

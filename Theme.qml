@@ -115,6 +115,13 @@ Singleton {
     readonly property int offsetHigh: 14
     readonly property int marginLow: 32
     readonly property int marginHigh: 64
+    // Motion: nothing moves that does not explain something, see DESIGN.md. Fast is the answer to the pointer, a color or an opacity that follows a
+    // press, a hover or an open menu. Base is a surface that comes or goes, and a list that closes up after a card left. Slow is a toast sliding in
+    // from the edge, the one movement over a distance. What moves over a distance eases out, and a color or an opacity has no easing
+    readonly property int motionFast: 120
+    readonly property int motionBase: 180
+    readonly property int motionSlow: 220
+    readonly property int motionEasing: Easing.OutCubic
     // The room between the edge of the screen and the bar, the toasts, the history and the menus: what lines them up
     readonly property int edge: 20
     // The room under the bar before the first card

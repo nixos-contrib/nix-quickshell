@@ -22,7 +22,7 @@ Rectangle {
     radius: Theme.radiusMd
     color: Theme.surface
     border { width: 1; color: card.hovered ? Theme.primary : Theme.border }
-    Behavior on border.color { ColorAnimation { duration: 120 } }
+    Behavior on border.color { ColorAnimation { duration: Theme.motionFast } }
 
     MouseArea {
         id: hover
@@ -108,7 +108,7 @@ Rectangle {
         border { width: 1; color: Theme.border }
         opacity: card.hovered ? 1 : 0
         visible: opacity > 0
-        Behavior on opacity { NumberAnimation { duration: 120 } }
+        Behavior on opacity { NumberAnimation { duration: Theme.motionFast } }
         Text {
             anchors.centerIn: parent
             text: "✕"

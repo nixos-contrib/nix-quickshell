@@ -100,8 +100,8 @@ FloatingWindow {
             clip: true
             boundsBehavior: Flickable.StopAtBounds
             delegate: HistoryCard {}
-            remove: Transition { NumberAnimation { property: "opacity"; to: 0; duration: 140 } }
-            displaced: Transition { NumberAnimation { properties: "y"; duration: 180; easing.type: Easing.OutCubic } }
+            remove: Transition { NumberAnimation { property: "opacity"; to: 0; duration: Theme.motionBase } }
+            displaced: Transition { NumberAnimation { properties: "y"; duration: Theme.motionBase; easing.type: Theme.motionEasing } }
         }
 
         // the empty state, centered in the body

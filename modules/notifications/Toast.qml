@@ -31,9 +31,9 @@ Rectangle {
         opacity = 1;
         x = 0;
     }
-    Behavior on opacity { NumberAnimation { duration: 180 } }
-    Behavior on x { NumberAnimation { duration: 220; easing.type: Easing.OutCubic } }
-    Behavior on border.color { ColorAnimation { duration: 120 } }
+    Behavior on opacity { NumberAnimation { duration: Theme.motionBase } }
+    Behavior on x { NumberAnimation { duration: Theme.motionSlow; easing.type: Theme.motionEasing } }
+    Behavior on border.color { ColorAnimation { duration: Theme.motionFast } }
     Shadow {}
 
     // The strip at the left says how urgent it is
@@ -86,7 +86,7 @@ Rectangle {
         opacity: shown ? 1 : 0
         visible: opacity > 0
         z: 2
-        Behavior on opacity { NumberAnimation { duration: 120 } }
+        Behavior on opacity { NumberAnimation { duration: Theme.motionFast } }
         Text {
             anchors.centerIn: parent
             text: "\u2715"

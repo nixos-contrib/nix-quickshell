@@ -31,7 +31,7 @@ RowLayout {
             visible: modelData.status !== Status.Passive
             radius: Theme.radiusSm
             color: area.pressed || tray.openItem === slot.modelData ? Theme.barFocus : "transparent"
-            Behavior on color { ColorAnimation { duration: 120 } }
+            Behavior on color { ColorAnimation { duration: Theme.motionFast } }
 
             IconImage {
                 anchors.centerIn: parent
