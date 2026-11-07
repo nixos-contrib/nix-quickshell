@@ -23,7 +23,7 @@ Singleton {
         }
     }
     property var user: readJson(userFile)
-    property var base: readJson(baseFile)
+    property var shipped: readJson(shippedFile)
     FileView {
         id: userFile
         path: Theme.userPath
@@ -35,12 +35,12 @@ Singleton {
         onLoadFailed: Theme.user = {}
     }
     FileView {
-        id: baseFile
+        id: shippedFile
         path: Quickshell.shellPath("themes/" + (Theme.user.name || "nixos-navy") + ".json")
         blockLoading: true
         watchChanges: true
         onFileChanged: reload()
-        onLoaded: Theme.base = Theme.readJson(baseFile)
+        onLoaded: Theme.shipped = Theme.readJson(shippedFile)
     }
 
     // The mode, dark or light, set by Appearance: the colors below follow it, live
@@ -49,7 +49,7 @@ Singleton {
 
     // Color: the base (the bar, the color of the windows), three steps of surface, the edge, the text, and the accents. textOnPrimary is the text on a fill of
     // primary, and textOnAccent the text on a fill of accent, as a pressed button. Not named on...: QML reads that as a signal handler
-    readonly property var palette: Object.assign({}, base[dark ? "dark" : "light"] || {}, user[dark ? "dark" : "light"] || {})
+    readonly property var palette: Object.assign({}, shipped[dark ? "dark" : "light"] || {}, user[dark ? "dark" : "light"] || {})
 
     readonly property color base: palette.base
     readonly property color bg: palette.bg
@@ -67,7 +67,7 @@ Singleton {
     readonly property color warning: palette.warning
 
     // Type: Route 159, the typeface of NixOS, unless the theme names another (Inter is the fallback for what it has not: fontconfig, see the module), and the sizes of the roles. The bar and the cards have their own, the bar is read from further
-    readonly property string font: user.font || base.font || "Route 159"
+    readonly property string font: user.font || shipped.font || "Route 159"
     readonly property string iconFont: "JetBrainsMono Nerd Font Mono"
     readonly property int fontSmall: 10
     readonly property int fontBody: 12
@@ -98,7 +98,7 @@ Singleton {
     // chips and the tracks, md for the rows, the buttons and the cards inside a panel, lg for what floats: the panels, the
     // popups, the toasts, the launcher, the polkit card and the OSD. A theme changes the one, and the others follow
     readonly property int spacing: 10
-    readonly property int radiusLg: user.radius ?? base.radius ?? 16
+    readonly property int radiusLg: user.radius ?? shipped.radius ?? 16
     readonly property int radiusMd: Math.round(radiusLg * 0.625)
     readonly property int radiusSm: Math.round(radiusLg * 0.375)
     readonly property int panelPadding: 16
