@@ -5,7 +5,7 @@
 #
 #   dbus-daemon --config-file=/run/current-system/sw/share/dbus-1/session.conf --address=unix:path=/tmp/lab-sysbus --fork
 #   DBUS_SYSTEM_BUS_ADDRESS=unix:path=/tmp/lab-sysbus python3 -m dbusmock --system -t networkmanager &
-#   python3 tools/nm-mock.py setup && python3 tools/nm-mock.py patch && python3 tools/nm-mock.py fixaps
+#   python3 dev/nm-mock.py setup && python3 dev/nm-mock.py patch && python3 dev/nm-mock.py fixaps
 #   DBUS_SYSTEM_BUS_ADDRESS=unix:path=/tmp/lab-sysbus NSHELL_PATH=$PWD nshell
 #
 # Other commands: wired (a cable that is connected), airplane and airplane-off (the switch of the hardware), failjoin (joins fail). What it cannot do:

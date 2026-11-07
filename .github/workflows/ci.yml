@@ -25,7 +25,7 @@ jobs:
         uses: DeterminateSystems/nix-installer-action@v23
 
       - name: Run ShellCheck
-        run: nix develop --command shellcheck bin/nshell bin/preview
+        run: nix develop --command shellcheck bin/nshell dev/preview
 
       - name: Run actionlint
         run: nix develop --command actionlint

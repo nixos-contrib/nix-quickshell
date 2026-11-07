@@ -4,7 +4,7 @@
 #
 #   dbus-daemon --config-file=/run/current-system/sw/share/dbus-1/session.conf --address=unix:path=/tmp/lab-sysbus --fork
 #   DBUS_SYSTEM_BUS_ADDRESS=unix:path=/tmp/lab-sysbus python3 -m dbusmock --system -t bluez5 &
-#   python3 tools/bt-mock.py setup
+#   python3 dev/bt-mock.py setup
 #   DBUS_SYSTEM_BUS_ADDRESS=unix:path=/tmp/lab-sysbus NSHELL_PATH=$PWD nshell
 #
 # setup adds the adapter hci0 and four devices: a pair of headphones that are paired and connected, with a battery, a keyboard that is paired, a mouse that

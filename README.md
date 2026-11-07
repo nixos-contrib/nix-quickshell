@@ -150,8 +150,8 @@ an installed icon theme, for the icons of the apps, and `I3SOCK` has to be set
 when it runs outside i3. The windows of the toasts, the popups and the launcher
 are floated by i3, see the rules in [`docs/i3.md`](docs/i3.md).
 
-From a checkout, `NSHELL_PATH=. nshell` runs the shell, `bin/preview` sends one
-of every kind of notification and `bin/preview burst` a pile of them.
+From a checkout, `NSHELL_PATH=. nshell` runs the shell, `dev/preview` sends one
+of every kind of notification and `dev/preview burst` a pile of them.
 `NSHELL_NO_BAR=1` runs it without the bar, to try the notifications beside
 another one.
 
@@ -318,9 +318,13 @@ shell follows and where it deviates, the limits, and how it is tested.
 nix develop                      # shellcheck, actionlint and jq
 nix flake check -L               # builds the shell and the patched i3, checks the flavours
 nix build .#i3                   # says if the patch of i3 still applies
-nix develop --command shellcheck bin/nshell bin/preview
+nix develop --command shellcheck bin/nshell dev/preview
 nix develop --command actionlint
 ```
+
+`dev/` has what is not shipped: `preview` (notifications to look at) and the mocks of
+NetworkManager (`nm-mock.py`) and BlueZ (`bt-mock.py`), to try the network and the
+Bluetooth items without hardware. Each says how to run it at its top.
 
 To try a change, run a copy of the shell over the installed one with
 `NSHELL_PATH=$PWD nshell`, with `XDG_STATE_HOME` and `NSHELL_THEME` pointing at
