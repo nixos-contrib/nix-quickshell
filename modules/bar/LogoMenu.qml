@@ -77,19 +77,19 @@ Popover {
 
     // the lines: a separator is { sep: true }. Each runs, and the menu closes
     readonly property var entries: [
-        { text: "About This Computer", glyph: "\uf05a", action: () => win.session.showAbout() },
+        { text: "About This Computer", glyph: "\uf108", action: () => win.session.showAbout() },
         { sep: true },
         { text: "Applications…", glyph: "\uf009", action: () => win.launcher.show("apps") },
-        { text: Theme.dark ? "Switch to Light Mode" : "Switch to Dark Mode", glyph: "\uf042", action: () => Quickshell.execDetached(["nshell", "theme", "toggle"]) },
+        { text: Theme.dark ? "Switch to Light Mode" : "Switch to Dark Mode", action: () => Quickshell.execDetached(["nshell", "theme", "toggle"]) },
         { sep: true },
-        { text: "Force Quit " + (target ? target.name : ""), glyph: "\uf057", show: target !== null, action: () => win.session.askForceQuit(win.target) },
+        { text: "Force Quit " + (target ? target.name : ""), show: target !== null, action: () => win.session.askForceQuit(win.target) },
         { sep: true, show: target !== null },
-        { text: "Sleep", glyph: "\uf186", action: () => win.session.runNow("suspend") },
-        { text: "Restart…", glyph: "\uf021", critical: true, action: () => win.session.ask("reboot") },
-        { text: "Shut Down…", glyph: "\uf011", critical: true, action: () => win.session.ask("poweroff") },
+        { text: "Sleep", action: () => win.session.runNow("suspend") },
+        { text: "Restart…", action: () => win.session.ask("reboot") },
+        { text: "Shut Down…", action: () => win.session.ask("poweroff") },
         { sep: true },
-        { text: "Lock Screen", glyph: "\uf023", show: (Theme.user.session?.lock ?? "") !== "", action: () => win.session.runNow("lock") },
-        { text: "Log Out…", glyph: "\uf08b", action: () => win.session.ask("logout") }
+        { text: "Lock Screen", show: (Theme.user.session?.lock ?? "") !== "", action: () => win.session.runNow("lock") },
+        { text: "Log Out…", action: () => win.session.ask("logout") }
     ].filter(e => e.show !== false)
 
     ColumnLayout {
@@ -114,17 +114,19 @@ Popover {
                     anchors.fill: parent
                     radius: Theme.radiusMd
                     color: area.containsMouse ? Theme.surfaceHigh : "transparent"
-                    // the same glyphs as the card of the session, in a column of their own, so that the text lines up
+                    // an icon for the places, About and the apps, and none for what is done, as the Apple menu has it: a line without one starts at
+                    // the edge, and does not line up with the ones that have it, as there
                     Text {
+                        visible: line.modelData.glyph !== undefined
                         anchors { verticalCenter: parent.verticalCenter; left: parent.left; leftMargin: 10 }
                         width: 20
                         horizontalAlignment: Text.AlignHCenter
                         text: line.modelData.glyph ?? ""
-                        color: line.modelData.critical === true ? Theme.critical : Theme.text
+                        color: Theme.text
                         font { family: Theme.iconFont; pixelSize: Theme.iconBar - 2 }
                     }
                     Label {
-                        anchors { verticalCenter: parent.verticalCenter; left: parent.left; leftMargin: 10 + 20 + 8 }
+                        anchors { verticalCenter: parent.verticalCenter; left: parent.left; leftMargin: line.modelData.glyph !== undefined ? 10 + 20 + 8 : 10 }
                         text: line.modelData.text ?? ""
                     }
                     MouseArea {
