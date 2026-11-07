@@ -95,7 +95,7 @@ one: it is an X11 shell, and runs wherever i3 does.
   </p>
 - **Session.** That card, with Lock, Log out, Suspend, Reboot and Power off, each
   with a key (the underlined letter), opens from a key with `nshell session`.
-  Lock is only there when `session.lockCommand` is set: X11 has no lock screen
+  Lock is only there when `session.lock` is set: X11 has no lock screen
   for a shell to draw, so it runs yours.
 - **Windows in the bar.** After the number of every workspace, an icon for
   each of its windows, the one in front or with the focus lit, a title when the
@@ -123,7 +123,7 @@ one: it is an X11 shell, and runs wherever i3 does.
   command for it. The keys are yours to bind, see [`docs/i3.md`](docs/i3.md).
 - **Polkit agent.** A card for the touch of the key or the password, with its
   own layout for 1Password unlocking with the system.
-- **Theme.** Two flavours, `nixos-navy` (the blues of nixos.org) and
+- **Theme.** Two themes, `nixos-navy` (the blues of nixos.org) and
   `nixos-graphite` (greys), each with a dark and a light mode. The bar is the
   color of the windows on dark, and a blue (a dark grey in graphite) with white
   text on light.
@@ -197,15 +197,15 @@ with a band of font height and 4 px above the tabbed containers. See
   <img src="docs/img/bar-light.png" alt="The bar in the light mode" width="830">
 </p>
 
-The palettes are flavours, files of the package: `flavours/nixos-navy.json`
-(the default) and `flavours/nixos-graphite.json`, each with the roles of a
+The palettes are themes, files of the package: `themes/nixos-navy.json`
+(the default) and `themes/nixos-graphite.json`, each with the roles of a
 `dark` and a `light` palette. `~/.config/nix-quickshell/theme.json`, or the
 file of `NSHELL_THEME`, is read over it, and the shell reads both again when
 they change:
 
 ```json
 {
-  "flavour": "nixos-navy",
+  "name": "nixos-navy",
   "mode": "dark",
   "font": "Route 159",
   "radius": 16,
@@ -216,7 +216,7 @@ they change:
 }
 ```
 
-Every key is optional. `flavour` is `nixos-navy` or `nixos-graphite`. `mode` is
+Every key is optional. `name` is `nixos-navy` or `nixos-graphite`. `mode` is
 `dark`, `light` or `auto` (light from 07:00 to 19:00 by default; a choice of
 `nshell theme` is kept in `~/.local/state/nix-quickshell/theme.json` and lasts
 over it). `font` is the family: Route 159 by default, the typeface of NixOS,
@@ -232,54 +232,42 @@ and `poweroff`. `dark` and `light` name the roles to change.
 
 ### With Nix
 
-The module writes that file from options, and what the apps that follow the
-theme need:
+The module writes that file from options, and what the **targets** need: a target
+is a program or a part of the desktop that follows the theme (the GTK apps, the
+wallpaper, the cursor, i3, a terminal). `theme` says how it looks, and `targets`
+where that look goes:
 
 ```nix
 programs.nix-quickshell = {
   enable = true;
+
   theme = {
-    flavour = "nixos-navy";
-    mode = "auto";
+    name = "nixos-navy";
+    mode = "auto";                  # dark | light | auto
     font = "SF Pro Text";
-    dark.primary = "#7ebae4";
+    dark.primary = "#7ebae4";       # the roles of a palette to change
   };
-  integration = {
-    gtk.enable = true;          # the settings and the colors of the GTK apps (adw-gtk3), GTK 3 and 4
-    wallpaper.enable = true;    # the wallpaper of the theme, for each mode
-    apps.zathura.enable = true; # the colors of an app, see Apps below
-    apps.i3.enable = true;      # the colors of the tabs, `include ~/.local/state/nix-quickshell/i3.conf` in the config of i3
+
+  targets = {
+    autoEnable = true;              # kitty when programs.kitty is on, and so on
+    gtk.enable = true;              # the settings and the colors of the GTK apps (adw-gtk3), GTK 3 and 4
+    wallpaper.enable = true;        # the wallpaper of the theme, for each mode
+    zathura.enable = true;          # the colors of an app, see Apps below
+    i3.enable = true;               # the colors of the tabs, `include ~/.local/state/nix-quickshell/i3.conf` in the config of i3
   };
+
+  calendar.weekStart = "monday";
+  session.lock = "i3lock";          # also logout, suspend, reboot and poweroff
+  network.interface = null;         # the one of the default route
 };
 ```
 
 | Option | Writes | Yours to add |
 |---|---|---|
-| `integration.gtk` | two GTK themes in `~/.local/share/themes`, `nix-quickshell-dark` and `nix-quickshell-light` (adw-gtk3 with the named colors of the palette after it), each with a twin of the same look (`-twin`), `gtk-3.0/settings.ini` and `gtk-4.0/gtk.css`, and `xsettings-<mode>.conf` and its twin for xsettingsd | `gtk.menuImages` (icons in the menus, on), `gtk.extraCss` (layout rules that can use the colors, as `@window_bg_color`), `gtk.xsettings` (as `Xft/DPI`), `gtk.iconTheme` |
-| `integration.wallpaper` | `wallpaper-<mode>.png`, the surface color of the palette, a step off the bar, with the logomark of NixOS, the one with the gradient, in the middle, and `nshell apps` sets the one of the mode with feh | `wallpaper.image`, an image of your own for both modes |
-| `integration.apps.<name>` | one file of `nix/apps/` each, see below | |
-| `integration.cursor` | the cursor theme (capitaine-cursors, the arrow of macOS, by default): its package, `icons/default/index.theme`, the cursor of GTK and `Xresources`, and `session.sh` | `. ~/.config/nix-quickshell/session.sh` in the session, and `cursor.size`: 24 by default, 48 on a screen with twice the pixels |
-
-`integration.fontSize` is the size of the text of the GTK apps, 11 by
-default.
-
-### The apps follow the mode
-
-The module writes the files of both modes into `~/.config/nix-quickshell`.
-`nshell apps [dark|light]` copies the ones of a mode into
-`~/.local/state/nix-quickshell` (where the configs of the apps and of i3 include
-them), and the shell runs it when it starts and each time the mode changes.
-Then:
-
-- **GTK 3 apps** change live: `xsettingsd` tells them the theme changed from
-  `nix-quickshell-dark` to `nix-quickshell-light`, and 0.4 s later to its twin,
-  which looks the same. Brave reads the colors of a theme when its name changes,
-  before GTK has loaded it, so with one change it shows the mode before. Start
-  it in the session after `nshell apps`:
-  `xsettingsd -c ~/.local/state/nix-quickshell/xsettings.conf &`, and do not set
-  `GTK_THEME`, which GTK puts before everything.
-- **The wallpaper** is set with feh.
-- **The apps** (below) get their file, and are asked to read it again when it changed.
+| `targets.gtk` | two GTK themes in `~/.local/share/themes`, `nix-quickshell-dark` and `nix-quickshell-light` (adw-gtk3 with the named colors of the palette after it), each with a twin of the same look (`-twin`), `gtk-3.0/settings.ini` and `gtk-4.0/gtk.css`, and `xsettings-<mode>.conf` and its twin for xsettingsd | `menuImages` (icons in the menus, on), `extraCss` (layout rules that can use the colors, as `@window_bg_color`), `xsettings` (as `Xft/DPI`), `iconTheme` (`dark`, `light` and `package`), `fontSize` (the text of the GTK apps, 11) |
+| `targets.wallpaper` | `wallpaper-<mode>.png`, the surface color of the palette, a step off the bar, with the logomark of NixOS, the one with the gradient, in the middle, and `nshell apps` sets the one of the mode with feh | `image`, an image of your own: one for both modes, or `{ dark = ./night.png; light = ./day.png; }` |
+| `targets.cursor` | the cursor theme (capitaine-cursors, the arrow of macOS, by default): its package, `icons/default/index.theme`, the cursor of GTK and `Xresources`, and `session.sh` | `. ~/.config/nix-quickshell/session.sh` in the session, and `size`: 24 by default, 48 on a screen with twice the pixels |
+| `targets.<app>` | one file of `nix/apps/` each, see below | |
 
 ### Apps
 
@@ -287,13 +275,13 @@ The apps that paint their own colors, and that GTK does not reach, are one file
 each in [`nix/apps/`](nix/apps): `alacritty`, `i3` (the tabs), `kitty`,
 `xresources` (xterm) and `zathura`. Each makes the colors of a palette, in the format of the app, for
 both modes. They are **off** unless you ask for one, or Home Manager has the
-program on: `programs.kitty.enable` turns `integration.apps.kitty.enable` on, and
+program on: `programs.kitty.enable` turns `targets.kitty.enable` on, and
 puts the include of the file in `programs.kitty.extraConfig`. An `enable` you
-write always wins, and `integration.detectApps = false` turns the detection off.
+write always wins, and `targets.autoEnable = false` turns the detection off.
 
 ```nix
-integration.apps.kitty.enable = false;  # I have my own theme
-integration.apps.zathura.enable = true; # not a Home Manager program here: include the file yourself
+targets.kitty.enable = false;  # I have my own theme
+targets.zathura.enable = true; # not a Home Manager program here: include the file yourself
 ```
 
 `nshell apps` copies the file of the mode to `~/.local/state/nix-quickshell/`
@@ -305,7 +293,7 @@ the include is yours: `include ~/.local/state/nix-quickshell/kitty.conf`,
 `include` in `zathurarc`.
 
 An app of your own is a file in `nix/apps/`: its `target`, an optional `reload`,
-and `colors`, a function of the palette. `integration.apps.<name>` is then there.
+and `colors`, a function of the palette. `targets.<name>` is then there.
 
 ## Design
 
@@ -317,7 +305,7 @@ shell follows and where it deviates, the limits, and how it is tested.
 
 ```sh
 nix develop                      # shellcheck, actionlint and jq
-nix flake check -L               # builds the shell and the patched i3, checks the flavours
+nix flake check -L               # builds the shell and the patched i3, checks the themes
 nix build .#i3                   # says if the patch of i3 still applies
 nix develop --command shellcheck bin/nshell scripts/preview
 nix develop --command actionlint

@@ -12,18 +12,18 @@ let
   cfg = config.programs.nix-quickshell;
   inherit (lib) mkEnableOption mkOption mkIf types;
 
-  flavour = builtins.fromJSON (builtins.readFile ../flavours/${cfg.theme.flavour}.json);
+  themeData = builtins.fromJSON (builtins.readFile ../themes/${cfg.theme.name}.json);
   modes = [
     "dark"
     "light"
   ];
-  palettes = lib.genAttrs modes (m: flavour.${m} // cfg.theme.${m});
+  palettes = lib.genAttrs modes (m: themeData.${m} // cfg.theme.${m});
   gtkColors = lib.mapAttrs (_: import ./gtk.nix) palettes;
   # The apps that follow the theme: each file of apps/ is one, see there. Enabled when Home Manager has the program enabled, or when the user says so
   appDefs = lib.mapAttrs' (n: _: lib.nameValuePair (lib.removeSuffix ".nix" n) (import ./apps/${n})) (
     lib.filterAttrs (n: t: t == "regular" && lib.hasSuffix ".nix" n) (builtins.readDir ./apps)
   );
-  enabledApps = lib.filterAttrs (n: _: cfg.integration.apps.${n}.enable) appDefs;
+  enabledApps = lib.filterAttrs (n: _: cfg.targets.${n}.enable) appDefs;
   # The mode the apps have until the shell says its own: the files that the shell copies when the mode changes, see `nshell apps`.
   # Dark, unless the theme is light
   startMode = if cfg.theme.mode == "light" then "light" else "dark";
@@ -34,13 +34,13 @@ let
   # so it shows the mode before: the apps are told the name of the theme, and a moment later the name of its twin, which is when Brave
   # reads the theme that was loaded. See `nshell apps`
   gtkTwin = m: "nix-quickshell-${m}-twin";
-  iconName = m: if m == "light" then cfg.integration.gtk.iconTheme.lightName else cfg.integration.gtk.iconTheme.name;
+  iconName = m: cfg.targets.gtk.iconTheme.${m};
   # The GTK theme of a mode: adw-gtk3 in that mode, with the named colors of the palette after it, which win over its own, and the
   # rules of the user
   gtkThemeCss = m: ''
     @import url("file://${pkgs.adw-gtk3}/share/themes/${if m == "light" then "adw-gtk3" else "adw-gtk3-dark"}/gtk-3.0/gtk.css");
     ${gtkColors.${m}}
-    ${cfg.integration.gtk.extraCss}
+    ${cfg.targets.gtk.extraCss}
   '';
   # What xsettingsd tells the GTK apps, which then draw themselves again: the theme of the mode, and the rest of the look
   xsettings = m: theme: ''
@@ -48,11 +48,11 @@ let
     Net/IconThemeName "${iconName m}"
     Gtk/FontName "${font} ${fontSize}"
     Gtk/ApplicationPreferDarkTheme ${if m == "light" then "0" else "1"}
-    Gtk/MenuImages ${if cfg.integration.gtk.menuImages then "1" else "0"}
+    Gtk/MenuImages ${if cfg.targets.gtk.menuImages then "1" else "0"}
     ${lib.optionalString cursor.enable ''
       Gtk/CursorThemeName "${cursor.name}"
       Gtk/CursorThemeSize ${toString cursor.size}
-    ''}${cfg.integration.gtk.xsettings}
+    ''}${cfg.targets.gtk.xsettings}
   '';
 
   roles = mkOption {
@@ -61,7 +61,7 @@ let
     example = {
       primary = "#7ebae4";
     };
-    description = "Roles of the palette to change, by name, as in flavours/*.json. A color is #rrggbb, or #aarrggbb with alpha.";
+    description = "Roles of the palette to change, by name, as in themes/*.json. A color is #rrggbb, or #aarrggbb with alpha.";
   };
 
   enableOption =
@@ -90,27 +90,20 @@ let
       rsvg-convert wallpaper.svg -o $out
     '';
 
+  # the image of the user for a mode, or the generated one
+  wallpaperOf =
+    m:
+    let
+      image = cfg.targets.wallpaper.image;
+      own = if image == null then null else if builtins.isAttrs image then image.${m} else image;
+    in
+    if own != null then own else wallpaper m;
+
   font = if cfg.theme.font != null then cfg.theme.font else "Route 159";
-  fontSize = toString cfg.integration.fontSize;
-  cursor = cfg.integration.cursor;
+  fontSize = toString cfg.targets.gtk.fontSize;
+  cursor = cfg.targets.cursor;
 in
 {
-  # the apps are `integration.apps.<name>` now, each a file of apps/
-  imports =
-    let
-      at = path: [ "programs" "nix-quickshell" "integration" ] ++ path;
-    in
-    (map (n: lib.mkRenamedOptionModule (at [ n "enable" ]) (at [ "apps" n "enable" ])) [
-      "alacritty"
-      "kitty"
-      "xresources"
-      "i3"
-    ])
-    ++ [
-      (lib.mkRemovedOptionModule (at [ "zathura" "enable" ]) "zathura is an app like the others: `integration.apps.zathura.enable`, and the include of the file, which is no longer written for you, see the README")
-      (lib.mkRemovedOptionModule (at [ "zathura" "extraConfig" ]) "write your own zathurarc, see the README")
-    ];
-
   options.programs.nix-quickshell = {
     enable = mkEnableOption "the nix-quickshell desktop shell";
 
@@ -122,13 +115,13 @@ in
     };
 
     theme = {
-      flavour = mkOption {
+      name = mkOption {
         type = types.enum [
           "nixos-navy"
           "nixos-graphite"
         ];
         default = "nixos-navy";
-        description = "The flavour of the theme, a set of palettes of the package: nixos-navy is the blues of nixos.org, nixos-graphite is the same with greys.";
+        description = "The theme, a set of palettes of the package (themes/*.json): nixos-navy is the blues of nixos.org, nixos-graphite is the same with greys.";
       };
       mode = mkOption {
         type = types.enum [
@@ -185,28 +178,28 @@ in
     };
 
     session = {
-      lockCommand = mkOption {
+      lock = mkOption {
         type = types.nullOr types.str;
         default = null;
         example = "i3lock";
         description = "What Lock in the menu of the session runs, `i3lock` or `xss-lock --transfer-sleep-lock -- i3lock`. None by default, and then the menu has no Lock: X11 has no lock screen for a shell to draw.";
       };
-      logoutCommand = mkOption {
+      logout = mkOption {
         type = types.str;
         default = "i3-msg exit";
         description = "What Log out runs.";
       };
-      suspendCommand = mkOption {
+      suspend = mkOption {
         type = types.str;
         default = "systemctl suspend";
         description = "What Suspend runs.";
       };
-      rebootCommand = mkOption {
+      reboot = mkOption {
         type = types.str;
         default = "systemctl reboot";
         description = "What Reboot runs, after the menu asks once more.";
       };
-      poweroffCommand = mkOption {
+      poweroff = mkOption {
         type = types.str;
         default = "systemctl poweroff";
         description = "What Power off runs, after the menu asks once more.";
@@ -229,11 +222,11 @@ in
       };
     };
 
-    integration = {
-      fontSize = mkOption {
-        type = types.ints.positive;
-        default = 11;
-        description = "The size of the text of the GTK apps and of zathura, in points. The shell has its own sizes.";
+    targets = {
+      autoEnable = mkOption {
+        type = types.bool;
+        default = true;
+        description = "Turn on the apps below that Home Manager has enabled as programs.<app>.enable. An `enable` of a target says what it says, whatever this is.";
       };
 
       gtk = {
@@ -241,13 +234,18 @@ in
           The look of the GTK apps: the settings (adw-gtk3 in the mode of the theme, the icons, the font), and gtk-3.0/gtk.css and
           gtk-4.0/gtk.css with the named colors of the palette, which adw-gtk3 and libadwaita read. Owns those files, and two GTK themes in ~/.local/share/themes: nix-quickshell-dark and nix-quickshell-light
         '';
+        fontSize = mkOption {
+          type = types.ints.positive;
+          default = 11;
+          description = "The size of the text of the GTK apps, in points. The shell has its own sizes.";
+        };
         iconTheme = {
-          name = mkOption {
+          dark = mkOption {
             type = types.str;
             default = "Papirus-Dark";
             description = "The name of the icon theme in the dark mode.";
           };
-          lightName = mkOption {
+          light = mkOption {
             type = types.str;
             default = "Papirus-Light";
             description = "The name of the icon theme in the light mode.";
@@ -307,40 +305,52 @@ in
           middle, and `nshell apps` sets the one of the mode with feh, when the mode changes and at the start of the session
         '';
         image = mkOption {
-          type = types.nullOr types.path;
+          type = types.nullOr (
+            types.either types.path (
+              types.submodule {
+                options = {
+                  dark = mkOption {
+                    type = types.nullOr types.path;
+                    default = null;
+                    description = "The image of the dark mode: null is the generated wallpaper.";
+                  };
+                  light = mkOption {
+                    type = types.nullOr types.path;
+                    default = null;
+                    description = "The image of the light mode: null is the generated wallpaper.";
+                  };
+                };
+              }
+            )
+          );
           default = null;
-          description = "An image of your own, set in both modes instead of the generated wallpapers.";
+          example = lib.literalExpression "{ dark = ./night.png; light = ./day.png; }";
+          description = "An image of your own: one for both modes, or one for each, in place of the generated wallpapers.";
         };
       };
-
-      detectApps = mkOption {
+    }
+    # the apps that paint their own colors: each file of apps/ is one
+    // lib.mapAttrs (name: def: {
+      enable = mkOption {
         type = types.bool;
-        default = true;
-        description = "Turn on the apps below that Home Manager has enabled as programs.<app>.enable. An `enable` of an app says what it says, whatever this is.";
+        default = cfg.targets.autoEnable && def.program != null && (config.programs.${def.program}.enable or false);
+        defaultText = lib.literalMD "`programs.${name}.enable` when `targets.autoEnable` is on, otherwise false";
+        description = "~/.config/nix-quickshell/apps/${name}-<mode>, the colors of ${name}, which `nshell apps` puts in the state folder as ${def.target}, and the include of it in the config of ${name} when Home Manager has it.";
       };
-      apps = lib.mapAttrs (name: def: {
-        enable = mkOption {
-          type = types.bool;
-          default = cfg.integration.detectApps && def.program != null && (config.programs.${def.program}.enable or false);
-          defaultText = lib.literalMD "`programs.${name}.enable` when `detectApps` is on, otherwise false";
-          description = "~/.config/nix-quickshell/apps/${name}-<mode>, the colors of ${name}, which `nshell apps` puts in the state folder as ${def.target}, and the include of it in the config of ${name} when Home Manager has it.";
-        };
-      }) appDefs;
-
-    };
+    }) appDefs;
   };
 
   config = mkIf cfg.enable (lib.mkMerge [ {
     home.packages = [
       cfg.package
     ]
-    ++ lib.optionals cfg.integration.gtk.enable [
+    ++ lib.optionals cfg.targets.gtk.enable [
       pkgs.adw-gtk3
       pkgs.xsettingsd
-      cfg.integration.gtk.iconTheme.package
+      cfg.targets.gtk.iconTheme.package
     ]
     ++ lib.optional cursor.enable cursor.package
-    ++ lib.optional cfg.integration.wallpaper.enable pkgs.feh;
+    ++ lib.optional cfg.targets.wallpaper.enable pkgs.feh;
 
     xdg.configFile = lib.optionalAttrs (cfg.theme.fallbackFont != null) {
       # the font has the Latin letters and little more: what it has not is drawn by the fallback, not by whatever fontconfig picks
@@ -357,23 +367,23 @@ in
     } // {
       "nix-quickshell/theme.json".text = builtins.toJSON (
         lib.filterAttrs (_: v: v != null && v != { }) {
-          flavour = cfg.theme.flavour;
+          name = cfg.theme.name;
           mode = cfg.theme.mode;
           hours = cfg.theme.hours;
           inherit (cfg.theme) font radius dark light;
           inherit (cfg) calendar;
           network = { interface = cfg.network.interface; };
           session = {
-            lock = cfg.session.lockCommand;
-            logout = cfg.session.logoutCommand;
-            suspend = cfg.session.suspendCommand;
-            reboot = cfg.session.rebootCommand;
-            poweroff = cfg.session.poweroffCommand;
+            lock = cfg.session.lock;
+            logout = cfg.session.logout;
+            suspend = cfg.session.suspend;
+            reboot = cfg.session.reboot;
+            poweroff = cfg.session.poweroff;
           };
         }
       );
     }
-    // lib.optionalAttrs cfg.integration.gtk.enable (
+    // lib.optionalAttrs cfg.targets.gtk.enable (
       {
         # for the GTK apps that do not ask xsettingsd, and the apps of GTK 4, which take no theme: the mode of the start
         "gtk-3.0/settings.ini".text = ''
@@ -382,7 +392,7 @@ in
           gtk-icon-theme-name=${iconName startMode}
           gtk-font-name=${font} ${fontSize}
           gtk-application-prefer-dark-theme=${if startMode == "light" then "0" else "1"}
-          gtk-menu-images=${if cfg.integration.gtk.menuImages then "1" else "0"}
+          gtk-menu-images=${if cfg.targets.gtk.menuImages then "1" else "0"}
         ''
         + lib.optionalString cursor.enable ''
           gtk-cursor-theme-name=${cursor.name}
@@ -390,7 +400,7 @@ in
         '';
         "gtk-4.0/gtk.css".text = ''
           ${gtkColors.${startMode}}
-          ${cfg.integration.gtk.extraCss}
+          ${cfg.targets.gtk.extraCss}
         '';
       }
       // lib.listToAttrs (
@@ -400,12 +410,12 @@ in
         ]) modes
       )
     )
-    // lib.optionalAttrs cfg.integration.wallpaper.enable (
+    // lib.optionalAttrs cfg.targets.wallpaper.enable (
       lib.listToAttrs (
         map (
           m:
           lib.nameValuePair "nix-quickshell/wallpaper-${m}.png" {
-            source = if cfg.integration.wallpaper.image != null then cfg.integration.wallpaper.image else wallpaper m;
+            source = wallpaperOf m;
           }
         ) modes
       )
@@ -444,7 +454,7 @@ in
           Inherits=${cursor.name}
         '';
       }
-      // lib.optionalAttrs cfg.integration.gtk.enable (
+      // lib.optionalAttrs cfg.targets.gtk.enable (
         lib.listToAttrs (
           lib.concatMap (
             m:
@@ -468,6 +478,6 @@ in
   }
     # the include of each app in its config, where Home Manager has the program: the file is in the state folder
     # (the condition is inside, not on the list: which options are set must not depend on `enable`, which reads programs.<app>.enable)
-    (lib.mkMerge (lib.mapAttrsToList (n: def: lib.mkIf cfg.integration.apps.${n}.enable (def.wire "${stateDir}/${def.target}")) appDefs))
+    (lib.mkMerge (lib.mapAttrsToList (n: def: lib.mkIf cfg.targets.${n}.enable (def.wire "${stateDir}/${def.target}")) appDefs))
   ]);
 }

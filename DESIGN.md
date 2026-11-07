@@ -7,7 +7,7 @@ Why the shell is the way it is. The other documents say what it is and how it wo
 
 This is the one design document: the principles, the decisions with their reasons and the roads not taken, the rules of the windows,
 the limits and what was learned. It is changed in the same commit as what it describes. The numbers (sizes, radii, colors) are in
-`Theme.qml` and `flavours/*.json`, and are not repeated here, so that they cannot drift. A decision that is reversed gets a new row,
+`Theme.qml` and `themes/*.json`, and are not repeated here, so that they cannot drift. A decision that is reversed gets a new row,
 with its date, and the old one is not rewritten.
 
 ## What it is for
@@ -27,7 +27,7 @@ merging it is what tags the first release. The system that uses it pins a commit
 
 1. **One process, one set of tokens.** Nothing in the shell has a size, a color or a radius of its own: it all comes from `Theme.qml`.
    A window is a panel with the same parts in the same order (the rules of the windows, below).
-2. **The theme is data.** A flavour (`flavours/*.json`) has the roles of a dark and a light palette. A user file and the home-manager
+2. **The theme is data.** A theme (`themes/*.json`) has the roles of a dark and a light palette. A user file and the home-manager
    module change roles, not code. The desktop that is not the shell (GTK, the wallpaper) is written from the same palette and follows
    the mode live. The apps with their own colors (i3, kitty, Alacritty, xterm, zathura) are a file each in `nix/apps/`, off unless asked for or
    found as a Home Manager program, so that a theme of your own is never overruled.
@@ -84,7 +84,7 @@ Files: the module writes both modes into `~/.config/nix-quickshell`; `nshell app
 | Wallpaper: the `surface` color, the logomark with the gradient at 12% of the height, the same on both modes | a step off the bar, so the bar reads as a strip; quiet behind windows; the bar has the small flat mark and the wallpaper has the brand one, in its own colors, from one file | the flat white and black marks (the same as the bar, and two files), the lockups with the wordmark, vertical and horizontal (the name twice, and heavier), | the color of the bar (the bar dissolved), `surfaceHigh` (heavier), a bright blue (inverts the hierarchy), the nixos.org line pattern (cropped art, unknown license), the archived nixos-artwork wallpapers |
 | No clipboard history | a password manager and the clipboard sync of the Mac would be recorded | |
 | App icons, no thumbnails, in the lists | enough to tell windows apart, and cheap | thumbnails: heavy, and not needed in the first version |
-| 2026-11-06: the design pass is done | the tokens, the radius scale, the hairline edge and the shadows, a navy flavour as the default and a graphite one, `theme.json` over the flavour, and the home-manager module that writes the files of the apps | |
+| 2026-11-06: the design pass is done | the tokens, the radius scale, the hairline edge and the shadows, a navy theme as the default and a graphite one, `theme.json` over the theme, and the home-manager module that writes the files of the apps | |
 | 2026-11-06: fields, the hover of a row and tips of GTK apps are tints of the palette | adw-gtk3 draws them as a veil of the text color (`alpha(currentColor, 0.1)`), which is grey on white and almost grey on the navy, and no named color changes it; the shell uses the `surface` role for its own fields and cards, so GTK does too | leaving the veils: a grey address field in a blue theme |
 | The mode is only written by `nshell theme` | the saved choice survives restarts and deploys | |
 | Brave gets the theme twice | Brave reads the colors of a GTK theme when its name changes, before GTK has loaded it, and so shows the mode before | one change; nudging other settings did nothing |
@@ -93,6 +93,7 @@ Files: the module writes both modes into `~/.config/nix-quickshell`; `nshell app
 | 2026-11-07: the history of the notifications has no panel | a card inside a panel had five lines around it, and was not the card of the toast that came to the same corner before | the panel with the count of all of them in its header |
 | 2026-11-07: a group of notifications is a stack with a badge, opened by a click | the newest card says what is latest, the badge says how many, and the destructive Clear says what it does | a chevron and the count in the header of the card, and a round close button that cleared forty-four |
 | 2026-11-07: the apps with their own colors are files, off unless asked for | the shell does not overrule the terminal theme of the user (Catppuccin, which Neovim and tmux are made for), and `nshell` has no app in it | integrations for each app, on by default |
+| 2026-11-07: the options are `theme`, `targets` and the behavior of the shell | `theme` is only how it looks (`name`, `mode`, the font, the roles). What follows it is a target, whether it is a program or a part of the desktop: GTK, the wallpaper, the cursor, i3 and the colors of each app are `targets.<name>`, as in Stylix and Catppuccin, and `autoEnable` turns on the ones that Home Manager has. `calendar`, `session` and `network` are not look, and are not in `theme`. The old names are gone, with no aliases: there is no release | `integration` and `apps` as two groups, `theme.gtk`, a wallpaper inside `theme.dark`, `programs.nix.quickshell` (which reads as an option of Nix itself) | 
 
 ## Other shells
 
@@ -155,14 +156,14 @@ its header is a card of its own, as there is no blur to read bare text on what i
 What a window holds are **rows** and **cards**. A row is part of a panel and has no border. A card is a notification: `surface`, the large radius, a hairline
 and a shadow, whether it is a toast or an entry of the history. What is selected or pressed is `surfaceHigh`.
 
-### Color and mode (`Theme.qml`, `flavours/`)
+### Color and mode (`Theme.qml`, `themes/`)
 
 Two palettes with the same roles, dark and light, and the roles follow `Theme.mode`, live. Dark is **nixos-navy**: the bar and the windows
 in the blues of nixos.org. Light is the white of nixos.org with the same blue, darker so that it reads on white, and the bar is that blue
 with white text. The bar has roles of its own, `barBg`, `barText`, `barMuted` and `barFocus` (the tile of the focused workspace, white at
 20% on the blue bar), and the logomark is white or black by the brightness of `barBg`. Text on both is above
 7:1, the edge is a hairline of white on dark and of black on light, and the status colors are the lighter step on dark and the darker
-step on light. The values are in `flavours/*.json`, and not repeated here.
+step on light. The values are in `themes/*.json`, and not repeated here.
 
 `textOnPrimary` is the text on a fill of `primary` (the active button), and `textOnAccent` the text on a fill of `accent` (a pressed
 button). The names do not start with `on`: QML reads such a property as a signal handler, and it was always black. `modules/theme/Appearance.qml` holds the choice, dark, light or auto, and sets the mode.
@@ -172,7 +173,7 @@ button). The names do not start with `on`: QML reads such a property as a signal
 The look follows the branding of NixOS, [NixOS/branding](https://github.com/NixOS/branding) (its guide is `nixos-branding-guide.typ`, its
 palette `nixos-color-palette/colors.toml`, in OKLCH), and where it does not, the reason is here. Checked on 2026-11-06.
 
-**Color.** Every color of both flavours (`flavours/nixos-navy.json`, `flavours/nixos-graphite.json`, dark and light) is a color or a tint of the palette,
+**Color.** Every color of both themes (`themes/nixos-navy.json`, `themes/nixos-graphite.json`, dark and light) is a color or a tint of the palette,
 converted from OKLCH, with one exception below. The neutrals are the greys and the tints of Afghani Blue (NixOS Dark Blue, `#4d6fb7` is
 the hex that the palette file gives for it), the status colors are the tints of Zambian Green, Persian Orange and Norwegian Pink, and the
 terminal colors are the tints of the accents. The guide says the primary colors (black, white, greys) are for text, backgrounds and

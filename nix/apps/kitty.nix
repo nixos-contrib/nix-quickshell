@@ -2,7 +2,7 @@
 # changes, which reads its config again in every window, so the open terminals follow the mode
 # `program` is the name under programs.<program> of Home Manager: when it is enabled the app is found, and `wire` puts the include in its
 # config. `target` is the name in the state folder, `reload` runs when the file there changed (or at each `nshell apps` when `always`), with the
-# path of the file in $NSHELL_FILE. A file that is not here is not an app of nix-quickshell: add one, and `integration.apps.<name>` is there
+# path of the file in $NSHELL_FILE. A file that is not here is not an app of nix-quickshell: add one, and `targets.<name>` is there
 {
   program = "kitty";
   target = "kitty.conf";

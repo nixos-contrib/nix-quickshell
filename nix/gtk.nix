@@ -1,4 +1,4 @@
-# The GTK theme from a palette, the roles of one mode of a theme, as in flavours/*.json: the named colors that adw-gtk3 reads, and libadwaita. With
+# The GTK theme from a palette, the roles of one mode of a theme, as in themes/*.json: the named colors that adw-gtk3 reads, and libadwaita. With
 # them the theme draws every GTK app in the palette, and the few rules for what the theme draws with a veil of the text color, which no named
 # color changes (a field, the hover of a row, a tip). GTK is not one of the apps of apps/: it is the base of the desktop, and the shell tells the
 # GTK apps the theme of the mode itself, see `nshell apps`
