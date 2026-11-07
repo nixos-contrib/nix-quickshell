@@ -75,12 +75,13 @@ Popover {
         }
     }
 
+    // the half-circle for the mode, light against dark: the sun of the icon font draws as a gear at this size
     // the lines: a separator is { sep: true }. Each runs, and the menu closes
     readonly property var entries: [
         { text: "About This Computer", glyph: "\uf108", action: () => win.session.showAbout() },
         { sep: true },
         { text: "Applications…", glyph: "\uf009", action: () => win.launcher.show("apps") },
-        { text: Theme.dark ? "Switch to Light Mode" : "Switch to Dark Mode", action: () => Quickshell.execDetached(["nshell", "theme", "toggle"]) },
+        { text: Theme.dark ? "Switch to Light Mode" : "Switch to Dark Mode", glyph: "\uf042", action: () => Quickshell.execDetached(["nshell", "theme", "toggle"]) },
         { sep: true },
         { text: "Force Quit " + (target ? target.name : ""), show: target !== null, action: () => win.session.askForceQuit(win.target) },
         { sep: true, show: target !== null },

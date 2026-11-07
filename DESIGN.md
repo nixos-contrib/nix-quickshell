@@ -222,7 +222,12 @@ is the **menu of the logo**, as the Apple menu is the first thing of the menu ba
 (there is no settings app, and the mode is the one setting that a click changes), Force Quit for the app that has the focus, Sleep,
 Restart…, Shut Down…, Lock Screen and Log Out…. The lines with dots are the ones that ask, as in macOS. The launcher is a line of the menu
 and a key (`$mod+d`), and the focused window is looked up when the logo is pressed, so that Force Quit is in the menu when it opens. A power
-icon at the right of a bar that is already full would be one more thing to look at for what is done twice a month. There is no
+icon at the right of a bar that is already full would be one more thing to look at for what is done twice a month. **Icons in the menu follow
+the Apple menu, and the guidance that Apple went back to in macOS 27:** one for a place (About This Computer, Applications) and for a visual
+concept that one symbol says (the half-circle of the mode, light against dark: the sun of the icon font drew as a gear at this size), and none for what is done
+(Sleep, Restart, Shut Down, Log Out, Lock, Force Quit): a verb is named by its text, the icons for them are not told apart without it, and a menu
+where every line has one is read by the icons and not by the words. A line without an icon starts at the edge, as in macOS, and a color is
+never added to one. There is no
 lock screen drawn by the shell, as X11 has no protocol for one: **Lock runs the command of the user** (`i3lock`, `xss-lock`) and is not in
 the card when there is none. The commands are the `session` of the theme file. The card has the height of its lines as it opens, as
 i3 does not follow a floating window that grows.
