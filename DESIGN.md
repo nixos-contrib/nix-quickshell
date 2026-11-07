@@ -395,8 +395,8 @@ exported as `overlays.i3` and checked by `nix build .#i3`. See `docs/i3.md`.
 
 ## Limits
 
-- Network was tried against a mock of NetworkManager (`dev/nm-mock.py`) and the wired interface of the VM, not against a radio, and a join that fails
-  (a wrong password) was not seen: its message is mapped and not exercised. Bluetooth was tried against a mock of BlueZ (`dev/bt-mock.py`) only,
+- Network was tried against a mock of NetworkManager (`scripts/nm-mock.py`) and the wired interface of the VM, not against a radio, and a join that fails
+  (a wrong password) was not seen: its message is mapped and not exercised. Bluetooth was tried against a mock of BlueZ (`scripts/bt-mock.py`) only,
   and the pairing of a device that asks for a code or a confirmation is not possible: Quickshell has no agent for it, so the shell pairs the ones that need none
   and says so for the others. Both want one pass on real hardware. Brightness needs a backlight, which a VM has not.
 - A second monitor and a fullscreen app that goes fullscreen by itself were not tried. A window made fullscreen with i3 was: the layout
@@ -440,7 +440,7 @@ exported as `overlays.i3` and checked by `nix build .#i3`. See `docs/i3.md`.
 - A before and after of the rectangles of the windows, taken with their workspace in view, when anything touches the layout.
 - A second X server with a real i3 (`Xephyr`) for layout work. It has no compositor, so transparent windows look black there.
 - **A separate X server for what is clicked.** An `Xvfb` with its own i3, a private session bus, and a mock of a service on a private system bus (NetworkManager
-  or BlueZ, `dev/nm-mock.py` and `dev/bt-mock.py`): nothing that a test clicks, types or captures can reach the real screen, and the real shell is not replaced.
+  or BlueZ, `scripts/nm-mock.py` and `scripts/bt-mock.py`): nothing that a test clicks, types or captures can reach the real screen, and the real shell is not replaced.
 - **The same lab, for the screenshots of the README.** At the size of the real screen (3840x2160, `Xft.dpi` 192), with `picom` on the `xrender` backend (the shadows and the
   corners), a home of a made-up user that has only the settings of the real one (the GTK themes, the fonts, the theme file, the config of the terminal), a mock of UPower for
   the battery, a null sound card of PipeWire for the sound, a made-up player on MPRIS and a folder of empty files for the file manager. The terminal and the file manager show
