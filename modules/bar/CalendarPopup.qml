@@ -29,6 +29,57 @@ Popover {
 
     heading: Qt.locale().monthName(month, Locale.LongFormat) + " " + year
 
+    // The way back to today when another month is in view, and the arrows, at the right of the month: the header is where the month is
+    // changed from, and the body is only the days
+    actions: [
+        PillButton {
+            visible: win.away
+            text: "Today"
+            onClicked: win.today()
+        },
+        Rectangle {
+            width: 28
+            height: 28
+            radius: Theme.radiusMd
+            color: previous.pressed ? Theme.surfaceHigh : (previous.containsMouse ? Theme.surface : "transparent")
+            Behavior on color { ColorAnimation { duration: Theme.motionFast } }
+            // the chevron of the shell is drawn pointing down: a quarter turn each way
+            ChevronIcon {
+                anchors.centerIn: parent
+                size: 16
+                rotation: 90
+                color: Theme.text
+            }
+            MouseArea {
+                id: previous
+                anchors.fill: parent
+                hoverEnabled: true
+                cursorShape: Qt.PointingHandCursor
+                onClicked: win.shift(-1)
+            }
+        },
+        Rectangle {
+            width: 28
+            height: 28
+            radius: Theme.radiusMd
+            color: next.pressed ? Theme.surfaceHigh : (next.containsMouse ? Theme.surface : "transparent")
+            Behavior on color { ColorAnimation { duration: Theme.motionFast } }
+            ChevronIcon {
+                anchors.centerIn: parent
+                size: 16
+                rotation: -90
+                color: Theme.text
+            }
+            MouseArea {
+                id: next
+                anchors.fill: parent
+                hoverEnabled: true
+                cursorShape: Qt.PointingHandCursor
+                onClicked: win.shift(1)
+            }
+        }
+    ]
+
     function shift(months: int): void {
         const d = new Date(year, month + months, 1);
         year = d.getFullYear();
@@ -88,63 +139,6 @@ Popover {
             target: win
             // the popover gives the focus to its panel when it is in its place, and the keys have it after
             function onPlacedChanged() { if (win.placed) keys.forceActiveFocus(); }
-        }
-
-        // the arrows at the sides, and the way back to today between them when another month is in view
-        RowLayout {
-            Layout.fillWidth: true
-            spacing: Theme.spaceMd
-            Rectangle {
-                Layout.preferredWidth: Theme.slot
-                Layout.preferredHeight: Theme.slot
-                radius: Theme.radiusSm
-                color: previous.pressed ? Theme.surfaceHigh : (previous.containsMouse ? Theme.surface : "transparent")
-                Behavior on color { ColorAnimation { duration: Theme.motionFast } }
-                // the chevron of the shell is drawn pointing down: a quarter turn each way
-                ChevronIcon {
-                    anchors.centerIn: parent
-                    size: 18
-                    rotation: 90
-                    color: Theme.text
-                }
-                MouseArea {
-                    id: previous
-                    anchors.fill: parent
-                    hoverEnabled: true
-                    cursorShape: Qt.PointingHandCursor
-                    onClicked: win.shift(-1)
-                }
-            }
-            Item {
-                Layout.fillWidth: true
-                Layout.preferredHeight: Theme.slot
-                PillButton {
-                    anchors.centerIn: parent
-                    visible: win.away
-                    text: "Today"
-                    onClicked: win.today()
-                }
-            }
-            Rectangle {
-                Layout.preferredWidth: Theme.slot
-                Layout.preferredHeight: Theme.slot
-                radius: Theme.radiusSm
-                color: next.pressed ? Theme.surfaceHigh : (next.containsMouse ? Theme.surface : "transparent")
-                Behavior on color { ColorAnimation { duration: Theme.motionFast } }
-                ChevronIcon {
-                    anchors.centerIn: parent
-                    size: 18
-                    rotation: -90
-                    color: Theme.text
-                }
-                MouseArea {
-                    id: next
-                    anchors.fill: parent
-                    hoverEnabled: true
-                    cursorShape: Qt.PointingHandCursor
-                    onClicked: win.shift(1)
-                }
-            }
         }
 
         // the days of the week, then the six weeks
