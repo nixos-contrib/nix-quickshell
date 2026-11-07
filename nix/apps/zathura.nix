@@ -8,6 +8,11 @@
   reload = null;
   always = false;
   wire = path: { programs.zathura.extraConfig = "include ${path}"; };
+  # the font of the theme, after the colors: the file follows `theme.font` and `theme.fontSize`. An app has this only when it is to follow the font, as the
+  # terminals are not: the user has the font of a terminal. It is given `{ family, size }`
+  font = t: ''
+    set font "${t.family} ${toString t.size}"
+  '';
   colors = p: ''
     set default-bg "${p.surface}"
     set default-fg "${p.text}"

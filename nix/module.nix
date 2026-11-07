@@ -100,7 +100,7 @@ let
     if own != null then own else wallpaper m;
 
   font = if cfg.theme.font != null then cfg.theme.font else "Route 159";
-  fontSize = toString cfg.targets.gtk.fontSize;
+  fontSize = toString cfg.theme.fontSize;
   cursor = cfg.targets.cursor;
 in
 {
@@ -149,6 +149,11 @@ in
         default = null;
         example = "SF Pro Text";
         description = "The family of the font. The default is Route 159, the typeface of NixOS, which has to be installed (nixpkgs has it as route159): the shell carries no font.";
+      };
+      fontSize = mkOption {
+        type = types.ints.positive;
+        default = 11;
+        description = "The size of the text of the apps that follow the theme, the GTK apps and zathura, in points. The shell has its own sizes.";
       };
       fallbackFont = mkOption {
         type = types.nullOr types.str;
@@ -234,11 +239,6 @@ in
           The look of the GTK apps: the settings (adw-gtk3 in the mode of the theme, the icons, the font), and gtk-3.0/gtk.css and
           gtk-4.0/gtk.css with the named colors of the palette, which adw-gtk3 and libadwaita read. Owns those files, and two GTK themes in ~/.local/share/themes: nix-quickshell-dark and nix-quickshell-light
         '';
-        fontSize = mkOption {
-          type = types.ints.positive;
-          default = 11;
-          description = "The size of the text of the GTK apps, in points. The shell has its own sizes.";
-        };
         iconTheme = {
           dark = mkOption {
             type = types.str;
@@ -442,7 +442,7 @@ in
           always=${if def.always then "1" else "0"}
         '';
       }
-      // lib.listToAttrs (map (m: lib.nameValuePair "nix-quickshell/apps/${name}-${m}" { text = def.colors palettes.${m}; }) modes)
+      // lib.listToAttrs (map (m: lib.nameValuePair "nix-quickshell/apps/${name}-${m}" { text = def.colors palettes.${m} + (def.font or (_: "")) { family = font; size = cfg.theme.fontSize; }; }) modes)
     ) enabledApps;
 
     xdg.dataFile =
