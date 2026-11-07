@@ -440,8 +440,14 @@ exported as `overlays.i3` and checked by `nix build .#i3`. See `docs/i3.md`.
 - A before and after of the rectangles of the windows, taken with their workspace in view, when anything touches the layout.
 - A second X server with a real i3 (`Xephyr`) for layout work. It has no compositor, so transparent windows look black there.
 - **A separate X server for what is clicked.** An `Xvfb` with its own i3, a private session bus, and a mock of a service on a private system bus (NetworkManager
-  or BlueZ, `tools/nm-mock.py` and `tools/bt-mock.py`): nothing that a test clicks, types or captures can reach the real screen, and the real shell is not replaced. It has no compositor, so a
-  transparent window is black there, and a look is still judged on the real screen.
+  or BlueZ, `tools/nm-mock.py` and `tools/bt-mock.py`): nothing that a test clicks, types or captures can reach the real screen, and the real shell is not replaced.
+- **The same lab, for the screenshots of the README.** At the size of the real screen (3840x2160, `Xft.dpi` 192), with `picom` on the `xrender` backend (the shadows and the
+  corners), a home of a made-up user that has only the settings of the real one (the GTK themes, the fonts, the theme file, the config of the terminal), a mock of UPower for
+  the battery, a null sound card of PipeWire for the sound, a made-up player on MPRIS and a folder of empty files for the file manager. The terminal and the file manager show
+  made-up text and names, and the shell reads nothing of the real session. Two things in it to know: the windows of a workspace that is not in view are not painted again
+  when the theme changes, so the windows are opened again after a change of mode and the shots are taken with the workspace in view for a few seconds; and a workspace that is
+  itself tabbed (`layout tabbed` on a window that is alone in the workspace) has all its windows unmapped while a floating window has the focus, which is i3 and not the shell, so
+  the tabs are in a container of their own (`split h` first).
 - A second copy of the shell on a private bus (`dbus-daemon`, `NSHELL_NO_BAR=1`, a private `XDG_STATE_HOME`) takes the notifications that a script sends, and a fake
   player that speaks MPRIS (a few lines of `dbus-next`, which logs what it is asked) takes the controls of the media popup.
 - Clicks of a test are sent only when no window of the shell is open on the real screen, and the test works on an empty workspace.

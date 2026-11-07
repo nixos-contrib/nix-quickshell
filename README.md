@@ -6,16 +6,17 @@
 [![License](https://img.shields.io/badge/License-GPL--3.0--or--later-blue.svg)](LICENSE)
 
 A desktop shell for NixOS on X11, written in QML for
-[Quickshell](https://quickshell.org). The bar, the notifications, the
-launcher, the volume pill and the polkit agent of an i3 session are one
+[Quickshell](https://quickshell.org). The bar and its popups (media, network,
+Bluetooth, sound, battery, calendar), the notifications, the launcher, the
+session menu, the volume pill and the polkit agent of an i3 session are one
 process, in the palette, the typeface and the logo of NixOS. A home-manager
 module makes the GTK apps, xterm, zathura, i3 and the wallpaper follow its
 dark and light mode.
 
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/img/wallpaper-dark.png">
-    <img src="docs/img/wallpaper-light.png" alt="The wallpaper and the bar, with the logomark of NixOS in the middle">
+    <source media="(prefers-color-scheme: dark)" srcset="docs/img/desktop-dark.png">
+    <img src="docs/img/desktop-light.png" alt="The shell on an i3 desktop: the bar, two toasts, a terminal and a file manager, in the palette of NixOS">
   </picture>
 </p>
 
@@ -46,23 +47,51 @@ one: it is an X11 shell, and runs wherever i3 does.
   same way. Its bell is the switch of do not disturb. Do not disturb also mutes the sound
   effects of chat apps (Vesktop, Discord) while it is on, see
   `modules/notifications/QuietSound.qml`.
-- **Bar.** The logo, the workspaces of i3, the tray (StatusNotifierItem) with
-  menus in the style of the shell, what is playing (any player that speaks
-  MPRIS: its title and artist, the cover, previous, play and pause, next, the
-  position, the icon of the app, which takes its window to the front, and the
-  other players), the network (with NetworkManager a cable or a Wi-Fi: the
-  networks to join, with a field for the password, and the right button turns
-  the Wi-Fi off and on; without it, the wired interface and its address), the Bluetooth (the devices
-  that are paired and the ones in range, to connect, disconnect, pair and
-  forget, with the battery of the one that says it), the sound (volume, mute, outputs), the
-  battery, the bell, with a dot when something came since the history was last
-  opened, and the clock, which opens a calendar of the month: the week starts
-  on Monday or Sunday, Left, Right and the wheel go from month to month, and
-  Today is the way back (`nshell calendar` opens it from a key).
+
+  <p align="center">
+    <img src="docs/img/notifications.png" alt="Toasts with a progress bar, actions and a critical one, and the history with a group of one app" width="830">
+  </p>
+- **Bar.** The logo, the workspaces of i3 with the windows in them (below), the
+  tray (StatusNotifierItem) with menus in the style of the shell, and a status
+  area of popups that share one look. An item is not there when the machine has
+  nothing for it (no player, no adapter, no battery).
+
+  <p align="center">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="docs/img/bar-dark.png">
+      <img src="docs/img/bar-light.png" alt="The bar: the logo, three workspaces with their windows, and the status area" width="830">
+    </picture>
+  </p>
+
+  - **Media.** Any player that speaks MPRIS: its title and artist, the cover,
+    previous, play and pause, next, the position, the icon of the app, which
+    takes its window to the front, and the other players.
+  - **Network.** With NetworkManager a cable or a Wi-Fi: the networks to join,
+    with a field for the password, and the right button turns the Wi-Fi off and
+    on. Without it, the wired interface and its address.
+  - **Bluetooth.** The devices that are paired and the ones in range, to
+    connect, disconnect, pair and forget, with the battery of the one that says
+    it. A device that asks for a code cannot be paired: Quickshell has no
+    pairing agent.
+  - **Sound** (volume, mute, outputs), **battery**, the **bell**, with a dot when
+    something came since the history was last opened, and the **clock**, which
+    opens a calendar of the month: the week starts on Monday or Sunday, Left,
+    Right and the wheel go from month to month, and Today is the way back
+    (`nshell calendar` opens it from a key).
+
+  <p align="center">
+    <img src="docs/img/popups-1.png" alt="The calendar and the player" width="830"><br>
+    <img src="docs/img/popups-2.png" alt="The network and the Bluetooth" width="830"><br>
+    <img src="docs/img/popups-3.png" alt="The sound and the battery" width="830">
+  </p>
 - **The menu of the logo,** as the Apple menu: About This Computer, Applications…,
   the mode of the theme, Force Quit for the app that has the focus, Sleep,
   Restart…, Shut Down…, Lock Screen and Log Out…. The lines with dots ask once
   more, in a card in the middle of the screen.
+
+  <p align="center">
+    <img src="docs/img/menus.png" alt="The menu of the logo, and the card of the session" width="830">
+  </p>
 - **Session.** That card, with Lock, Log out, Suspend, Reboot and Power off, each
   with a key (the underlined letter), opens from a key with `nshell session`.
   Lock is only there when `session.lockCommand` is set: X11 has no lock screen
@@ -83,6 +112,10 @@ one: it is an X11 shell, and runs wherever i3 does.
   `nshell launcher windows`). An app that has a window is focused and not
   started again, by the `StartupWMClass` of its desktop entry, also from a key:
   `nshell launch brave-browser`. `nshell pick` is the same list for scripts.
+
+  <p align="center">
+    <img src="docs/img/launcher.png" alt="The launcher, on its list of windows" width="640">
+  </p>
 - **Volume OSD.** A pill at the bottom of the screen that shows the volume (or
   muted) for a moment when it changes, whatever changed it: the keys, the wheel
   on the bar, the slider, another app. It watches the sound, so there is no
@@ -97,7 +130,10 @@ one: it is an X11 shell, and runs wherever i3 does.
   data, see [Theme](#theme).
 
 <p align="center">
-  <img src="docs/img/tabs.png" alt="The list of the tabs of a workspace, hanging from its number in the bar" width="720">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/img/tabs-dark.png">
+    <img src="docs/img/tabs-light.png" alt="The list of the tabs of a workspace, hanging from its number in the bar" width="830">
+  </picture>
 </p>
 
 Not done yet: brightness (needs a screen with a backlight).
@@ -156,10 +192,8 @@ with a band of font height and 4 px above the tabbed containers. See
 ## Theme
 
 <p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/img/desktop-dark.png">
-    <img src="docs/img/desktop-light.png" alt="The shell: the bar, the toasts, a terminal and Thunar in the palette of NixOS">
-  </picture>
+  <img src="docs/img/bar-dark.png" alt="The bar in the dark mode" width="830"><br>
+  <img src="docs/img/bar-light.png" alt="The bar in the light mode" width="830">
 </p>
 
 The palettes are flavours, files of the package: `flavours/nixos-navy.json`
@@ -291,7 +325,9 @@ nix develop --command actionlint
 To try a change, run a copy of the shell over the installed one with
 `NSHELL_PATH=$PWD nshell`, with `XDG_STATE_HOME` and `NSHELL_THEME` pointing at
 a scratch folder and file, so that the saved history and mode are not touched.
-Use made-up values in tests and screenshots, and no real identifiers.
+Use made-up values in tests and screenshots, and no real identifiers: the ones of
+this page were taken in a separate X server with a made-up user and mocks of
+NetworkManager, BlueZ and UPower (see [`DESIGN.md`](DESIGN.md)).
 
 ## Releasing
 
