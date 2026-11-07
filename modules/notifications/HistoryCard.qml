@@ -21,6 +21,8 @@ Item {
     property bool groupHead: true
     property bool groupOpen: false
     property bool shown: true
+    // the room at each side that the list has for the shadows of the cards: the card is inside of it, and the list does not move its delegates
+    property real inset: 0
     readonly property bool grouped: groupCount > 2 && groupHead
     // a card that stands for the others, and the first card of a group that is open, which has its header above it
     readonly property bool collapsed: grouped && !groupOpen
@@ -41,7 +43,8 @@ Item {
     GroupHeader {
         id: groupHeader
         visible: card.headed
-        width: parent.width
+        x: card.inset
+        width: card.width - card.inset * 2
         app: card.appName
         count: card.groupCount
         onShowLess: card.toggleGroup()
@@ -51,36 +54,38 @@ Item {
     Rectangle {
         visible: card.collapsed
         z: -2
-        x: 20
+        x: card.inset + 20
         y: card.lead + 12
-        width: card.width - 40
+        width: card.width - card.inset * 2 - 40
         height: face.height
-        radius: Theme.radiusMd
+        radius: Theme.radiusLg
         color: Theme.surface
         border { width: 1; color: Theme.border }
     }
     Rectangle {
         visible: card.collapsed
         z: -1
-        x: 10
+        x: card.inset + 10
         y: card.lead + 6
-        width: card.width - 20
+        width: card.width - card.inset * 2 - 20
         height: face.height
-        radius: Theme.radiusMd
+        radius: Theme.radiusLg
         color: Theme.surface
         border { width: 1; color: Theme.border }
     }
 
     Rectangle {
         id: face
+        x: card.inset
         y: card.lead
-        width: parent.width
+        width: card.width - card.inset * 2
         implicitHeight: content.implicitHeight + Theme.spacing * 2
         height: implicitHeight
-        radius: Theme.radiusMd
+        radius: Theme.radiusLg
         color: Theme.surface
         border { width: 1; color: card.hovered ? Theme.primary : Theme.border }
         Behavior on border.color { ColorAnimation { duration: Theme.motionFast } }
+        Shadow {}
 
         MouseArea {
             id: hover

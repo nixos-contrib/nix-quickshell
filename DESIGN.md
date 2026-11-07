@@ -126,11 +126,15 @@ progress and groups (done, see Notifications; the inline reply is left for an ap
 | Body | what the window is about. An empty state is centered in it |
 | Footer | a hint, at the bottom left, small and muted |
 
-The container is the dark `bg` for every window (the popups of the bar, the history, the launcher, the polkit card), with one
-hairline border, the large radius, a shadow and 16 of room around. A menu has less room, as its lines have their own, and a dialog more.
+The container is the dark `bg` for every window (the popups of the bar, the launcher, the polkit card), with one hairline border, the
+large radius, a shadow and 16 of room around. A menu has less room, as its lines have their own, and a dialog more. **The history of the
+notifications is the one exception: it has no container.** Its entries are cards, and a card inside a panel had its own border, its own corners
+and its own edges inside the border and the corners of the panel, five lines around one notification, and it was not the card that the toast is
+in the same corner a moment before. So the history is the cards of the toasts, of the same width in the same place, floating with their own shadows, and
+its header is a card of its own, as there is no blur to read bare text on what is behind it.
 
-What a window holds are **cards** (the entries of the history): `surface`, the medium radius. The toasts are cards that float, so
-they have the large radius and a shadow. What is selected or pressed is `surfaceHigh`.
+What a window holds are **rows** and **cards**. A row is part of a panel and has no border. A card is a notification: `surface`, the large radius, a hairline
+and a shadow, whether it is a toast or an entry of the history. What is selected or pressed is `surfaceHigh`.
 
 ### Color and mode (`Theme.qml`, `flavours/`)
 
