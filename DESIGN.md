@@ -273,6 +273,19 @@ crossed and in the accent color while it is on, with the line "Do not disturb is
 count of all the notifications there: with groups it says little, and the count is in the header of a group. **No inline reply yet**: Quickshell has it, and an app has to ask for it, which Vesktop (Electron) does not on Linux. The
 server does not say it can, so no app is waiting for it; it is for the day an app that you use sends one.
 
+### Network (`modules/common/Net.qml`, `modules/bar/NetworkItem.qml`)
+
+The item is a **cable, a Wi-Fi with its waves, or the plane of the airplane mode**, in a slot like the sound, crossed and muted when it is not connected,
+and it is not there when the machine has no network device. **NetworkManager is the network when it is there**, through Quickshell, which has no other
+backend; **when it is not, the network is the wired interface**, read from the system every few seconds and when the popup opens, so that a machine with plain
+networking has an icon too. That interface is the one of the default route when it is a card of the machine, and otherwise the first card with a cable: Tailscale,
+Docker and VPN interfaces have no device behind them, and are not the connection (`network.interface` chooses one). A cable that is connected is the connection
+before a Wi-Fi is, as NetworkManager prefers it, and the airplane mode is only what the machine is in when it has no cable to say otherwise.
+In the popup a Wi-Fi has its radio as a switch, and the networks it sees: **a network that is known is joined with a click, an open one too, and one that
+asks for a password opens a field under its line**, sent with Enter or with Join. The one that is connected has Disconnect and Forget. A network that asks for the login
+of an organization says that the shell cannot take it, and is not tried. The Wi-Fi scans only while the popup is open. **The right button on the item
+turns the Wi-Fi off and on**, as it mutes the sound.
+
 ### Media (`modules/common/Media.qml`, `modules/bar/MediaItem.qml`)
 
 The player is any program that speaks MPRIS. **The active player is the one that plays**, and when none plays it is one that is paused: a
@@ -371,7 +384,8 @@ exported as `overlays.i3` and checked by `nix build .#i3`. See `docs/i3.md`.
 
 ## Limits
 
-- Network is built for the wired interface only, and Bluetooth is not built. They can be tried in a VM with a simulated radio (`mac80211_hwsim` with `hostapd` and NetworkManager) and a mock of
+- Network was tried against a mock of NetworkManager (`tools/nm-mock.py`) and the wired interface of the VM, not against a radio, and a join that fails
+  (a wrong password) was not seen: its message is mapped and not exercised. Bluetooth is not built. They can be tried in a VM with a simulated radio (`mac80211_hwsim` with `hostapd` and NetworkManager) and a mock of
   BlueZ, and want one pass on real hardware. Brightness needs a backlight, which a VM has not.
 - A second monitor and a fullscreen app that goes fullscreen by itself were not tried. A window made fullscreen with i3 was: the layout
   comes back exactly.
@@ -413,6 +427,9 @@ exported as `overlays.i3` and checked by `nix build .#i3`. See `docs/i3.md`.
   their own, with made-up titles, and close them by id.
 - A before and after of the rectangles of the windows, taken with their workspace in view, when anything touches the layout.
 - A second X server with a real i3 (`Xephyr`) for layout work. It has no compositor, so transparent windows look black there.
+- **A separate X server for what is clicked.** An `Xvfb` with its own i3, a private session bus, and a mock of a service on a private system bus (NetworkManager
+  today): nothing that a test clicks, types or captures can reach the real screen, and the real shell is not replaced. It has no compositor, so a
+  transparent window is black there, and a look is still judged on the real screen.
 - A second copy of the shell on a private bus (`dbus-daemon`, `NSHELL_NO_BAR=1`, a private `XDG_STATE_HOME`) takes the notifications that a script sends, and a fake
   player that speaks MPRIS (a few lines of `dbus-next`, which logs what it is asked) takes the controls of the media popup.
 - Clicks of a test are sent only when no window of the shell is open on the real screen, and the test works on an empty workspace.

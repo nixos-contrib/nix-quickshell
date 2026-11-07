@@ -4,8 +4,9 @@ import Quickshell
 import qs
 import qs.modules.common
 
-// The network in the bar: a cable that is connected or crossed, in a slot like the sound and the battery. A click opens its details. It is not there when
-// the machine has no network device at all
+// The network in the bar: a cable or a Wi-Fi with its waves, crossed when it is not connected, or the plane of the airplane mode, in a slot like the sound
+// and the battery. A click opens the network, and the right button turns the Wi-Fi off and on, as it mutes the sound. It is not there when the machine
+// has no network device at all
 Rectangle {
     id: item
     property Popover popover
@@ -21,13 +22,20 @@ Rectangle {
     NetworkIcon {
         anchors.centerIn: parent
         kind: Net.kind
-        crossed: !Net.connected
+        level: Net.level
+        crossed: Net.crossed
         color: Net.connected ? Theme.barText : Theme.barMuted
     }
     MouseArea {
         id: area
         anchors.fill: parent
         cursorShape: Qt.PointingHandCursor
-        onClicked: item.toggled(item.mapToItem(null, 0, 0).x)
+        acceptedButtons: Qt.LeftButton | Qt.MiddleButton | Qt.RightButton
+        onClicked: mouse => {
+            if (mouse.button === Qt.LeftButton)
+                item.toggled(item.mapToItem(null, 0, 0).x);
+            else
+                Net.toggleWifi();
+        }
     }
 }
