@@ -46,7 +46,9 @@ one: it is an X11 shell, and runs wherever i3 does.
 - **Bar.** The logo, the workspaces of i3, the tray (StatusNotifierItem) with
   menus in the style of the shell, the sound (volume, mute, outputs), the
   battery, the bell, with a dot when something came since the history was last
-  opened, and the clock.
+  opened, and the clock, which opens a calendar of the month: the week starts
+  on Monday or Sunday, Left, Right and the wheel go from month to month, and
+  Today is the way back (`nshell calendar` opens it from a key).
 - **Windows in the bar.** After the number of every workspace, an icon for
   each of its windows, the one in front or with the focus lit, a title when the
   pointer stays on an icon, and a click takes the window to the front. Windows
@@ -156,6 +158,7 @@ they change:
   "font": "Route 159",
   "radius": 16,
   "hours": { "light": 7, "dark": 19 },
+  "calendar": { "weekStart": "monday", "weekNumbers": false },
   "dark": { "primary": "#7ebae4" }
 }
 ```
@@ -167,7 +170,9 @@ over it). `font` is the family: Route 159 by default, the typeface of NixOS,
 which has to be installed (nixpkgs has it as `route159`). It has the Latin
 letters and little more, so the module adds a fontconfig rule that makes
 Inter (`theme.fallbackFont`) draw the rest. `radius` is the large one and the
-other two follow it. `dark` and `light` name the roles to change.
+other two follow it. `calendar` is the week of the calendar under the clock:
+`weekStart` is `monday` or `sunday`, and `weekNumbers` shows the ISO number of each
+week. `dark` and `light` name the roles to change.
 
 ### With Nix
 

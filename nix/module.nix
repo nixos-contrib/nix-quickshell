@@ -175,6 +175,22 @@ in
       light = roles;
     };
 
+    calendar = {
+      weekStart = mkOption {
+        type = types.enum [
+          "monday"
+          "sunday"
+        ];
+        default = "monday";
+        description = "The day the weeks of the calendar under the clock start on.";
+      };
+      weekNumbers = mkOption {
+        type = types.bool;
+        default = false;
+        description = "The ISO number of the week, at the start of each row of the calendar.";
+      };
+    };
+
     integration = {
       fontSize = mkOption {
         type = types.ints.positive;
@@ -307,6 +323,7 @@ in
           mode = cfg.theme.mode;
           hours = cfg.theme.hours;
           inherit (cfg.theme) font radius dark light;
+          inherit (cfg) calendar;
         }
       );
     }

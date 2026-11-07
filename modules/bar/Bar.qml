@@ -37,6 +37,7 @@ Scope {
         // the popups of the bar, from the outside: a key, or a test. They hang from the right end of the bar
         function audio(): void { if (root.fresh()) root.toggle(audioPopup, bar.width - 480); }
         function battery(): void { if (root.fresh()) root.toggle(batteryPopup, bar.width - 400); }
+        function calendar(): void { if (root.fresh()) root.toggle(calendarPopup, bar.width - 360); }
         function tray(): void {
             const items = SystemTray.items.values;
             if (items.length === 0 || !root.fresh())
@@ -50,10 +51,11 @@ Scope {
     Binding {
         target: root.notifications
         property: "popupOpen"
-        value: trayMenu.visible || audioPopup.visible || batteryPopup.visible
+        value: trayMenu.visible || audioPopup.visible || batteryPopup.visible || calendarPopup.visible
     }
     AudioPopup { id: audioPopup }
     BatteryPopup { id: batteryPopup }
+    CalendarPopup { id: calendarPopup }
 
     // One popup at a time, the history of the notifications among them: the others close when one opens, and a click on the item
     // of the one that is open closes it
@@ -71,9 +73,10 @@ Scope {
         trayMenu.visible = false;
         audioPopup.visible = false;
         batteryPopup.visible = false;
+        calendarPopup.visible = false;
         notifications.closeCenter();
     }
-    // the history of the notifications, from the bell and from the clock, as the clock opens it in macOS and in Windows 11
+    // the history of the notifications, from the bell: the clock has the calendar
     // the key of the list of tabs: it hangs from the chevron of the group
     Connections {
         target: root.tabs
@@ -233,12 +236,13 @@ Scope {
                     }
                 }
 
-                // the clock: a tile like the others, which opens the history too
+                // the clock: a tile like the others, which opens the calendar. The history is the bell's
                 Rectangle {
+                    id: clockTile
                     Layout.preferredHeight: Theme.slot
                     Layout.preferredWidth: clock.implicitWidth + Theme.tilePad * 2 - Theme.textBearing
                     radius: Theme.radiusSm
-                    color: clockArea.pressed || root.notifications.centerOpen ? Theme.barFocus : "transparent"
+                    color: clockArea.pressed || calendarPopup.visible ? Theme.barFocus : "transparent"
                     Behavior on color { ColorAnimation { duration: Theme.motionFast } }
                     Text {
                         id: clock
@@ -252,7 +256,7 @@ Scope {
                         id: clockArea
                         anchors.fill: parent
                         cursorShape: Qt.PointingHandCursor
-                        onClicked: root.toggleHistory()
+                        onClicked: root.toggle(calendarPopup, clockTile.mapToItem(null, 0, 0).x)
                     }
                 }
             }

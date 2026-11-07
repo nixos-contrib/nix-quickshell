@@ -3,7 +3,8 @@
 #
 #   nshell                  starts the shell
 #   nshell center [dnd]     opens and closes the history of the notifications, or toggles do not disturb
-#   nshell bar [audio|battery|tray]  shows and hides the bar, or opens one of its popups
+#   nshell bar [audio|battery|calendar|tray]  shows and hides the bar, or opens one of its popups
+#   nshell calendar         opens and closes the calendar under the clock
 #   nshell launcher [windows]  opens the launcher, on the apps or on the windows
 #   nshell launch ID        an app by the id of its desktop entry (brave-browser): its window is focused when it has one, and it is
 #                           started when it has none
@@ -30,7 +31,7 @@ same_press() {
 }
 
 case "${1:-}" in
-center | bar | launcher | launch | theme) same_press && exit 0 ;;
+center | bar | calendar | launcher | launch | theme) same_press && exit 0 ;;
 esac
 
 # The apps follow the mode: nix-quickshell (the Nix module) writes the files of both modes in ~/.config/nix-quickshell, and this copies the ones
@@ -94,6 +95,7 @@ case "${1:-}" in
 apps) apply_apps "${2:-}" ;;
 center) exec quickshell -p "$NSHELL_PATH" ipc call center "${2:-toggle}" ;;
 bar) exec quickshell -p "$NSHELL_PATH" ipc call bar "${2:-toggle}" ;;
+calendar) exec quickshell -p "$NSHELL_PATH" ipc call bar calendar ;;
 launcher) exec quickshell -p "$NSHELL_PATH" ipc call launcher "${2:-apps}" ;;
 tabs) exec quickshell -p "$NSHELL_PATH" ipc call tabs list ;;
 theme)

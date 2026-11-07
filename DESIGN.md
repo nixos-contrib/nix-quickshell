@@ -112,7 +112,7 @@ Four Quickshell shells were read on 2026-11-06 (the QML, not run): [end-4/dots-h
 
 What is not done on purpose: the overview with live previews and the lock screen (they need Wayland protocols that X11 has no answer for),
 desktop widgets (they have no place in a tiling layout), a settings app, an assistant, a mascot, and colors from the wallpaper. What is
-taken is ideas, and each one is written here again for this shell and credited if it is close: a calendar on the clock, notifications with
+taken is ideas, and each one is written here again for this shell and credited if it is close: a calendar on the clock (done, see Controls), notifications with
 progress, a media item, a menu for the session, and one set of durations and easings for the motion (done, see Motion). They are issues of the repo.
 
 ## The rules of the windows
@@ -225,6 +225,10 @@ A popup (the ones of the bar, the history, the launcher) closes when it loses th
   there is nothing to move. The battery and the sound have the same row: an icon in a slot, and a track.
 - The **buttons** of a window are pills (`PillButton.qml`); the one that is on is filled.
 - The items of the bar light up while they are pressed or their popup is open, never for the pointer over them.
+- The **clock** opens the calendar and the **bell** opens the history of the notifications. The clock opened the history before, as the
+  clock does in macOS and in Windows 11, but the bell opened the same, and a clock with no job of its own is a tile that does nothing
+  that the one beside it does not. The calendar is one month and no events: the shell has no accounts, so nothing in it would be
+  anyone's agenda. Today is the filled tile, as the focused workspace is in the bar, and the days of the months around are muted.
 - A **right click** on an item of the bar is its quick quiet toggle: on the bell it turns do not disturb on and off, on the speaker
   it mutes (a middle click does the same, but a trackpad has none). On an icon of the tray it is the menu of the app.
 
@@ -237,7 +241,7 @@ tile of text would look further from its neighbour than a tile of an icon.
 
 ### Keys
 
-The commands that a key can run (`nshell launcher`, `center`, `bar`) toggle, and a key that is held a moment repeats: the command
+The commands that a key can run (`nshell launcher`, `center`, `bar`, `calendar`) toggle, and a key that is held a moment repeats: the command
 runs again and again, 25 ms apart, and the repeat would close what the first opened. The command itself catches it (`same_press` in
 `bin/nshell`): a run less than 400 ms after the one before is the same press and ends at once, and every run counts as the one
 before, so a key held for any time is one press. It has to be the command: starting the client of Quickshell takes long enough
