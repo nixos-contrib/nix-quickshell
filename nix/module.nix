@@ -175,6 +175,35 @@ in
       light = roles;
     };
 
+    session = {
+      lockCommand = mkOption {
+        type = types.nullOr types.str;
+        default = null;
+        example = "i3lock";
+        description = "What Lock in the menu of the session runs, `i3lock` or `xss-lock --transfer-sleep-lock -- i3lock`. None by default, and then the menu has no Lock: X11 has no lock screen for a shell to draw.";
+      };
+      logoutCommand = mkOption {
+        type = types.str;
+        default = "i3-msg exit";
+        description = "What Log out runs.";
+      };
+      suspendCommand = mkOption {
+        type = types.str;
+        default = "systemctl suspend";
+        description = "What Suspend runs.";
+      };
+      rebootCommand = mkOption {
+        type = types.str;
+        default = "systemctl reboot";
+        description = "What Reboot runs, after the menu asks once more.";
+      };
+      poweroffCommand = mkOption {
+        type = types.str;
+        default = "systemctl poweroff";
+        description = "What Power off runs, after the menu asks once more.";
+      };
+    };
+
     calendar = {
       weekStart = mkOption {
         type = types.enum [
@@ -324,6 +353,13 @@ in
           hours = cfg.theme.hours;
           inherit (cfg.theme) font radius dark light;
           inherit (cfg) calendar;
+          session = {
+            lock = cfg.session.lockCommand;
+            logout = cfg.session.logoutCommand;
+            suspend = cfg.session.suspendCommand;
+            reboot = cfg.session.rebootCommand;
+            poweroff = cfg.session.poweroffCommand;
+          };
         }
       );
     }

@@ -27,6 +27,8 @@ Scope {
 
     // the launcher, which the logo opens
     required property var launcher
+    // the menu of the session, which the right button of the logo opens
+    property var session: null
     // the tabs of the containers, for the group of a workspace, see Workspaces
     property var tabs: null
     property bool shown: true
@@ -123,7 +125,7 @@ Scope {
             anchors { fill: parent; leftMargin: Theme.edge; rightMargin: Theme.edge }
             spacing: 0
 
-            // The logomark of NixOS, as the one of Apple in the menu bar, and the workspaces. It opens the launcher
+            // The logomark of NixOS, as the one of Apple in the menu bar, and the workspaces. It opens the launcher, and the menu of the session with the right button
             RowLayout {
                 spacing: Theme.spaceSm
                 // The official flat logomark, white on the dark bar and black on the light one, as the branding guide has them: not painted in
@@ -148,7 +150,14 @@ Scope {
                         anchors.fill: parent
                         hoverEnabled: true
                         cursorShape: Qt.PointingHandCursor
-                        onClicked: root.launcher.show("apps")
+                        acceptedButtons: Qt.LeftButton | Qt.RightButton
+                        onClicked: mouse => {
+                            root.closePopups();
+                            if (mouse.button === Qt.RightButton && root.session)
+                                root.session.toggle();
+                            else
+                                root.launcher.show("apps");
+                        }
                     }
                 }
                 Workspaces {

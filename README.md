@@ -51,6 +51,11 @@ one: it is an X11 shell, and runs wherever i3 does.
   opened, and the clock, which opens a calendar of the month: the week starts
   on Monday or Sunday, Left, Right and the wheel go from month to month, and
   Today is the way back (`nshell calendar` opens it from a key).
+- **Session.** A card in the middle of the screen with Lock, Log out, Suspend,
+  Reboot and Power off, each with a key (the underlined letter), opened by the
+  right button of the logo or by `nshell session`. Reboot and power off ask
+  once more, and nothing else does. Lock is only there when `session.lockCommand`
+  is set: X11 has no lock screen for a shell to draw, so it runs yours.
 - **Windows in the bar.** After the number of every workspace, an icon for
   each of its windows, the one in front or with the focus lit, a title when the
   pointer stays on an icon, and a click takes the window to the front. Windows
@@ -161,6 +166,7 @@ they change:
   "radius": 16,
   "hours": { "light": 7, "dark": 19 },
   "calendar": { "weekStart": "monday", "weekNumbers": false },
+  "session": { "lock": "i3lock", "logout": "i3-msg exit" },
   "dark": { "primary": "#7ebae4" }
 }
 ```
@@ -174,7 +180,10 @@ letters and little more, so the module adds a fontconfig rule that makes
 Inter (`theme.fallbackFont`) draw the rest. `radius` is the large one and the
 other two follow it. `calendar` is the week of the calendar under the clock:
 `weekStart` is `monday` or `sunday`, and `weekNumbers` shows the ISO number of each
-week. `dark` and `light` name the roles to change.
+week. `session` has the command of each line of the menu of the session (`lock`,
+`logout`, `suspend`, `reboot`, `poweroff`): `lock` has none by default and then the
+menu has no Lock, and the others are `i3-msg exit` and `systemctl suspend`, `reboot`
+and `poweroff`. `dark` and `light` name the roles to change.
 
 ### With Nix
 

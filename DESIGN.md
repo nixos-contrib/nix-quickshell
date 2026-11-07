@@ -113,7 +113,7 @@ Four Quickshell shells were read on 2026-11-06 (the QML, not run): [end-4/dots-h
 What is not done on purpose: the overview with live previews and the lock screen (they need Wayland protocols that X11 has no answer for),
 desktop widgets (they have no place in a tiling layout), a settings app, an assistant, a mascot, and colors from the wallpaper. What is
 taken is ideas, and each one is written here again for this shell and credited if it is close: a calendar on the clock (done, see Controls), notifications with
-progress, a media item (done, see Media), a menu for the session, and one set of durations and easings for the motion (done, see Motion). They are issues of the repo.
+progress, a media item (done, see Media), a menu for the session (done, see Session), and one set of durations and easings for the motion (done, see Motion). They are issues of the repo.
 
 ## The rules of the windows
 
@@ -209,6 +209,17 @@ popup show the **action** and not the state, a pause while it plays and a play w
 at the same moment. A control that the player cannot do (previous on the first track, seek on a stream) is dimmed or has no slider, and
 the player is asked where it is a second at a time, only while it plays and the popup is open. The cover is loaded only while the popup is
 open: it is an address.
+
+### Session (`modules/session/Session.qml`)
+
+A card in the middle of the screen, as the launcher is: Lock, Log out, Suspend, Reboot and Power off, each with the letter that
+runs it underlined, and the arrows with Enter for those who look first. **Only Reboot and Power off ask once more**, in the same card,
+because they are the two that lose what is not saved and cannot be taken back with a key; the others are as quick as the key. The entry in the
+bar is the **right button of the logo**, whose left button opens the launcher: a right click is the quiet action of an item in this shell,
+and a power icon at the right of a bar that is already full would be one more thing to look at for what is done twice a month. There is no
+lock screen drawn by the shell, as X11 has no protocol for one: **Lock runs the command of the user** (`i3lock`, `xss-lock`) and is not in
+the card when there is none. The commands are the `session` of the theme file. The card has the height of its lines as it opens, as
+i3 does not follow a floating window that grows.
 
 ### Popups close on a click anywhere
 
