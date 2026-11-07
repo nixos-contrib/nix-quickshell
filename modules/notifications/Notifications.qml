@@ -230,6 +230,8 @@ Scope {
         bodyMarkupSupported: true
         actionsSupported: true
         imageSupported: true
+        // an app that has a reply to offer (the action `inline-reply`, as KDE has it) says so, and the card has a field for it, see Toast
+        inlineReplySupported: true
         onNotification: n => {
             root.record(n);
             if (!root.dnd || n.urgency === NotificationUrgency.Critical)

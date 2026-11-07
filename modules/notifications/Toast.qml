@@ -28,6 +28,17 @@ Rectangle {
     readonly property var rawValue: notification.hints ? notification.hints["value"] : undefined
     readonly property bool hasProgress: rawValue !== undefined && rawValue !== null && isFinite(Number(rawValue))
     readonly property real progress: hasProgress ? Math.max(0, Math.min(100, Number(rawValue))) / 100 : 0
+    // An app that offers a reply (`inline-reply`): the card has a field for it, and keeps its time while the user is writing in it
+    readonly property bool canReply: notification.hasInlineReply && !collapsed
+    readonly property bool writing: canReply && (field.activeFocus || field.text !== "")
+    function sendReply() {
+        const text = field.text.trim();
+        if (text === "")
+            return;
+        notification.sendInlineReply(text);
+        field.text = "";
+        notification.dismiss();
+    }
     // the time that the app asks for, in milliseconds as the protocol has it (Quickshell 0.3.2 gives it as it came, and not in seconds as its docs say), or the
     // one of the shell: a short one for a low urgency
     readonly property int timeout: notification.expireTimeout > 0 ? notification.expireTimeout : (notification.urgency === NotificationUrgency.Low ? 4000 : 7000)
@@ -63,7 +74,7 @@ Rectangle {
     Timer {
         id: expiry
         interval: root.timeout
-        running: root.visible && !root.paused && !root.critical && !root.hovered
+        running: root.visible && !root.paused && !root.critical && !root.hovered && !root.writing
         onTriggered: root.collapsed ? root.groupExpired() : root.notification.expire()
     }
     // an app that sends it again as it goes keeps the card: the time starts again with each update
@@ -198,6 +209,48 @@ Rectangle {
                 Layout.preferredHeight: 14
                 value: root.progress
                 color: root.critical ? Theme.critical : Theme.primary
+            }
+            // the reply: a field under the text, sent with Enter, and Escape leaves it
+            Rectangle {
+                visible: root.canReply
+                Layout.fillWidth: true
+                Layout.preferredHeight: 34
+                Layout.topMargin: 4
+                radius: Theme.radiusMd
+                color: Theme.bg
+                border { width: 1; color: field.activeFocus ? Theme.primary : Theme.border }
+                Behavior on border.color { ColorAnimation { duration: Theme.motionFast } }
+                TextInput {
+                    id: field
+                    anchors { fill: parent; leftMargin: Theme.spaceSm + 2; rightMargin: 34 }
+                    verticalAlignment: TextInput.AlignVCenter
+                    clip: true
+                    color: Theme.text
+                    selectionColor: Theme.primary
+                    selectedTextColor: Theme.textOnAccent
+                    font { family: Theme.font; pixelSize: Theme.fontBody }
+                    onAccepted: root.sendReply()
+                    Keys.onEscapePressed: {
+                        text = "";
+                        focus = false;
+                    }
+                    Text {
+                        anchors.verticalCenter: parent.verticalCenter
+                        visible: field.text === ""
+                        text: root.notification.inlineReplyPlaceholder !== "" ? root.notification.inlineReplyPlaceholder : "Reply"
+                        color: Theme.muted
+                        font: field.font
+                    }
+                }
+                // the key that sends, drawn when there is something to send
+                Text {
+                    anchors { right: parent.right; rightMargin: Theme.spaceSm + 2; verticalCenter: parent.verticalCenter }
+                    text: "\u21b5"
+                    color: Theme.primary
+                    opacity: field.text !== "" ? 1 : 0
+                    font { family: Theme.font; pixelSize: Theme.fontBody }
+                    Behavior on opacity { NumberAnimation { duration: Theme.motionFast } }
+                }
             }
             Flow {
                 visible: root.notification.actions.some(a => a.identifier !== "default")

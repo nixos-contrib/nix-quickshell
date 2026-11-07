@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Sends notifications to look at the shell. With no argument, one of every kind. With `burst`, a pile of them that
 # stays long enough to try the stack: "Show more", "Show less" and "Clear all". With `progress`, one that fills as it is sent again,
-# and with `group`, a chat of five that is one card
+# with `group`, a chat of five that is one card, and with `reply`, a chat that offers a reply
 set -u
 send() { notify-send "$@" & sleep "${DELAY:-0.8}"; }
 
@@ -34,6 +34,11 @@ progress)
 		notify-send -a "Brave" -i folder-download -r "$id" -h int:value:$v "Downloading report-q3.pdf" "2.4 MB"
 	done
 	;;
+reply)
+	# an app that offers a reply, as KDE has it: the card has a field. What is written goes back as the signal NotificationReplied, which this does not
+	# listen to: `dbus-monitor "type='signal',member='NotificationReplied'"` shows it
+	send -t 60000 -a "Chat" -A "inline-reply=Write a reply…" "sam" "Are you coming to the call? We start in five minutes."
+	;;
 group)
 	# a chat that does not stop: five of one app are one card with the count in its header, and a click opens the list. One of another app beside it
 	for n in 1 2 3 4 5; do
@@ -42,7 +47,7 @@ group)
 	send -a "Mail" "Plain notification" "Just a summary and a short body."
 	;;
 *)
-	echo "usage: preview [kinds|burst|progress|group]" >&2
+	echo "usage: preview [kinds|burst|progress|group|reply]" >&2
 	exit 1
 	;;
 esac

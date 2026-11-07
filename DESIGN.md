@@ -132,7 +132,7 @@ session commands are config. A keep-awake toggle and a marquee for long titles w
 What is not done on purpose: the overview with live previews and the lock screen (they need Wayland protocols that X11 has no answer for),
 desktop widgets (they have no place in a tiling layout), a settings app, an assistant, a mascot, and colors from the wallpaper. What is
 taken is ideas, and each one is written here again for this shell and credited if it is close: a calendar on the clock (done, see Controls), notifications with
-progress and groups (done, see Notifications; the inline reply is left for an app that sends one), a media item (done, see Media), a menu for the session (done, see Session), and one set of durations and easings for the motion (done, see Motion). They are issues of the repo.
+progress, groups and the inline reply (done, see Notifications), a media item (done, see Media), a menu for the session (done, see Session), and one set of durations and easings for the motion (done, see Motion). They are issues of the repo.
 
 ## The rules of the windows
 
@@ -270,8 +270,10 @@ count of "Show 3 more" is of the cards that are shown. **Progress is the `value`
 same notification again, which Quickshell updates in place, so it is one card that fills, the history has one entry, and each update starts the
 time of the card again. **The header of the history is the bell**, the one of the bar, with its glyphs: it is the switch of do not disturb,
 crossed and in the accent color while it is on, with the line "Do not disturb is on" under the title, and **Clear all** is the one pill. There is no
-count of all the notifications there: with groups it says little, and the count is in the header of a group. **No inline reply yet**: Quickshell has it, and an app has to ask for it, which Vesktop (Electron) does not on Linux. The
-server does not say it can, so no app is waiting for it; it is for the day an app that you use sends one.
+count of all the notifications there: with groups it says little, and the count is in the header of a group. **The inline reply** is a field under the text of a toast whose app offers one, with the action `inline-reply` as KDE has it (the server says that it can, and an app that does not know it
+sends nothing different). It is sent with Enter and the card goes with it; Escape leaves the field, and the card keeps its time while the user is in it or has written in it, as when the pointer
+is over it. It is only in the toast: the history keeps what was said and not the way to answer it, which the app may have taken back. Few apps send it on Linux: Vesktop and the other Electron
+ones do not, and it was tried with a made-up app on a private bus (`scripts/preview reply`, and a listener for `NotificationReplied`).
 
 ### Network (`modules/common/Net.qml`, `modules/bar/NetworkItem.qml`)
 
