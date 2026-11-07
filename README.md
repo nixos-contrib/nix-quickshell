@@ -52,7 +52,9 @@ one: it is an X11 shell, and runs wherever i3 does.
   position, the icon of the app, which takes its window to the front, and the
   other players), the network (with NetworkManager a cable or a Wi-Fi: the
   networks to join, with a field for the password, and the right button turns
-  the Wi-Fi off and on; without it, the wired interface and its address), the sound (volume, mute, outputs), the
+  the Wi-Fi off and on; without it, the wired interface and its address), the Bluetooth (the devices
+  that are paired and the ones in range, to connect, disconnect, pair and
+  forget, with the battery of the one that says it), the sound (volume, mute, outputs), the
   battery, the bell, with a dot when something came since the history was last
   opened, and the clock, which opens a calendar of the month: the week starts
   on Monday or Sunday, Left, Right and the wheel go from month to month, and
@@ -98,8 +100,7 @@ one: it is an X11 shell, and runs wherever i3 does.
   <img src="docs/img/tabs.png" alt="The list of the tabs of a workspace, hanging from its number in the bar" width="720">
 </p>
 
-Not done yet: brightness (needs a screen with a backlight), and network and
-Bluetooth in the bar.
+Not done yet: brightness (needs a screen with a backlight).
 
 ## Try it
 

@@ -41,6 +41,7 @@ Scope {
         function battery(): void { if (root.fresh()) root.toggle(batteryPopup, bar.width - 400); }
         function calendar(): void { if (root.fresh()) root.toggle(calendarPopup, bar.width - 360); }
         function media(): void { if (root.fresh() && Media.present) root.toggle(mediaPopup, bar.width - 520); }
+        function bluetooth(): void { if (root.fresh() && Bt.present) root.toggle(bluetoothPopup, bar.width - 540); }
         function network(): void { if (root.fresh() && Net.present) root.toggle(networkPopup, bar.width - 500); }
         function logo(): void { if (root.fresh()) { logoMenu.probe(); root.toggle(logoMenu, Theme.edge); } }
         function tray(): void {
@@ -56,13 +57,14 @@ Scope {
     Binding {
         target: root.notifications
         property: "popupOpen"
-        value: trayMenu.visible || audioPopup.visible || batteryPopup.visible || calendarPopup.visible || mediaPopup.visible || logoMenu.visible || networkPopup.visible
+        value: trayMenu.visible || audioPopup.visible || batteryPopup.visible || calendarPopup.visible || mediaPopup.visible || logoMenu.visible || networkPopup.visible || bluetoothPopup.visible
     }
     AudioPopup { id: audioPopup }
     BatteryPopup { id: batteryPopup }
     CalendarPopup { id: calendarPopup }
     MediaPopup { id: mediaPopup }
     NetworkPopup { id: networkPopup }
+    BluetoothPopup { id: bluetoothPopup }
     LogoMenu { id: logoMenu; session: root.session; launcher: root.launcher }
 
     // One popup at a time, the history of the notifications among them: the others close when one opens, and a click on the item
@@ -85,6 +87,7 @@ Scope {
         mediaPopup.visible = false;
         logoMenu.visible = false;
         networkPopup.visible = false;
+        bluetoothPopup.visible = false;
         notifications.closeCenter();
     }
     // the history of the notifications, from the bell: the clock has the calendar
@@ -204,6 +207,11 @@ Scope {
                 MediaItem {
                     popover: mediaPopup
                     onToggled: x => root.toggle(mediaPopup, x)
+                }
+
+                BluetoothItem {
+                    popover: bluetoothPopup
+                    onToggled: x => root.toggle(bluetoothPopup, x)
                 }
 
                 NetworkItem {

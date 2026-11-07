@@ -286,6 +286,17 @@ asks for a password opens a field under its line**, sent with Enter or with Join
 of an organization says that the shell cannot take it, and is not tried. The Wi-Fi scans only while the popup is open. **The right button on the item
 turns the Wi-Fi off and on**, as it mutes the sound.
 
+### Bluetooth (`modules/common/Bt.qml`, `modules/bar/BluetoothItem.qml`)
+
+The item is the **sign of the Bluetooth**, with the two bars at its sides when a device is connected and the slash when the adapter is off, in the slot of the
+network, and it is not there when the machine has no adapter. The popup has **the power as the switch of its header**, which says what is connected, and two lists as
+the Apple menu has them: **My devices** (the paired ones, the connected first) and **Nearby**, the ones in range with a name: a device that has only its address
+for a name is noise, and is left out. The adapter looks for devices only while the popup is open. A click on a device that is paired connects it, and on
+one that is not pairs it and connects it when it is paired. The connected one opens its **Disconnect and Forget**, and the right button on any device of the
+user does the same, with Connect. The battery is said while a device is connected and reports one: BlueZ keeps the last value for a while after. **The pairing has no
+agent:** Quickshell cannot be one, so a device that asks for a code or a confirmation fails, and the line says that it may ask for what the shell cannot take. The
+right button on the item turns the adapter off and on.
+
 ### Media (`modules/common/Media.qml`, `modules/bar/MediaItem.qml`)
 
 The player is any program that speaks MPRIS. **The active player is the one that plays**, and when none plays it is one that is paused: a
@@ -385,8 +396,9 @@ exported as `overlays.i3` and checked by `nix build .#i3`. See `docs/i3.md`.
 ## Limits
 
 - Network was tried against a mock of NetworkManager (`tools/nm-mock.py`) and the wired interface of the VM, not against a radio, and a join that fails
-  (a wrong password) was not seen: its message is mapped and not exercised. Bluetooth is not built. They can be tried in a VM with a simulated radio (`mac80211_hwsim` with `hostapd` and NetworkManager) and a mock of
-  BlueZ, and want one pass on real hardware. Brightness needs a backlight, which a VM has not.
+  (a wrong password) was not seen: its message is mapped and not exercised. Bluetooth was tried against a mock of BlueZ (`tools/bt-mock.py`) only,
+  and the pairing of a device that asks for a code or a confirmation is not possible: Quickshell has no agent for it, so the shell pairs the ones that need none
+  and says so for the others. Both want one pass on real hardware. Brightness needs a backlight, which a VM has not.
 - A second monitor and a fullscreen app that goes fullscreen by itself were not tried. A window made fullscreen with i3 was: the layout
   comes back exactly.
 - A toast and the volume OSD are not shown over a fullscreen window, as i3 hides floating windows that do not belong to it. The history
@@ -428,7 +440,7 @@ exported as `overlays.i3` and checked by `nix build .#i3`. See `docs/i3.md`.
 - A before and after of the rectangles of the windows, taken with their workspace in view, when anything touches the layout.
 - A second X server with a real i3 (`Xephyr`) for layout work. It has no compositor, so transparent windows look black there.
 - **A separate X server for what is clicked.** An `Xvfb` with its own i3, a private session bus, and a mock of a service on a private system bus (NetworkManager
-  today): nothing that a test clicks, types or captures can reach the real screen, and the real shell is not replaced. It has no compositor, so a
+  or BlueZ, `tools/nm-mock.py` and `tools/bt-mock.py`): nothing that a test clicks, types or captures can reach the real screen, and the real shell is not replaced. It has no compositor, so a
   transparent window is black there, and a look is still judged on the real screen.
 - A second copy of the shell on a private bus (`dbus-daemon`, `NSHELL_NO_BAR=1`, a private `XDG_STATE_HOME`) takes the notifications that a script sends, and a fake
   player that speaks MPRIS (a few lines of `dbus-next`, which logs what it is asked) takes the controls of the media popup.
