@@ -371,7 +371,7 @@ exported as `overlays.i3` and checked by `nix build .#i3`. See `docs/i3.md`.
 
 ## Limits
 
-- Network and Bluetooth are not built. They can be tried in a VM with a simulated radio (`mac80211_hwsim` with `hostapd` and NetworkManager) and a mock of
+- Network is built for the wired interface only, and Bluetooth is not built. They can be tried in a VM with a simulated radio (`mac80211_hwsim` with `hostapd` and NetworkManager) and a mock of
   BlueZ, and want one pass on real hardware. Brightness needs a backlight, which a VM has not.
 - A second monitor and a fullscreen app that goes fullscreen by itself were not tried. A window made fullscreen with i3 was: the layout
   comes back exactly.

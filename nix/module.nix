@@ -175,6 +175,15 @@ in
       light = roles;
     };
 
+    network = {
+      interface = mkOption {
+        type = types.nullOr types.str;
+        default = null;
+        example = "enp3s0";
+        description = "The interface that the network item of the bar shows when NetworkManager is not there. None, which is the one of the default route when it is a card of the machine, and otherwise the first card with a cable: the interfaces of Tailscale, Docker and VPNs are not the connection.";
+      };
+    };
+
     session = {
       lockCommand = mkOption {
         type = types.nullOr types.str;
@@ -353,6 +362,7 @@ in
           hours = cfg.theme.hours;
           inherit (cfg.theme) font radius dark light;
           inherit (cfg) calendar;
+          network = { interface = cfg.network.interface; };
           session = {
             lock = cfg.session.lockCommand;
             logout = cfg.session.logoutCommand;
