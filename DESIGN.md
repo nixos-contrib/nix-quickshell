@@ -113,7 +113,7 @@ Four Quickshell shells were read on 2026-11-06 (the QML, not run): [end-4/dots-h
 What is not done on purpose: the overview with live previews and the lock screen (they need Wayland protocols that X11 has no answer for),
 desktop widgets (they have no place in a tiling layout), a settings app, an assistant, a mascot, and colors from the wallpaper. What is
 taken is ideas, and each one is written here again for this shell and credited if it is close: a calendar on the clock (done, see Controls), notifications with
-progress, a media item, a menu for the session, and one set of durations and easings for the motion (done, see Motion). They are issues of the repo.
+progress, a media item (done, see Media), a menu for the session, and one set of durations and easings for the motion (done, see Motion). They are issues of the repo.
 
 ## The rules of the windows
 
@@ -200,6 +200,16 @@ up after a card left, is `motionBase`, 180 ms. The one movement over a distance,
 has a duration of its own: a new animation picks the token that says why it moves. A popup or a tip does not move at all, it is there.
 There is one easing, not one for entering and one for leaving, because a `Behavior` runs the same curve in both directions.
 
+### Media (`modules/common/Media.qml`, `modules/bar/MediaItem.qml`)
+
+The player is any program that speaks MPRIS. **The active player is the one that plays**, and when none plays it is one that is paused: a
+player that is stopped is not shown, and the item is not in the bar when there is none. The popup can choose another player from its
+short list, for as long as it is open, and the bar follows the one that plays again after it. The bar item and the main button of the
+popup show the **action** and not the state, a pause while it plays and a play while it is paused, so that the two never say the opposite
+at the same moment. A control that the player cannot do (previous on the first track, seek on a stream) is dimmed or has no slider, and
+the player is asked where it is a second at a time, only while it plays and the popup is open. The cover is loaded only while the popup is
+open: it is an address.
+
 ### Popups close on a click anywhere
 
 A popup (the ones of the bar, the history, the launcher) closes when it loses the focus, which is a click on an app, and also on:
@@ -230,11 +240,11 @@ A popup (the ones of the bar, the history, the launcher) closes when it loses th
   that the one beside it does not. The calendar is one month and no events: the shell has no accounts, so nothing in it would be
   anyone's agenda. Today is the filled tile, as the focused workspace is in the bar, and the days of the months around are muted.
 - A **right click** on an item of the bar is its quick quiet toggle: on the bell it turns do not disturb on and off, on the speaker
-  it mutes (a middle click does the same, but a trackpad has none). On an icon of the tray it is the menu of the app.
+  it mutes, on the player it plays and pauses (a middle click does the same, but a trackpad has none). On an icon of the tray it is the menu of the app.
 
 ### The status area of the bar
 
-Its items, the tray, the sound, the battery, the bell and the clock, are tiles with the same room inside, on each side of what they
+Its items, the tray, the player, the sound, the battery, the bell and the clock, are tiles with the same room inside, on each side of what they
 hold (`Theme.tilePad`), and the same gap between them (`Theme.statusGap`), so the space between what is shown is the same all
 along: 12 to 13 points between any two. Text has a little room of its own at its edges, which `Theme.textBearing` takes back, or a
 tile of text would look further from its neighbour than a tile of an icon.

@@ -3,7 +3,7 @@
 #
 #   nshell                  starts the shell
 #   nshell center [dnd]     opens and closes the history of the notifications, or toggles do not disturb
-#   nshell bar [audio|battery|calendar|tray]  shows and hides the bar, or opens one of its popups
+#   nshell bar [audio|battery|calendar|media|tray]  shows and hides the bar, or opens one of its popups
 #   nshell calendar         opens and closes the calendar under the clock
 #   nshell launcher [windows]  opens the launcher, on the apps or on the windows
 #   nshell launch ID        an app by the id of its desktop entry (brave-browser): its window is focused when it has one, and it is

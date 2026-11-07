@@ -38,6 +38,7 @@ Scope {
         function audio(): void { if (root.fresh()) root.toggle(audioPopup, bar.width - 480); }
         function battery(): void { if (root.fresh()) root.toggle(batteryPopup, bar.width - 400); }
         function calendar(): void { if (root.fresh()) root.toggle(calendarPopup, bar.width - 360); }
+        function media(): void { if (root.fresh() && Media.present) root.toggle(mediaPopup, bar.width - 520); }
         function tray(): void {
             const items = SystemTray.items.values;
             if (items.length === 0 || !root.fresh())
@@ -51,11 +52,12 @@ Scope {
     Binding {
         target: root.notifications
         property: "popupOpen"
-        value: trayMenu.visible || audioPopup.visible || batteryPopup.visible || calendarPopup.visible
+        value: trayMenu.visible || audioPopup.visible || batteryPopup.visible || calendarPopup.visible || mediaPopup.visible
     }
     AudioPopup { id: audioPopup }
     BatteryPopup { id: batteryPopup }
     CalendarPopup { id: calendarPopup }
+    MediaPopup { id: mediaPopup }
 
     // One popup at a time, the history of the notifications among them: the others close when one opens, and a click on the item
     // of the one that is open closes it
@@ -74,6 +76,7 @@ Scope {
         audioPopup.visible = false;
         batteryPopup.visible = false;
         calendarPopup.visible = false;
+        mediaPopup.visible = false;
         notifications.closeCenter();
     }
     // the history of the notifications, from the bell: the clock has the calendar
@@ -167,7 +170,7 @@ Scope {
 
             Item { Layout.fillWidth: true }
 
-            // The status area: the icons of the tray, the bell and the clock, every one in a slot and the same space between
+            // The status area: the icons of the tray, what is playing, the sound, the battery, the bell and the clock, every one in a slot and the same space between
             // them, as the menu bar of macOS has its items. The bell has the count of the history, a slash when do not
             // disturb is on, a click opens the history and the right button toggles do not disturb
             RowLayout {
@@ -179,6 +182,11 @@ Scope {
                         root.closePopups();
                         trayMenu.openFor(item, x);
                     }
+                }
+
+                MediaItem {
+                    popover: mediaPopup
+                    onToggled: x => root.toggle(mediaPopup, x)
                 }
 
                 AudioItem {
