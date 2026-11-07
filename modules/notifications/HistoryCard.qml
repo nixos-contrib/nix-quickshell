@@ -14,11 +14,24 @@ Rectangle {
     required property bool critical
     required property int time
 
+    // The group of its app, as the stack has it: more than two are one card, the newest, with the count in its header, and a click opens the
+    // list. The others are not shown, and take no room: the list puts its space between the cards, so a card that is not shown has the
+    // negative of it
+    property int groupCount: 1
+    property bool groupHead: true
+    property bool groupOpen: false
+    property bool shown: true
+    readonly property bool isGroup: groupCount > 2 && groupHead
+    readonly property bool collapsed: isGroup && !groupOpen
+    signal toggleGroup
+    signal groupRemoved
+
     readonly property bool hovered: hover.containsMouse || closeArea.containsMouse
 
     width: ListView.view ? ListView.view.width : 340
     implicitHeight: content.implicitHeight + Theme.spacing * 2
-    height: implicitHeight
+    height: shown ? implicitHeight : -(ListView.view ? ListView.view.spacing : 0)
+    visible: shown
     radius: Theme.radiusMd
     color: Theme.surface
     border { width: 1; color: card.hovered ? Theme.primary : Theme.border }
@@ -30,6 +43,8 @@ Rectangle {
         hoverEnabled: true
         acceptedButtons: Qt.NoButton
     }
+    // the card of a group opens and closes it
+    TapHandler { enabled: card.isGroup; acceptedButtons: Qt.LeftButton; onTapped: card.toggleGroup() }
 
     Rectangle {
         width: 3
@@ -67,6 +82,19 @@ Rectangle {
                     font { family: Theme.font; pixelSize: Theme.fontSmall; weight: Font.Normal; capitalization: Font.AllUppercase; letterSpacing: 0.6 }
                     elide: Text.ElideRight
                     Layout.fillWidth: true
+                }
+                Text {
+                    visible: card.isGroup
+                    text: card.groupCount
+                    color: Theme.muted
+                    font { family: Theme.font; pixelSize: Theme.fontSmall }
+                }
+                ChevronIcon {
+                    visible: card.isGroup
+                    size: 12
+                    rotation: card.groupOpen ? 180 : 0
+                    color: Theme.muted
+                    Behavior on rotation { NumberAnimation { duration: Theme.motionFast } }
                 }
                 Text {
                     text: Clock.ago(card.time)
@@ -120,7 +148,8 @@ Rectangle {
             anchors.fill: parent
             hoverEnabled: true
             cursorShape: Qt.PointingHandCursor
-            onClicked: card.ListView.view.model.remove(card.index)
+            // the card of a folded group takes all of its app out, as it stands for them
+            onClicked: card.collapsed ? card.groupRemoved() : card.ListView.view.model.remove(card.index)
         }
     }
 }

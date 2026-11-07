@@ -11,10 +11,27 @@ Rectangle {
     required property Notification notification
     // a popup of the bar is open and the toast waits: its time starts when it is shown
     property bool paused: false
+    // The group of its app: how many notifications it has, when this is the newest of them, and if the list is open. A card that is
+    // `collapsed` stands for all of them, and what is done to it is done to all: it opens the list, it is closed with them, and it
+    // runs out of time with them
+    property int groupCount: 1
+    property bool groupHead: true
+    property bool groupOpen: false
+    property bool collapsed: false
+    // the count is in the header of the newest card of a group, and nowhere else
+    readonly property bool isGroup: groupCount > 2 && groupHead
+    signal toggleGroup
+    signal groupDismissed
+    signal groupExpired
     // The close button has a hover area of its own, which takes the pointer from the one of the card: the card counts
     // as hovered over either, or it would hide the button the pointer is on, and blink
     readonly property bool hovered: hover.containsMouse || closeArea.containsMouse
     readonly property bool critical: notification.urgency === NotificationUrgency.Critical
+    // The progress that an app sends in the `value` hint, 0 to 100, as a downloads, a copy or a build does: a thin bar in the card. The app sends the
+    // same notification again as it goes, and the card is the same one, updated in place
+    readonly property var rawValue: notification.hints ? notification.hints["value"] : undefined
+    readonly property bool hasProgress: rawValue !== undefined && rawValue !== null && isFinite(Number(rawValue))
+    readonly property real progress: hasProgress ? Math.max(0, Math.min(100, Number(rawValue))) / 100 : 0
     readonly property int timeout: notification.expireTimeout > 0 ? notification.expireTimeout * 1000 : (notification.urgency === NotificationUrgency.Low ? 4000 : 7000)
 
     width: parent ? parent.width : 400
@@ -46,15 +63,28 @@ Rectangle {
 
     // Time to live: stops while the pointer is over the card, and critical ones do not run out
     Timer {
+        id: expiry
         interval: root.timeout
         running: root.visible && !root.paused && !root.critical && !root.hovered
-        onTriggered: root.notification.expire()
+        onTriggered: root.collapsed ? root.groupExpired() : root.notification.expire()
+    }
+    // an app that sends it again as it goes keeps the card: the time starts again with each update
+    Connections {
+        target: root.notification
+        function onHintsChanged() { expiry.restart(); }
+        function onSummaryChanged() { expiry.restart(); }
+        function onBodyChanged() { expiry.restart(); }
     }
 
     // A click does what the app asks for by default, such as focusing the chat, and the card goes with it: invoking an
     // action closes a notification, unless the app marks it as resident. Without a default action it only closes. The
     // middle button only closes
     function activate() {
+        // the card of a folded group opens the list: the default action is that of this one notification
+        if (root.collapsed) {
+            root.toggleGroup();
+            return;
+        }
         const action = root.notification.actions.find(a => a.identifier === "default");
         if (action)
             action.invoke();
@@ -70,7 +100,7 @@ Rectangle {
         acceptedButtons: Qt.NoButton
     }
     TapHandler { acceptedButtons: Qt.LeftButton; onTapped: root.activate() }
-    TapHandler { acceptedButtons: Qt.MiddleButton; onTapped: root.notification.dismiss() }
+    TapHandler { acceptedButtons: Qt.MiddleButton; onTapped: root.collapsed ? root.groupDismissed() : root.notification.dismiss() }
 
     // The close button shows while the pointer is over the card, as in macOS. A critical card does not run out, so it
     // always has it
@@ -98,7 +128,7 @@ Rectangle {
             anchors.fill: parent
             hoverEnabled: true
             cursorShape: Qt.PointingHandCursor
-            onClicked: root.notification.dismiss()
+            onClicked: root.collapsed ? root.groupDismissed() : root.notification.dismiss()
         }
     }
 
@@ -123,13 +153,43 @@ Rectangle {
             Layout.fillWidth: true
             spacing: 3
 
-            Text {
-                text: root.notification.appName
-                color: Theme.muted
-                font { family: Theme.font; pixelSize: Theme.fontSmall; weight: Font.Normal; capitalization: Font.AllUppercase; letterSpacing: 0.6 }
-                elide: Text.ElideRight
+            // The app, and for the newest card of a group the count and a chevron: the header is the one place of the count, and a click
+            // on it opens and closes the list
+            Item {
                 Layout.fillWidth: true
                 Layout.rightMargin: 24
+                implicitHeight: header.implicitHeight
+                RowLayout {
+                    id: header
+                    anchors.fill: parent
+                    spacing: 6
+                    Text {
+                        text: root.notification.appName
+                        color: Theme.muted
+                        font { family: Theme.font; pixelSize: Theme.fontSmall; weight: Font.Normal; capitalization: Font.AllUppercase; letterSpacing: 0.6 }
+                        elide: Text.ElideRight
+                        Layout.fillWidth: true
+                    }
+                    Text {
+                        visible: root.isGroup
+                        text: root.groupCount
+                        color: Theme.muted
+                        font { family: Theme.font; pixelSize: Theme.fontSmall }
+                    }
+                    ChevronIcon {
+                        visible: root.isGroup
+                        size: 12
+                        rotation: root.groupOpen ? 180 : 0
+                        color: Theme.muted
+                        Behavior on rotation { NumberAnimation { duration: Theme.motionFast } }
+                    }
+                }
+                MouseArea {
+                    anchors.fill: parent
+                    enabled: root.isGroup
+                    cursorShape: Qt.PointingHandCursor
+                    onClicked: root.toggleGroup()
+                }
             }
             Text {
                 text: root.notification.summary
@@ -151,6 +211,13 @@ Rectangle {
                 maximumLineCount: 4
                 elide: Text.ElideRight
                 Layout.fillWidth: true
+            }
+            Meter {
+                visible: root.hasProgress
+                Layout.fillWidth: true
+                Layout.preferredHeight: 14
+                value: root.progress
+                color: root.critical ? Theme.critical : Theme.primary
             }
             Flow {
                 visible: root.notification.actions.some(a => a.identifier !== "default")

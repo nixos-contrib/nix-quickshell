@@ -12,7 +12,61 @@ Scope {
     readonly property int count: server.trackedNotifications.values.length
     // Shows the cards that wait behind the newest ones, and goes back when there is nothing left behind
     property bool expanded: false
-    onCountChanged: if (count <= Theme.toastLimit) expanded = false
+    onCountChanged: {
+        if (shownCards <= Theme.toastLimit)
+            expanded = false;
+        pruneGroups();
+    }
+
+    // More than two notifications of one app are one card, with the count in its header: the newest, which is the latest line, stands for
+    // the others, which wait folded under it with their time stopped, as the ones behind the limit do. A click on it opens the list of
+    // them, and a click on the header closes it. `layout` says, by the id of each notification, how many its app has, if the group is
+    // open, if the card is the newest of its app, if it is shown, and its place among the cards that are shown
+    property var openGroups: ({})
+    function openGroup(app: string, open: bool): void {
+        const next = Object.assign({}, root.openGroups);
+        if (open)
+            next[app] = true;
+        else
+            delete next[app];
+        root.openGroups = next;
+    }
+    // a group that has two left is not one: the next time it grows it starts folded
+    function pruneGroups(): void {
+        const counts = {};
+        for (const n of server.trackedNotifications.values)
+            counts[n.appName] = (counts[n.appName] ?? 0) + 1;
+        const next = {};
+        for (const app in root.openGroups)
+            if ((counts[app] ?? 0) > 2)
+                next[app] = true;
+        if (Object.keys(next).length !== Object.keys(root.openGroups).length)
+            root.openGroups = next;
+    }
+    readonly property var layout: {
+        const list = server.trackedNotifications.values.slice().reverse();
+        const counts = {};
+        for (const n of list)
+            counts[n.appName] = (counts[n.appName] ?? 0) + 1;
+        const seen = {};
+        const out = {};
+        let slot = 0;
+        for (const n of list) {
+            const grouped = counts[n.appName] > 2;
+            const open = grouped && root.openGroups[n.appName] === true;
+            const head = seen[n.appName] !== true;
+            seen[n.appName] = true;
+            const shown = !grouped || open || head;
+            out[n.id] = { count: counts[n.appName], grouped: grouped, open: open, head: head, shown: shown, slot: shown ? slot : -1 };
+            if (shown)
+                slot++;
+        }
+        return out;
+    }
+    readonly property int shownCards: Object.values(layout).filter(i => i.shown).length
+    // what a group card does for all of its app: it is closed, or runs out of time, as one
+    function dismissApp(app: string): void { server.trackedNotifications.values.filter(n => n.appName === app).forEach(n => n.dismiss()); }
+    function expireApp(app: string): void { server.trackedNotifications.values.filter(n => n.appName === app).forEach(n => n.expire()); }
 
     // A key that is held a moment repeats, and the command it runs comes again and again, 25 ms apart: these commands toggle, so
     // the repeat would close what the first opened. Only the first of a burst counts, the ones that follow it within 400 ms are
@@ -269,11 +323,20 @@ Scope {
                         Repeater {
                             model: ScriptModel { values: server.trackedNotifications.values.slice().reverse() }
                             delegate: Toast {
+                                id: card
                                 required property Notification modelData
-                                required property int index
+                                readonly property var info: root.layout[modelData.id] ?? { count: 1, grouped: false, open: false, head: true, shown: true, slot: 0 }
                                 notification: modelData
                                 paused: root.popupOpen
-                                visible: root.expanded || index < Theme.toastLimit
+                                groupCount: info.count
+                                groupHead: info.head
+                                groupOpen: info.open
+                                // the card of a group that is folded stands for the others
+                                collapsed: info.grouped && !info.open
+                                visible: info.shown && (root.expanded || info.slot < Theme.toastLimit)
+                                onToggleGroup: root.openGroup(modelData.appName, !info.open)
+                                onGroupDismissed: root.dismissApp(modelData.appName)
+                                onGroupExpired: root.expireApp(modelData.appName)
                             }
                         }
                     }
@@ -283,7 +346,7 @@ Scope {
                 id: footer
                 width: parent.width
                 visible: root.count >= 3
-                hidden: Math.max(0, root.count - Theme.toastLimit)
+                hidden: Math.max(0, root.shownCards - Theme.toastLimit)
                 expanded: root.expanded
                 onToggle: root.expanded = !root.expanded
                 onClearAll: server.trackedNotifications.values.slice().forEach(n => n.dismiss())

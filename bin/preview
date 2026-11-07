@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Sends notifications to look at the shell. With no argument, one of every kind. With `burst`, a pile of them that
-# stays long enough to try the stack: "Show more", "Show less" and "Clear all"
+# stays long enough to try the stack: "Show more", "Show less" and "Clear all". With `progress`, one that fills as it is sent again,
+# and with `group`, a chat of five that is one card
 set -u
 send() { notify-send "$@" & sleep "${DELAY:-0.8}"; }
 
@@ -25,8 +26,23 @@ burst)
 	send -t 45000 -a "Build" -A "open=Open log" "Build finished" "nixos-rebuild switch succeeded in <b>2m 14s</b>"
 	send -t 45000 -a "Spotify" "Now playing" "Boards of Canada, Roygbiv"
 	;;
+progress)
+	# one download that is sent again as it goes, with the same id: one card that fills, and not a card for each
+	id="$(notify-send -p -a "Brave" -i folder-download -h int:value:5 "Downloading report-q3.pdf" "2.4 MB")"
+	for v in 20 40 60 80 100; do
+		sleep 1.2
+		notify-send -a "Brave" -i folder-download -r "$id" -h int:value:$v "Downloading report-q3.pdf" "2.4 MB"
+	done
+	;;
+group)
+	# a chat that does not stop: five of one app are one card with the count in its header, and a click opens the list. One of another app beside it
+	for n in 1 2 3 4 5; do
+		send -a "Discord" -i discord "alex" "message number $n in the channel"
+	done
+	send -a "Mail" "Plain notification" "Just a summary and a short body."
+	;;
 *)
-	echo "usage: preview [kinds|burst]" >&2
+	echo "usage: preview [kinds|burst|progress|group]" >&2
 	exit 1
 	;;
 esac

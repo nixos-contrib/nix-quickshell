@@ -113,7 +113,7 @@ Four Quickshell shells were read on 2026-11-06 (the QML, not run): [end-4/dots-h
 What is not done on purpose: the overview with live previews and the lock screen (they need Wayland protocols that X11 has no answer for),
 desktop widgets (they have no place in a tiling layout), a settings app, an assistant, a mascot, and colors from the wallpaper. What is
 taken is ideas, and each one is written here again for this shell and credited if it is close: a calendar on the clock (done, see Controls), notifications with
-progress, a media item (done, see Media), a menu for the session (done, see Session), and one set of durations and easings for the motion (done, see Motion). They are issues of the repo.
+progress and groups (done, see Notifications; the inline reply is left for an app that sends one), a media item (done, see Media), a menu for the session (done, see Session), and one set of durations and easings for the motion (done, see Motion). They are issues of the repo.
 
 ## The rules of the windows
 
@@ -199,6 +199,18 @@ up after a card left, is `motionBase`, 180 ms. The one movement over a distance,
 220 ms. What moves over a distance eases out (`motionEasing`, `OutCubic`), and a color or an opacity has no easing. Nothing in the shell
 has a duration of its own: a new animation picks the token that says why it moves. A popup or a tip does not move at all, it is there.
 There is one easing, not one for entering and one for leaving, because a `Behavior` runs the same curve in both directions.
+
+### Notifications: groups and progress (`modules/notifications`)
+
+**More than two notifications of one app are one card**, in the stack and in the history. The card is the newest of them, which is the latest line, and
+its header says the count and has a chevron: the header of a group is the one place of the count, as the bar has the one place of its dot. The
+others are not shown, take no room, and have their time stopped, as the cards behind the limit of the stack do; so the group runs out as one, a
+close on it closes all of it, and what is dismissed or has run out stays in the history, as before. A click on the card opens the list, and a
+click on the header closes it. An app with one or two is as it was: a group of two is not a group, and one that falls to two folds back. The
+count of "Show 3 more" is of the cards that are shown. **Progress is the `value` hint**, 0 to 100, as a thin bar in the card; the app sends the
+same notification again, which Quickshell updates in place, so it is one card that fills, the history has one entry, and each update starts the
+time of the card again. **No inline reply yet**: Quickshell has it, and an app has to ask for it, which Vesktop (Electron) does not on Linux. The
+server does not say it can, so no app is waiting for it; it is for the day an app that you use sends one.
 
 ### Media (`modules/common/Media.qml`, `modules/bar/MediaItem.qml`)
 

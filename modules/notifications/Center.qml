@@ -13,6 +13,43 @@ FloatingWindow {
     signal toggleDnd
     signal clearAll
 
+    // The groups of the history, as the toasts have them: more than two of one app are one card, the newest, and a click opens the list. By the
+    // place in the history, which the count of the model says when it changes
+    property var openApps: ({})
+    function openApp(app: string, open: bool): void {
+        const next = Object.assign({}, win.openApps);
+        if (open)
+            next[app] = true;
+        else
+            delete next[app];
+        win.openApps = next;
+    }
+    function removeApp(app: string): void {
+        for (let i = win.history.count - 1; i >= 0; i--)
+            if (win.history.get(i).appName === app)
+                win.history.remove(i);
+    }
+    readonly property var layout: {
+        const n = win.history.count;
+        const apps = [];
+        const counts = {};
+        for (let i = 0; i < n; i++) {
+            const app = win.history.get(i).appName;
+            apps.push(app);
+            counts[app] = (counts[app] ?? 0) + 1;
+        }
+        const seen = {};
+        const out = [];
+        for (const app of apps) {
+            const grouped = counts[app] > 2;
+            const open = grouped && win.openApps[app] === true;
+            const head = seen[app] !== true;
+            seen[app] = true;
+            out.push({ count: counts[app], head: head, open: open, shown: !grouped || open || head });
+        }
+        return out;
+    }
+
     title: "nshell-center"
     visible: false
     color: "transparent"
@@ -99,7 +136,16 @@ FloatingWindow {
             spacing: Theme.spaceSm + 2
             clip: true
             boundsBehavior: Flickable.StopAtBounds
-            delegate: HistoryCard {}
+            delegate: HistoryCard {
+                id: entry
+                readonly property var info: win.layout[index] ?? { count: 1, head: true, open: false, shown: true }
+                groupCount: info.count
+                groupHead: info.head
+                groupOpen: info.open
+                shown: info.shown
+                onToggleGroup: win.openApp(appName, !info.open)
+                onGroupRemoved: win.removeApp(appName)
+            }
             remove: Transition { NumberAnimation { property: "opacity"; to: 0; duration: Theme.motionBase } }
             displaced: Transition { NumberAnimation { properties: "y"; duration: Theme.motionBase; easing.type: Theme.motionEasing } }
         }
