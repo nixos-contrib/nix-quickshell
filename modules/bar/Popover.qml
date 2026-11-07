@@ -18,6 +18,8 @@ FloatingWindow {
     // the room around the content: less for a menu, whose lines have room of their own
     property int padding: Theme.panelPadding
     default property alias content: panel.content
+    // buttons at the right of the heading, as the panel has them
+    property alias actions: panel.actions
 
     // the item that opened it, in the bar: its place in the window of the bar
     function openAt(x, y) {

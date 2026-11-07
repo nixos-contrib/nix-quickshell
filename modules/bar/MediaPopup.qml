@@ -20,6 +20,32 @@ Popover {
 
     heading: player ? player.identity : "Media"
 
+    // the icon of the app that plays, at the right of the heading: a click takes the app's window to the front
+    readonly property string appIcon: Media.iconOf(player)
+    actions: Item {
+        width: Theme.slot
+        height: Theme.slot
+        visible: win.appIcon !== ""
+        Image {
+            anchors.centerIn: parent
+            width: 22
+            height: 22
+            source: win.appIcon
+            sourceSize: Qt.size(44, 44)
+            opacity: appArea.containsMouse ? 1 : 0.85
+        }
+        MouseArea {
+            id: appArea
+            anchors.fill: parent
+            hoverEnabled: true
+            cursorShape: Qt.PointingHandCursor
+            onClicked: {
+                Media.focusApp(win.player);
+                win.visible = false;
+            }
+        }
+    }
+
     // the choice of the popup is for as long as it is open, and the bar follows the one that plays again after it
     onVisibleChanged: if (!visible) Media.selected = null
 
@@ -211,6 +237,14 @@ Popover {
                 RowLayout {
                     anchors { fill: parent; leftMargin: Theme.spaceSm; rightMargin: Theme.spaceSm }
                     spacing: Theme.spaceSm
+                    Image {
+                        readonly property string icon: Media.iconOf(row.modelData)
+                        visible: icon !== ""
+                        Layout.preferredWidth: 18
+                        Layout.preferredHeight: 18
+                        source: icon
+                        sourceSize: Qt.size(36, 36)
+                    }
                     Label {
                         text: row.modelData.identity + (row.modelData.trackTitle !== "" ? " – " + row.modelData.trackTitle : "")
                         elide: Text.ElideRight

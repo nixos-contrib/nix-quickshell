@@ -208,7 +208,10 @@ short list, for as long as it is open, and the bar follows the one that plays ag
 popup show the **action** and not the state, a pause while it plays and a play while it is paused, so that the two never say the opposite
 at the same moment. A control that the player cannot do (previous on the first track, seek on a stream) is dimmed or has no slider, and
 the player is asked where it is a second at a time, only while it plays and the popup is open. The cover is loaded only while the popup is
-open: it is an address.
+open: it is an address. The **icon of the app** that plays is at the right of the heading, and a click on it takes the window of the app to
+the front, on whatever workspace it is (i3 finds it by the class of its desktop entry, and never starts the app). Brave names no desktop
+entry and cannot raise itself, so the entry is found by the name the player gives itself, and then by the name in its address on the bus. Two
+windows of one app have one class, so i3 takes the first it finds.
 
 ### Session (`modules/session/Session.qml`)
 

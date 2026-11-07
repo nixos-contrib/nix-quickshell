@@ -46,7 +46,8 @@ one: it is an X11 shell, and runs wherever i3 does.
 - **Bar.** The logo, the workspaces of i3, the tray (StatusNotifierItem) with
   menus in the style of the shell, what is playing (any player that speaks
   MPRIS: its title and artist, the cover, previous, play and pause, next, the
-  position, and the other players), the sound (volume, mute, outputs), the
+  position, the icon of the app, which takes its window to the front, and the
+  other players), the sound (volume, mute, outputs), the
   battery, the bell, with a dot when something came since the history was last
   opened, and the clock, which opens a calendar of the month: the week starts
   on Monday or Sunday, Left, Right and the wheel go from month to month, and
