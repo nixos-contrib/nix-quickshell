@@ -322,21 +322,69 @@ Scope {
                         move: Transition { NumberAnimation { properties: "y"; duration: Theme.motionBase; easing.type: Theme.motionEasing } }
                         Repeater {
                             model: ScriptModel { values: server.trackedNotifications.values.slice().reverse() }
-                            delegate: Toast {
-                                id: card
+                            // A slot for each card. It is the room of the card, and of what goes with it: the edges of the cards that are folded
+                            // under a card that stands for a group, and above the first card of a group that is open, its header. The
+                            // newest card of an app is where its group is
+                            delegate: Item {
+                                id: slot
                                 required property Notification modelData
                                 readonly property var info: root.layout[modelData.id] ?? { count: 1, grouped: false, open: false, head: true, shown: true, slot: 0 }
-                                notification: modelData
-                                paused: root.popupOpen
-                                groupCount: info.count
-                                groupHead: info.head
-                                groupOpen: info.open
                                 // the card of a group that is folded stands for the others
-                                collapsed: info.grouped && !info.open
+                                readonly property bool folded: info.grouped && !info.open
+                                // the first of the cards of a group that is open has the header of the group above it
+                                readonly property bool headed: info.grouped && info.open && info.head
+                                readonly property real lead: headed ? groupHeader.height + Theme.spacing : 0
+                                // how much of the edges shows under the card
+                                readonly property real peek: folded ? 12 : 0
+
+                                width: stack.width
+                                implicitHeight: lead + toast.height + peek
+                                height: implicitHeight
                                 visible: info.shown && (root.expanded || info.slot < Theme.toastLimit)
-                                onToggleGroup: root.openGroup(modelData.appName, !info.open)
-                                onGroupDismissed: root.dismissApp(modelData.appName)
-                                onGroupExpired: root.expireApp(modelData.appName)
+
+                                GroupHeader {
+                                    id: groupHeader
+                                    visible: slot.headed
+                                    width: parent.width
+                                    app: slot.modelData.appName
+                                    count: slot.info.count
+                                    onShowLess: root.openGroup(slot.modelData.appName, false)
+                                    onClearAll: root.dismissApp(slot.modelData.appName)
+                                }
+                                // two edges behind the card say that there are more of them, as the stack of macOS does
+                                Rectangle {
+                                    visible: slot.folded
+                                    z: -2
+                                    x: 20
+                                    y: slot.lead + 12
+                                    width: slot.width - 40
+                                    height: toast.height
+                                    radius: Theme.radiusLg
+                                    color: Theme.surface
+                                    border { width: 1; color: Theme.border }
+                                }
+                                Rectangle {
+                                    visible: slot.folded
+                                    z: -1
+                                    x: 10
+                                    y: slot.lead + 6
+                                    width: slot.width - 20
+                                    height: toast.height
+                                    radius: Theme.radiusLg
+                                    color: Theme.surface
+                                    border { width: 1; color: Theme.border }
+                                }
+                                Toast {
+                                    id: toast
+                                    y: slot.lead
+                                    notification: slot.modelData
+                                    paused: root.popupOpen
+                                    groupCount: slot.info.count
+                                    collapsed: slot.folded
+                                    onToggleGroup: root.openGroup(slot.modelData.appName, !slot.info.open)
+                                    onGroupDismissed: root.dismissApp(slot.modelData.appName)
+                                    onGroupExpired: root.expireApp(slot.modelData.appName)
+                                }
                             }
                         }
                     }

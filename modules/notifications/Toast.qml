@@ -11,21 +11,17 @@ Rectangle {
     required property Notification notification
     // a popup of the bar is open and the toast waits: its time starts when it is shown
     property bool paused: false
-    // The group of its app: how many notifications it has, when this is the newest of them, and if the list is open. A card that is
-    // `collapsed` stands for all of them, and what is done to it is done to all: it opens the list, it is closed with them, and it
-    // runs out of time with them
+    // The group of its app: how many notifications it has. A card that is `collapsed` stands for all of them, and what is done to it is done to
+    // all: it opens the list, it is closed with them, and it runs out of time with them. Its count is a badge in its header, and the header of
+    // the group above its cards says it when the list is open
     property int groupCount: 1
-    property bool groupHead: true
-    property bool groupOpen: false
     property bool collapsed: false
-    // the count is in the header of the newest card of a group, and nowhere else
-    readonly property bool isGroup: groupCount > 2 && groupHead
     signal toggleGroup
     signal groupDismissed
     signal groupExpired
     // The close button has a hover area of its own, which takes the pointer from the one of the card: the card counts
     // as hovered over either, or it would hide the button the pointer is on, and blink
-    readonly property bool hovered: hover.containsMouse || closeArea.containsMouse
+    readonly property bool hovered: hover.containsMouse || closeArea.containsMouse || groupBadge.over
     readonly property bool critical: notification.urgency === NotificationUrgency.Critical
     // The progress that an app sends in the `value` hint, 0 to 100, as a downloads, a copy or a build does: a thin bar in the card. The app sends the
     // same notification again as it goes, and the card is the same one, updated in place
@@ -106,7 +102,7 @@ Rectangle {
     // always has it
     Rectangle {
         id: close
-        readonly property bool shown: root.hovered || root.critical
+        readonly property bool shown: !root.collapsed && (root.hovered || root.critical)
         width: 22
         height: 22
         radius: 11
@@ -153,42 +149,24 @@ Rectangle {
             Layout.fillWidth: true
             spacing: 3
 
-            // The app, and for the newest card of a group the count and a chevron: the header is the one place of the count, and a click
-            // on it opens and closes the list
-            Item {
+            // The app, and for a card that stands for a group its count, which says Clear and the number while the pointer is over the card
+            RowLayout {
                 Layout.fillWidth: true
-                Layout.rightMargin: 24
-                implicitHeight: header.implicitHeight
-                RowLayout {
-                    id: header
-                    anchors.fill: parent
-                    spacing: 6
-                    Text {
-                        text: root.notification.appName
-                        color: Theme.muted
-                        font { family: Theme.font; pixelSize: Theme.fontSmall; weight: Font.Normal; capitalization: Font.AllUppercase; letterSpacing: 0.6 }
-                        elide: Text.ElideRight
-                        Layout.fillWidth: true
-                    }
-                    Text {
-                        visible: root.isGroup
-                        text: root.groupCount
-                        color: Theme.muted
-                        font { family: Theme.font; pixelSize: Theme.fontSmall }
-                    }
-                    ChevronIcon {
-                        visible: root.isGroup
-                        size: 12
-                        rotation: root.groupOpen ? 180 : 0
-                        color: Theme.muted
-                        Behavior on rotation { NumberAnimation { duration: Theme.motionFast } }
-                    }
+                Layout.rightMargin: root.collapsed ? 0 : 24
+                spacing: 6
+                Text {
+                    text: root.notification.appName
+                    color: Theme.muted
+                    font { family: Theme.font; pixelSize: Theme.fontSmall; weight: Font.Normal; capitalization: Font.AllUppercase; letterSpacing: 0.6 }
+                    elide: Text.ElideRight
+                    Layout.fillWidth: true
                 }
-                MouseArea {
-                    anchors.fill: parent
-                    enabled: root.isGroup
-                    cursorShape: Qt.PointingHandCursor
-                    onClicked: root.toggleGroup()
+                GroupBadge {
+                    id: groupBadge
+                    visible: root.collapsed
+                    count: root.groupCount
+                    active: root.hovered
+                    onClear: root.groupDismissed()
                 }
             }
             Text {

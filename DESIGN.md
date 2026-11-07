@@ -202,14 +202,19 @@ There is one easing, not one for entering and one for leaving, because a `Behavi
 
 ### Notifications: groups and progress (`modules/notifications`)
 
-**More than two notifications of one app are one card**, in the stack and in the history. The card is the newest of them, which is the latest line, and
-its header says the count and has a chevron: the header of a group is the one place of the count, as the bar has the one place of its dot. The
-others are not shown, take no room, and have their time stopped, as the cards behind the limit of the stack do; so the group runs out as one, a
-close on it closes all of it, and what is dismissed or has run out stays in the history, as before. A click on the card opens the list, and a
-click on the header closes it. An app with one or two is as it was: a group of two is not a group, and one that falls to two folds back. The
+**More than two notifications of one app are one card**, in the stack and in the history. The card is the newest of them, which is the latest line, with two edges behind it that say that
+there are more, as the stack of macOS does, and its count as a badge in its header. While the pointer is over the card the badge says **Clear 44**, and a
+click on it clears the group: the destructive thing says what it does, and cannot be taken for the close button of one notification, which a
+card that stands for a group does not have. The others are not shown, take no room, and have their time stopped, as the cards behind the limit
+of the stack do; so the group runs out as one, a close on it closes all of it, and what is dismissed or has run out stays in the history, as
+before. A click on the card opens the list, and then the group has a header of its own above its cards and outside of them, the app and how
+many, with **Show less** and **Clear all**, the pills of the footer of the stack: the cards in it are cards, and have no count and no chevron.
+The count is in one place at a time, the badge or the header. An app with one or two is as it was: a group of two is not a group, and one that falls to two folds back. The
 count of "Show 3 more" is of the cards that are shown. **Progress is the `value` hint**, 0 to 100, as a thin bar in the card; the app sends the
 same notification again, which Quickshell updates in place, so it is one card that fills, the history has one entry, and each update starts the
-time of the card again. **No inline reply yet**: Quickshell has it, and an app has to ask for it, which Vesktop (Electron) does not on Linux. The
+time of the card again. **The header of the history is the bell**, the one of the bar, with its glyphs: it is the switch of do not disturb,
+crossed and in the accent color while it is on, with the line "Do not disturb is on" under the title, and **Clear all** is the one pill. There is no
+count of all the notifications there: with groups it says little, and the count is in the header of a group. **No inline reply yet**: Quickshell has it, and an app has to ask for it, which Vesktop (Electron) does not on Linux. The
 server does not say it can, so no app is waiting for it; it is for the day an app that you use sends one.
 
 ### Media (`modules/common/Media.qml`, `modules/bar/MediaItem.qml`)

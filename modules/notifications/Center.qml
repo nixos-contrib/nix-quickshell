@@ -104,27 +104,67 @@ FloatingWindow {
         y: Theme.gap
         width: 376
         height: Math.min(win.height - Theme.gap - win.room, implicitHeight)
-        title: "Notifications"
-        // how many are in the history, which the bar no longer says
-        value: win.history.count > 0 ? String(win.history.count) : ""
         opacity: win.placed ? 1 : 0
         focus: true
         Keys.onEscapePressed: win.visible = false
         // a click anywhere else closes it, as the popups of the bar
         onActiveFocusChanged: if (!activeFocus && win.visible && Date.now() - win.openedAt > 600) focusGuard.check()
 
-        actions: [
-            PillButton {
-                text: "Do not disturb"
-                active: win.dnd
-                onClicked: win.toggleDnd()
-            },
+        // The bell of the bar, which is also what opens this: it is the switch of do not disturb, a bell that is crossed while it is on, in the
+        // color of the accent, and the line under the title says so. There is no count of all of them: the header of a group has its own
+        header: RowLayout {
+            width: parent.width
+            spacing: Theme.spaceMd
+
+            Rectangle {
+                id: bellButton
+                Layout.preferredWidth: 32
+                Layout.preferredHeight: 32
+                radius: Theme.radiusMd
+                color: bellArea.pressed ? Theme.surfaceHigh : (bellArea.containsMouse ? Theme.surface : "transparent")
+                Behavior on color { ColorAnimation { duration: Theme.motionFast } }
+                Text {
+                    anchors.centerIn: parent
+                    text: win.dnd ? "\udb80\udc9b" : "\udb80\udc9a"
+                    color: win.dnd ? Theme.primary : Theme.text
+                    font { family: Theme.iconFont; pixelSize: Theme.iconBar + 2 }
+                }
+                MouseArea {
+                    id: bellArea
+                    anchors.fill: parent
+                    hoverEnabled: true
+                    cursorShape: Qt.PointingHandCursor
+                    onEntered: bellTip.show(bellButton, win.dnd ? "Turn do not disturb off" : "Turn do not disturb on")
+                    onExited: bellTip.hide()
+                    onClicked: {
+                        bellTip.hide();
+                        win.toggleDnd();
+                    }
+                }
+            }
+            ColumnLayout {
+                Layout.fillWidth: true
+                spacing: 0
+                Label {
+                    Layout.fillWidth: true
+                    role: "title"
+                    text: "Notifications"
+                }
+                Label {
+                    Layout.fillWidth: true
+                    visible: win.dnd
+                    role: "caption"
+                    color: Theme.primary
+                    text: "Do not disturb is on"
+                }
+            }
             PillButton {
                 visible: list.count > 0
                 text: "Clear all"
                 onClicked: win.clearAll()
             }
-        ]
+        }
+        Tip { id: bellTip }
 
         ListView {
             id: list

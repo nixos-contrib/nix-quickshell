@@ -41,8 +41,9 @@ one: it is an X11 shell, and runs wherever i3 does.
 - **Notifications.** A server and toasts, with urgency, actions, markup, icons,
   a close button on hover, a stack with show more and clear all, a progress bar
   for an app that sends the `value` hint (and updates the same card as it goes),
-  more than two of one app as one card with the count in its header, and a
-  history with do not disturb (`nshell center`) that groups the same way. Do not disturb also mutes the sound
+  more than two of one app as one card, with edges behind it and its count as a
+  badge, which opens to the list, and a history (`nshell center`) that groups the
+  same way. Its bell is the switch of do not disturb. Do not disturb also mutes the sound
   effects of chat apps (Vesktop, Discord) while it is on, see
   `modules/notifications/QuietSound.qml`.
 - **Bar.** The logo, the workspaces of i3, the tray (StatusNotifierItem) with
