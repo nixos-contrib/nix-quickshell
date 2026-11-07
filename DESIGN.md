@@ -48,10 +48,11 @@ merging it is what tags the first release. The system that uses it pins a commit
 
 | Part | Where | What it does |
 |---|---|---|
-| Bar | `modules/bar` | the logo, the workspaces with their windows, the tray, the sound, the battery, the bell, the clock, and the popups that hang from them |
+| Bar | `modules/bar` | the logo and its menu, the workspaces with their windows, the tray, the player, the sound, the battery, the bell, the clock with its calendar, and the popups that hang from them |
 | Windows in the bar | `modules/tabs`, `modules/bar/Workspaces.qml` | an icon per window after the number of its workspace, a group per tabbed container, its list, a menu, a drag, the wheel |
-| Notifications | `modules/notifications` | the server, the toasts, the history, do not disturb, the quiet sound of chat apps |
+| Notifications | `modules/notifications` | the server, the toasts, the groups, the progress, the history, do not disturb, the quiet sound of chat apps |
 | Launcher | `modules/launcher` | apps and windows, `nshell pick` for scripts |
+| Session, media | `modules/session`, `modules/common/Media.qml` | the card in the middle of the screen for the session and for About, and the players that speak MPRIS |
 | OSD, polkit | `modules/osd`, `modules/polkit` | the volume pill, the card for the key or the password |
 | Theme | `Theme.qml`, `modules/theme` | the tokens, the mode (dark, light, auto), the files of the apps |
 | `nshell` | `bin/nshell` | the commands: the IPC of the shell, `apps` (the files of a mode into place), `theme`, `tabs list` |
@@ -87,6 +88,11 @@ Files: the module writes both modes into `~/.config/nix-quickshell`; `nshell app
 | 2026-11-06: fields, the hover of a row and tips of GTK apps are tints of the palette | adw-gtk3 draws them as a veil of the text color (`alpha(currentColor, 0.1)`), which is grey on white and almost grey on the navy, and no named color changes it; the shell uses the `surface` role for its own fields and cards, so GTK does too | leaving the veils: a grey address field in a blue theme |
 | The mode is only written by `nshell theme` | the saved choice survives restarts and deploys | |
 | Brave gets the theme twice | Brave reads the colors of a GTK theme when its name changes, before GTK has loaded it, and so shows the mode before | one change; nudging other settings did nothing |
+| 2026-11-07: the logo opens a menu, as the Apple menu | About This Computer, the apps, the mode, Force Quit and the session are in one place, at the corner where the eye starts, and a bar that is full has no power icon | the logo as the launcher only; a power item at the right of the bar; a right click for the session |
+| 2026-11-07: icons for places and concepts, none for what is done | the Apple menu has them for its places and not for Sleep, Restart or Log Out, and Apple went back to that in macOS 27 after the icons of every item in Tahoe: see Icons | an icon on every line of the menu of the logo (built, shown, removed); a sun for the mode, which drew as a gear; the icon of the app on Force Quit |
+| 2026-11-07: the history of the notifications has no panel | a card inside a panel had five lines around it, and was not the card of the toast that came to the same corner before | the panel with the count of all of them in its header |
+| 2026-11-07: a group of notifications is a stack with a badge, opened by a click | the newest card says what is latest, the badge says how many, and the destructive Clear says what it does | a chevron and the count in the header of the card, and a round close button that cleared forty-four |
+| 2026-11-07: the apps with their own colors are files, off unless asked for | the shell does not overrule the terminal theme of the user (Catppuccin, which Neovim and tmux are made for), and `nshell` has no app in it | integrations for each app, on by default |
 
 ## Other shells
 
@@ -109,6 +115,19 @@ Four Quickshell shells were read on 2026-11-06 (the QML, not run): [end-4/dots-h
 - **The size is theirs to keep.** Ten to a hundred times the lines of this one, each pushed within the last month. A copy is a fork that
   has to be followed.
 - **The licenses need a look at the headers.** GitHub says GPL-3.0 for three of them, which may not be "or later" as this one is. dux-shell is MIT.
+
+Four more were read on 2026-11-07, for the open issues, and none of them changes the answer:
+
+| | Built for | License | What it gave |
+|---|---|---|---|
+| [pik4li/i3-quickshell](https://github.com/pik4li/i3-quickshell) | Hyprland and Niri (the name is i3bar-styled, it has no i3) | MIT | a calendar, a power menu with its commands from a config, and a player chosen as the one that plays, as planned here, and a default of 120 ms for its motion, which was our most common duration |
+| [rudv-ar/aevum-shell](https://github.com/rudv-ar/aevum-shell) | bspwm on X11, an Arch installer | none | the commands of the power menu from a config, notifications grouped by app, and a keep-awake tile |
+| [MarioRRom/aetheris-shell](https://github.com/MarioRRom/aetheris-shell) | bspwm, and Hyprland | GPL-3.0, not "or later" in what was read | media controls that check what the player can do, and a marquee for long titles |
+| [shalevc1098/nixos-quickshell](https://github.com/shalevc1098/nixos-quickshell) | Hyprland, in the pattern of dots-hyprland | none | nothing: its Mpris service is a wrapper of the API of Quickshell |
+
+A repository with no license is read for ideas and not copied, and a GPL-3.0 one would take the parts that use it to GPL-3.0 only. What
+came of them is in this document: the controls of the media popup follow what the player says it can do, a group is by app, and the
+session commands are config. A keep-awake toggle and a marquee for long titles were seen and not built.
 
 What is not done on purpose: the overview with live previews and the lock screen (they need Wayland protocols that X11 has no answer for),
 desktop widgets (they have no place in a tiling layout), a settings app, an assistant, a mascot, and colors from the wallpaper. What is
@@ -195,6 +214,39 @@ the corner radius of picom for the windows.
   drawn, so a shadow outside of it would be cut. The cost is a dead ring of that width around a card, where a click does not go to
   the window under it. The windows that hang from the bar start under it, so that the ring never covers an item of the bar.
 
+### Icons
+
+**An icon is for a place, a thing that one symbol says, or a control that has no room for a word. It is not for what is done, which a verb names.**
+This is the rule of the Apple menu: the icons of its top group (About This Mac, System Settings, the App Store) are places, and Sleep, Restart,
+Shut Down and Log Out have none. Apple's guidance minimises them, and went back to it in macOS 27, which had icons on every item in Tahoe.
+Checked against [9to5Mac](https://9to5mac.com/2026/06/11/apple-again-warns-developers-not-to-do-what-apple-did-in-macos-26-tahoe/) on 2026-11-07,
+and not against the page of Apple, which did not load.
+
+| Where | Icon | Why |
+|---|---|---|
+| The items of the bar (tray, player, sound, battery, bell) | yes, drawn or a glyph | there is no room for a word, and each is told from its neighbours by shape |
+| The lines of a menu that are places: About This Computer, Applications | yes | a place, as in the Apple menu |
+| The line of the mode in the menu of the logo | the half-circle | a visual concept that one symbol says |
+| The lines of a menu that are actions (Sleep, Restart, Shut Down, Log Out, Lock, Force Quit) | none | a verb is named by its text; the icons for them are not told apart without it, and a menu where every line has one is read by the icons and not by the words |
+| The card of the session | yes, a glyph for each line | it is a card of five large choices, and not a text menu |
+| The player: previous, play or pause, next | yes, drawn | controls |
+| The icon of the app that plays, and the icon of an app in a list | yes: it is the app | a click on the one of the player takes the window of the app to the front, so it is a control and not an ornament |
+| A notification | its own picture or the icon of its app | it is content of the app |
+
+Rules that follow:
+- **A line without an icon starts at the edge**, and does not line up with the ones that have it, as in macOS.
+- **No color is added to an icon to decorate it.** Color says state: the accent for do not disturb that is on, the red of an urgent window.
+- **The same thing has the same icon everywhere:** the bell of the bar and the bell of the history are the same two glyphs, bell and crossed bell.
+- **Two lines never share an icon**, and an icon that is read as another thing without its text is not used. The test is to cover the text.
+- **The app is not the icon of its destructive action.** Force Quit has no icon of the app: a logo at the left of a line reads as "switch to" or "open", the
+  opposite of the line, it is the loudest thing in a quiet menu, and it exists only for the apps that have a desktop entry, so some lines would have it and some not.
+- **The shell carries no icons of apps.** It draws the shapes of its own controls (the speaker, the chevron, the controls of the player, as Lucide
+  has them, so that they are the same at every size), takes the glyphs from the icon font that the system installs (`Theme.iconFont`), and takes
+  the icons of apps from the icon theme, through their desktop entries.
+
+What was tried and went: an icon on every line of the menu of the logo, which was a column of glyphs that did not say more than the words, with the red of
+Restart and Shut Down as decoration; and the sun of the icon font for the mode, which drew as the gear of settings at this size, so the half-circle came back.
+
 ### Motion (`Theme.qml`)
 
 Principle 4 is a rule for each animation: it has to explain something, and the explanation is one of three. A color or an opacity that
@@ -243,12 +295,7 @@ is the **menu of the logo**, as the Apple menu is the first thing of the menu ba
 (there is no settings app, and the mode is the one setting that a click changes), Force Quit for the app that has the focus, Sleep,
 Restart…, Shut Down…, Lock Screen and Log Out…. The lines with dots are the ones that ask, as in macOS. The launcher is a line of the menu
 and a key (`$mod+d`), and the focused window is looked up when the logo is pressed, so that Force Quit is in the menu when it opens. A power
-icon at the right of a bar that is already full would be one more thing to look at for what is done twice a month. **Icons in the menu follow
-the Apple menu, and the guidance that Apple went back to in macOS 27:** one for a place (About This Computer, Applications) and for a visual
-concept that one symbol says (the half-circle of the mode, light against dark: the sun of the icon font drew as a gear at this size), and none for what is done
-(Sleep, Restart, Shut Down, Log Out, Lock, Force Quit): a verb is named by its text, the icons for them are not told apart without it, and a menu
-where every line has one is read by the icons and not by the words. A line without an icon starts at the edge, as in macOS, and a color is
-never added to one. There is no
+icon at the right of a bar that is already full would be one more thing to look at for what is done twice a month. **The icons of the menu follow the rules of Icons, below**: the places and the mode have one, and what is done has none. There is no
 lock screen drawn by the shell, as X11 has no protocol for one: **Lock runs the command of the user** (`i3lock`, `xss-lock`) and is not in
 the card when there is none. The commands are the `session` of the theme file. The card has the height of its lines as it opens, as
 i3 does not follow a floating window that grows.
@@ -324,7 +371,8 @@ exported as `overlays.i3` and checked by `nix build .#i3`. See `docs/i3.md`.
 
 ## Limits
 
-- Network, Bluetooth and brightness are not built: they need real hardware, and a VM cannot test them.
+- Network and Bluetooth are not built. They can be tried in a VM with a simulated radio (`mac80211_hwsim` with `hostapd` and NetworkManager) and a mock of
+  BlueZ, and want one pass on real hardware. Brightness needs a backlight, which a VM has not.
 - A second monitor and a fullscreen app that goes fullscreen by itself were not tried. A window made fullscreen with i3 was: the layout
   comes back exactly.
 - A toast and the volume OSD are not shown over a fullscreen window, as i3 hides floating windows that do not belong to it. The history
@@ -350,6 +398,12 @@ exported as `overlays.i3` and checked by `nix build .#i3`. See `docs/i3.md`.
   two `nshell theme` calls.
 - A loss of focus is also reported when a key grab starts: ask i3 before closing a window (`FocusGuard`).
 - `i3-msg restart` drops the dock registration of the bar: restart the shell after it.
+- i3 moves a floating window that starts before the screen back to the edge, so a popup that hangs near the left edge has less room for its shadow there, and must not move its panel to make it.
+- A `ListView` does not move the `x` of its delegates: inset the card inside the delegate. A property of an item named `top` clashes with a built-in.
+- A `Timer` that runs only while its item is visible does not run for the cards that are hidden: a group has the time of the card that stands for it.
+- A glyph of an icon font is judged at the size it is drawn at: the sun of the font was a gear at 16 points.
+- The lookup of Quickshell for a desktop entry by name did not find Brave by "Brave", which its entry has: the list of entries is matched by its id, its name and the class of its window.
+- A step of a pointer script that clicks hits whatever is on that place of the real screen: check that no window of the shell is open first.
 
 ## How it is tested
 
@@ -359,6 +413,9 @@ exported as `overlays.i3` and checked by `nix build .#i3`. See `docs/i3.md`.
   their own, with made-up titles, and close them by id.
 - A before and after of the rectangles of the windows, taken with their workspace in view, when anything touches the layout.
 - A second X server with a real i3 (`Xephyr`) for layout work. It has no compositor, so transparent windows look black there.
+- A second copy of the shell on a private bus (`dbus-daemon`, `NSHELL_NO_BAR=1`, a private `XDG_STATE_HOME`) takes the notifications that a script sends, and a fake
+  player that speaks MPRIS (a few lines of `dbus-next`, which logs what it is asked) takes the controls of the media popup.
+- Clicks of a test are sent only when no window of the shell is open on the real screen, and the test works on an empty workspace.
 - Scripts are files: `pkill -f` in a command line matches the command line itself.
 
 ## Rules
