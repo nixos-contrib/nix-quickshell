@@ -36,20 +36,11 @@ Singleton {
         for (const name of [p.desktopEntry, p.identity, bus]) {
             if (!name)
                 continue;
-            const entry = DesktopEntries.byId(name) ?? match(name);
+            const entry = Apps.match(name);
             if (entry)
                 return entry;
         }
         return null;
-    }
-    // an entry by a name that it answers to: its id, its name or the class of its window, in any case, and then one that starts with it and a
-    // dash, as brave is brave-browser. The lookup of Quickshell by heuristics did not find Brave by its name
-    function match(name: string): var {
-        const lower = name.toLowerCase();
-        const apps = DesktopEntries.applications.values;
-        return apps.find(e => e.id.toLowerCase() === lower || e.name.toLowerCase() === lower || e.startupClass.toLowerCase() === lower)
-            ?? apps.find(e => e.id.toLowerCase().startsWith(lower + "-") || e.startupClass.toLowerCase().startsWith(lower + "-"))
-            ?? null;
     }
     // the icon of that app, as an address for an Image, or nothing
     function iconOf(p: var): string {

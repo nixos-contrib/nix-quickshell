@@ -41,6 +41,7 @@ Scope {
         function battery(): void { if (root.fresh()) root.toggle(batteryPopup, bar.width - 400); }
         function calendar(): void { if (root.fresh()) root.toggle(calendarPopup, bar.width - 360); }
         function media(): void { if (root.fresh() && Media.present) root.toggle(mediaPopup, bar.width - 520); }
+        function logo(): void { if (root.fresh()) { logoMenu.probe(); root.toggle(logoMenu, Theme.edge); } }
         function tray(): void {
             const items = SystemTray.items.values;
             if (items.length === 0 || !root.fresh())
@@ -54,12 +55,13 @@ Scope {
     Binding {
         target: root.notifications
         property: "popupOpen"
-        value: trayMenu.visible || audioPopup.visible || batteryPopup.visible || calendarPopup.visible || mediaPopup.visible
+        value: trayMenu.visible || audioPopup.visible || batteryPopup.visible || calendarPopup.visible || mediaPopup.visible || logoMenu.visible
     }
     AudioPopup { id: audioPopup }
     BatteryPopup { id: batteryPopup }
     CalendarPopup { id: calendarPopup }
     MediaPopup { id: mediaPopup }
+    LogoMenu { id: logoMenu; session: root.session; launcher: root.launcher }
 
     // One popup at a time, the history of the notifications among them: the others close when one opens, and a click on the item
     // of the one that is open closes it
@@ -79,6 +81,7 @@ Scope {
         batteryPopup.visible = false;
         calendarPopup.visible = false;
         mediaPopup.visible = false;
+        logoMenu.visible = false;
         notifications.closeCenter();
     }
     // the history of the notifications, from the bell: the clock has the calendar
@@ -125,7 +128,7 @@ Scope {
             anchors { fill: parent; leftMargin: Theme.edge; rightMargin: Theme.edge }
             spacing: 0
 
-            // The logomark of NixOS, as the one of Apple in the menu bar, and the workspaces. It opens the launcher, and the menu of the session with the right button
+            // The logomark of NixOS, as the one of Apple in the menu bar, and the workspaces. It opens its menu, as the Apple menu: About This Computer, the apps, Force Quit, the session
             RowLayout {
                 spacing: Theme.spaceSm
                 // The official flat logomark, white on the dark bar and black on the light one, as the branding guide has them: not painted in
@@ -133,6 +136,13 @@ Scope {
                 Item {
                     Layout.preferredWidth: logo.width + Theme.logoClear * 2
                     Layout.preferredHeight: Theme.slot
+                    // lit while its menu is open, as the other items of the bar
+                    Rectangle {
+                        anchors.fill: parent
+                        radius: Theme.radiusSm
+                        color: logoMenu.visible ? Theme.barFocus : "transparent"
+                        Behavior on color { ColorAnimation { duration: Theme.motionFast } }
+                    }
                     Image {
                         id: logo
                         anchors.centerIn: parent
@@ -150,14 +160,9 @@ Scope {
                         anchors.fill: parent
                         hoverEnabled: true
                         cursorShape: Qt.PointingHandCursor
-                        acceptedButtons: Qt.LeftButton | Qt.RightButton
-                        onClicked: mouse => {
-                            root.closePopups();
-                            if (mouse.button === Qt.RightButton && root.session)
-                                root.session.toggle();
-                            else
-                                root.launcher.show("apps");
-                        }
+                        // the focused window is looked up when it is pressed, so that Force Quit is in the menu when it opens
+                        onPressed: logoMenu.probe()
+                        onClicked: root.toggle(logoMenu, logoArea.mapToItem(null, 0, 0).x)
                     }
                 }
                 Workspaces {

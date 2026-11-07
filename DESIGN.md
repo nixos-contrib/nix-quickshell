@@ -216,10 +216,13 @@ windows of one app have one class, so i3 takes the first it finds.
 ### Session (`modules/session/Session.qml`)
 
 A card in the middle of the screen, as the launcher is: Lock, Log out, Suspend, Reboot and Power off, each with the letter that
-runs it underlined, and the arrows with Enter for those who look first. **Only Reboot and Power off ask once more**, in the same card,
-because they are the two that lose what is not saved and cannot be taken back with a key; the others are as quick as the key. The entry in the
-bar is the **right button of the logo**, whose left button opens the launcher: a right click is the quiet action of an item in this shell,
-and a power icon at the right of a bar that is already full would be one more thing to look at for what is done twice a month. There is no
+runs it underlined, and the arrows with Enter for those who look first. **Log out, Reboot, Power off and Force Quit ask once more**, in the same card,
+because they lose what is not saved and cannot be taken back with a key; Sleep and Lock are as quick as the key. The entry in the bar
+is the **menu of the logo**, as the Apple menu is the first thing of the menu bar: About This Computer, Applications…, the mode of the theme
+(there is no settings app, and the mode is the one setting that a click changes), Force Quit for the app that has the focus, Sleep,
+Restart…, Shut Down…, Lock Screen and Log Out…. The lines with dots are the ones that ask, as in macOS. The launcher is a line of the menu
+and a key (`$mod+d`), and the focused window is looked up when the logo is pressed, so that Force Quit is in the menu when it opens. A power
+icon at the right of a bar that is already full would be one more thing to look at for what is done twice a month. There is no
 lock screen drawn by the shell, as X11 has no protocol for one: **Lock runs the command of the user** (`i3lock`, `xss-lock`) and is not in
 the card when there is none. The commands are the `session` of the theme file. The card has the height of its lines as it opens, as
 i3 does not follow a floating window that grows.

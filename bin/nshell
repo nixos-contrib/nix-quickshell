@@ -3,7 +3,7 @@
 #
 #   nshell                  starts the shell
 #   nshell center [dnd]     opens and closes the history of the notifications, or toggles do not disturb
-#   nshell bar [audio|battery|calendar|media|tray]  shows and hides the bar, or opens one of its popups
+#   nshell bar [audio|battery|calendar|media|logo|tray]  shows and hides the bar, or opens one of its popups
 #   nshell calendar         opens and closes the calendar under the clock
 #   nshell session          opens and closes the menu of the session: lock, log out, suspend, reboot, power off
 #   nshell launcher [windows]  opens the launcher, on the apps or on the windows
