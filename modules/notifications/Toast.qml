@@ -28,7 +28,9 @@ Rectangle {
     readonly property var rawValue: notification.hints ? notification.hints["value"] : undefined
     readonly property bool hasProgress: rawValue !== undefined && rawValue !== null && isFinite(Number(rawValue))
     readonly property real progress: hasProgress ? Math.max(0, Math.min(100, Number(rawValue))) / 100 : 0
-    readonly property int timeout: notification.expireTimeout > 0 ? notification.expireTimeout * 1000 : (notification.urgency === NotificationUrgency.Low ? 4000 : 7000)
+    // the time that the app asks for, in milliseconds as the protocol has it (Quickshell 0.3.2 gives it as it came, and not in seconds as its docs say), or the
+    // one of the shell: a short one for a low urgency
+    readonly property int timeout: notification.expireTimeout > 0 ? notification.expireTimeout : (notification.urgency === NotificationUrgency.Low ? 4000 : 7000)
 
     width: parent ? parent.width : 400
     implicitHeight: content.implicitHeight + Theme.spacing * 2
