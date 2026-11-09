@@ -7,15 +7,20 @@ import qs
 import qs.modules.common
 import "search.js" as Search
 
-// The launcher: a card in the middle of the screen with a search field and a list. Two modes, the apps and the windows, and Tab
+// The launcher: a card in the middle of the screen with a search field and a list. Three modes, the apps, the windows and the clipboard, and Tab
 // goes from one to the other. The apps are ordered by how well they match and by how often they are run
 Scope {
     id: root
     property string mode: "apps"
     property string query: ""
-    readonly property var modes: ["apps", "windows"]
+    readonly property var modes: ["apps", "windows", "clipboard"]
+    readonly property var modeNames: ({ apps: "Applications", windows: "Windows", clipboard: "Clipboard" })
+    // the mode that Tab goes to, for the hint in the footer
+    readonly property string nextMode: root.modes[(root.modes.indexOf(root.mode) + 1) % root.modes.length]
     // the windows of i3, read when the launcher opens in that mode
     property var windows: []
+    // what the clipboard history holds, newest first, read when the launcher opens in that mode
+    property var clips: []
     // how many times each app was run, by the id of its desktop entry
     property var usage: ({})
 
@@ -81,6 +86,8 @@ Scope {
         root.query = "";
         if (m === "windows")
             tree.running = true;
+        else if (m === "clipboard")
+            clipList.running = true;
     }
     function cycle() {
         root.setMode(root.modes[(root.modes.indexOf(root.mode) + 1) % root.modes.length]);
@@ -93,7 +100,7 @@ Scope {
     }
 
     // what the list shows, best first
-    readonly property var items: root.pickDir !== "" ? root.pickItems() : (root.mode === "apps" ? root.appItems() : root.windowItems())
+    readonly property var items: root.pickDir !== "" ? root.pickItems() : (root.mode === "apps" ? root.appItems() : root.mode === "windows" ? root.windowItems() : root.clipItems())
 
     function appItems() {
         const q = root.query.trim().toLowerCase();
@@ -183,6 +190,58 @@ Scope {
         out.sort((a, b) => b.score - a.score);
         for (const it of out)
             it.section = q !== "" ? "Results (" + out.length + ")" : "Windows";
+        return out;
+    }
+
+    // The clipboard history, from the store of clipmenud, which the system runs (docs/clipboard.md): the script prints it, newest
+    // first, and the text is not read until a copy is chosen
+    Process {
+        id: clipList
+        command: ["sh", Quickshell.shellPath("modules/launcher/clipboard-list.sh")]
+        stdout: StdioCollector {
+            onStreamFinished: {
+                const out = [];
+                for (const line of text.split("\n")) {
+                    const f = line.split("\t");
+                    if (f.length < 4)
+                        continue;
+                    out.push({ dir: f[0], at: Number(f[1].slice(0, -6)), file: f[2], line: f.slice(3).join("\t") });
+                }
+                root.clips = out;
+            }
+        }
+    }
+    function ago(ms: real): string {
+        const m = Math.floor((Date.now() - ms) / 60000);
+        if (m < 1)
+            return "just now";
+        if (m < 60)
+            return m + " min ago";
+        const h = Math.floor(m / 60);
+        return h < 24 ? h + " h ago" : Math.floor(h / 24) + " d ago";
+    }
+    function clipItems() {
+        const q = root.query.trim().toLowerCase();
+        const out = [];
+        for (const c of root.clips) {
+            const s = q === "" ? 1 : Search.score(q, c.line, false);
+            if (s <= 0)
+                continue;
+            out.push({
+                title: c.line.trim(),
+                subtitle: root.ago(c.at),
+                icon: root.iconUrl("edit-paste"),
+                score: s,
+                run: () => {
+                    win.visible = false;
+                    Quickshell.execDetached(["sh", "-c", 'xclip -selection clipboard -i < "$1/$2"', "sh", c.dir, c.file]);
+                }
+            });
+        }
+        if (q !== "")
+            out.sort((a, b) => b.score - a.score);
+        for (const it of out)
+            it.section = q !== "" ? "Results (" + out.length + ")" : "Clipboard";
         return out;
     }
 
@@ -281,6 +340,7 @@ Scope {
         target: "launcher"
         function apps(): void { if (root.fresh()) root.show("apps"); }
         function windows(): void { if (root.fresh()) root.show("windows"); }
+        function clipboard(): void { if (root.fresh()) root.show("clipboard"); }
         function pick(dir: string, prompt: string): void { root.openPick(dir, prompt); }
         // an app by the id of its desktop entry, from a key: its window is focused, or it is started
         function launch(id: string): void {
@@ -333,7 +393,7 @@ Scope {
             fillBody: true
             focus: true
 
-            footer: root.pickDir !== "" ? "↵ choose     esc cancel" : "↵ open     ⇥ " + (root.mode === "apps" ? "windows" : "applications") + "     esc close"
+            footer: root.pickDir !== "" ? "↵ choose     esc cancel" : "↵ open     ⇥ " + root.modeNames[root.nextMode].toLowerCase() + "     esc close"
 
             // the header is the search field, and the modes at its right. A pick has none
             header: RowLayout {
@@ -358,7 +418,7 @@ Scope {
                     Text {
                         visible: search.text === ""
                         anchors.verticalCenter: parent.verticalCenter
-                        text: root.pickDir !== "" ? root.pickPrompt : (root.mode === "apps" ? "Search applications" : "Search windows")
+                        text: root.pickDir !== "" ? root.pickPrompt : "Search " + root.modeNames[root.mode].toLowerCase()
                         color: Theme.muted
                         font: search.font
                     }
@@ -386,7 +446,7 @@ Scope {
                     model: root.pickDir !== "" ? [] : root.modes
                     delegate: PillButton {
                         required property string modelData
-                        text: modelData === "apps" ? "Applications" : "Windows"
+                        text: root.modeNames[modelData]
                         active: root.mode === modelData
                         onClicked: {
                             root.setMode(modelData);

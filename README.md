@@ -108,9 +108,10 @@ one: it is an X11 shell, and runs wherever i3 does.
   drag along a group of tabs moves the tab to where it is let go, and the wheel
   on a group goes from one window to the next. i3 draws nothing for its tabs,
   see [`docs/i3.md`](docs/i3.md).
-- **Launcher.** Apps (ordered by how often they are run) and the windows of
-  i3, Tab goes from one to the other (`nshell launcher`,
-  `nshell launcher windows`). An app that has a window is focused and not
+- **Launcher.** Apps (ordered by how often they are run), the windows of
+  i3 and the history of the clipboard, Tab goes from one to the next
+  (`nshell launcher`, `nshell launcher windows`, `nshell launcher clipboard`;
+  the history is [`docs/clipboard.md`](docs/clipboard.md)). An app that has a window is focused and not
   started again, by the `StartupWMClass` of its desktop entry, also from a key:
   `nshell launch brave-browser`. `nshell pick` is the same list for scripts.
 
