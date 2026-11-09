@@ -277,7 +277,7 @@ programs.nix-quickshell = {
 
 The apps that paint their own colors, and that GTK does not reach, are one file
 each in [`nix/apps/`](nix/apps): `alacritty`, `i3` (the tabs), `kitty`,
-`xresources` (xterm) and `zathura`. Each makes the colors of a palette, in the format of the app, for
+`wezterm`, `xresources` (xterm) and `zathura`. Each makes the colors of a palette, in the format of the app, for
 both modes. They are **off** unless you ask for one, or Home Manager has the
 program on: `programs.kitty.enable` turns `targets.kitty.enable` on, and
 puts the include of the file in `programs.kitty.extraConfig`. An `enable` you
@@ -289,12 +289,20 @@ targets.zathura.enable = true; # not a Home Manager program here: include the fi
 ```
 
 `nshell apps` copies the file of the mode to `~/.local/state/nix-quickshell/`
-(`kitty.conf`, `zathurarc`, `alacritty.toml`, `xresources`) and runs what the app
+(`kitty.conf`, `zathurarc`, `alacritty.toml`, `wezterm.toml`, `xresources`) and runs what the app
 needs to read it again: kitty gets a SIGUSR1, i3 a `reload`, xterm's resources are
-merged with `xrdb`, and Alacritty and zathura need nothing. Without Home Manager's program
+merged with `xrdb`, and Alacritty, WezTerm and zathura need nothing. Without Home Manager's program
 the include is yours: `include ~/.local/state/nix-quickshell/kitty.conf`,
-`general.import = ["~/.local/state/nix-quickshell/alacritty.toml"]`, and
-`include` in `zathurarc`.
+`general.import = ["~/.local/state/nix-quickshell/alacritty.toml"]`,
+`include` in `zathurarc`, and for WezTerm
+`config.colors = wezterm.color.load_scheme(path)` with
+`wezterm.add_to_config_reload_watch_list(path)` for the file
+`~/.local/state/nix-quickshell/wezterm.toml`.
+
+WezTerm gets the colors of the terminal, the cursor, the selection and the tab bar of
+the plain kind. Its default tab bar is the fancy one, which takes the colors of
+`window_frame` and not of the scheme: set `use_fancy_tab_bar = false` for it to
+follow the theme.
 
 An app of your own is a file in `nix/apps/`: its `target`, an optional `reload`,
 and `colors`, a function of the palette, and a `font` function of `{ family, size }` when the app is to follow the font of the theme (zathura does, the terminals do not). `targets.<name>` is then there.
