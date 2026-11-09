@@ -7,7 +7,7 @@ import qs.modules.common
 
 // The network: what the machine is connected by, and for a Wi-Fi the networks that it sees, to join. A network that is known is joined with a click, an open
 // one too, and one that asks for a password has a field for it under its line. The wired interface, or the one of a Wi-Fi, says its address, its gateway
-// and, for a cable, its speed
+// and, for a cable, its speed. A value that is pasted somewhere else is copied by a click on its line
 Popover {
     id: win
     heading: "Network"
@@ -16,13 +16,30 @@ Popover {
     // the line that is open under: its name, and the failure that it had
     property string selected: ""
     property var failed: ({})
+    // the line that was copied, which says so for a moment
+    property string copied: ""
+    Timer {
+        id: copiedTimer
+        interval: 1500
+        onTriggered: win.copied = ""
+    }
+    // the text goes to the clipboard with xclip, as the launcher puts a copy back. The address is copied without its prefix length:
+    // what is pasted is for a command, `ssh` or `curl`, and the line still shows the prefix
+    function copy(key: string, value: string): void {
+        const text = key === "Address" ? value.replace(/\/\d+$/, "") : value;
+        Quickshell.execDetached(["sh", "-c", 'printf %s "$1" | xclip -selection clipboard -i', "sh", text]);
+        win.copied = key;
+        copiedTimer.restart();
+    }
 
     // read again when it opens, and the Wi-Fi scans for as long as it is: the item is read every few seconds
     onVisibleChanged: {
         if (visible)
             Net.refresh();
-        else
+        else {
             selected = "";
+            copied = "";
+        }
     }
     Binding {
         target: Net.wifiDevice
@@ -81,17 +98,38 @@ Popover {
         // the details of the interface, the ones that it has
         Repeater {
             model: [
-                { k: "Address", v: Net.info.address ?? "" },
-                { k: "Gateway", v: Net.info.gateway ?? "" },
-                { k: "Speed", v: Net.kind === "wired" ? Net.speedText() : "" },
-                { k: "Hardware address", v: Net.info.mac ?? "" }
+                { k: "Address", v: Net.info.address ?? "", copy: true },
+                { k: "Gateway", v: Net.info.gateway ?? "", copy: true },
+                { k: "Speed", v: Net.kind === "wired" ? Net.speedText() : "", copy: false },
+                { k: "Hardware address", v: Net.info.mac ?? "", copy: true }
             ].filter(r => r.v !== "")
-            delegate: RowLayout {
+            delegate: Rectangle {
+                id: detail
                 required property var modelData
                 Layout.fillWidth: true
-                spacing: Theme.spaceMd
-                Label { role: "caption"; text: modelData.k; Layout.preferredWidth: 110 }
-                Label { text: modelData.v; elide: Text.ElideRight; Layout.fillWidth: true }
+                Layout.preferredHeight: Theme.spaceXl + Theme.spaceXs
+                radius: Theme.radiusMd
+                color: detailArea.containsMouse ? Theme.surfaceHigh : "transparent"
+                RowLayout {
+                    anchors { fill: parent; leftMargin: Theme.spaceSm; rightMargin: Theme.spaceSm }
+                    spacing: Theme.spaceMd
+                    Label { role: "caption"; text: detail.modelData.k; Layout.preferredWidth: 110 }
+                    Label { text: detail.modelData.v; elide: Text.ElideRight; Layout.fillWidth: true }
+                    Label {
+                        visible: win.copied === detail.modelData.k
+                        role: "caption"
+                        text: "Copied"
+                        color: Theme.primary
+                    }
+                }
+                MouseArea {
+                    id: detailArea
+                    anchors.fill: parent
+                    enabled: detail.modelData.copy
+                    hoverEnabled: true
+                    cursorShape: Qt.PointingHandCursor
+                    onClicked: win.copy(detail.modelData.k, detail.modelData.v)
+                }
             }
         }
         Label {

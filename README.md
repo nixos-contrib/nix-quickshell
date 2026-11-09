@@ -69,7 +69,9 @@ one: it is an X11 shell, and runs wherever i3 does.
     takes its window to the front, and the other players.
   - **Network.** With NetworkManager a cable or a Wi-Fi: the networks to join,
     with a field for the password, and the right button turns the Wi-Fi off and
-    on. Without it, the wired interface and its address.
+    on. Without it, the wired interface and its address. A click on the
+    address, the gateway or the hardware address copies it (the address
+    without its prefix length), with `xclip` in the path.
   - **Bluetooth.** The devices that are paired and the ones in range, to
     connect, disconnect, pair and forget, with the battery of the one that says
     it. A device that asks for a code cannot be paired: Quickshell has no
