@@ -61,6 +61,12 @@ apply_apps() {
 			pkill -HUP -x xsettingsd 2>/dev/null || true
 		fi
 	fi
+	# the appearance of the system, which the XDG desktop portal answers to the apps that follow it (a terminal, Brave, the apps of GTK 4): the
+	# setting of GSettings that the portal reads, written when the module says so (targets.portal) and only when it changed
+	if [ -f "$cfg/portal" ] && command -v dconf >/dev/null 2>&1; then
+		local scheme="'prefer-$mode'" key=/org/gnome/desktop/interface/color-scheme
+		[ "$(dconf read "$key" 2>/dev/null || true)" = "$scheme" ] || dconf write "$key" "$scheme" 2>/dev/null || true
+	fi
 	# the wallpaper of the mode, when the module wrote one. The copy in the state folder outlives the session, and the root window of a new
 	# X server has no image, so it is drawn each time and not only when the copy changed
 	local wp="$cfg/wallpaper-$mode.png" wpstate="$state/wallpaper.png"

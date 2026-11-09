@@ -328,6 +328,14 @@ in
           description = "An image of your own: one for both modes, or one for each, in place of the generated wallpapers.";
         };
       };
+
+      portal = {
+        enable = enableOption ''
+          The appearance of the system: `nshell apps` writes `prefer-dark` or `prefer-light` in org.gnome.desktop.interface color-scheme, the setting that
+          the XDG desktop portal answers (org.freedesktop.appearance) to the apps that follow it, as terminals, Brave and the apps of GTK 4, when the mode
+          changes and at the start of the session. It needs a GSettings backend that the portal reads: on NixOS `programs.dconf.enable`
+        '';
+      };
     }
     # the apps that paint their own colors: each file of apps/ is one
     // lib.mapAttrs (name: def: {
@@ -350,6 +358,7 @@ in
       cfg.targets.gtk.iconTheme.package
     ]
     ++ lib.optional cursor.enable cursor.package
+    ++ lib.optional cfg.targets.portal.enable pkgs.dconf
     ++ lib.optional cfg.targets.wallpaper.enable pkgs.feh;
 
     xdg.configFile = lib.optionalAttrs (cfg.theme.fallbackFont != null) {
@@ -433,6 +442,10 @@ in
       '';
     }
     # the apps: the colors of each mode, and what `nshell apps` needs to know of the app, which is a file of shell variables
+    // lib.optionalAttrs cfg.targets.portal.enable {
+      # tells `nshell apps` to write the appearance of the system
+      "nix-quickshell/portal".text = "1\n";
+    }
     // lib.concatMapAttrs (
       name: def:
       {
