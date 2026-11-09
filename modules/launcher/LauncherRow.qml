@@ -6,7 +6,8 @@ import qs.modules.common
 // A line of the launcher: the icon, the name and what it is. The current one is filled, as the selected tile of the bar
 Rectangle {
     id: row
-    required property var modelData
+    // the item of the list of the launcher: the delegate sets it, as the model of the list is its rows and sections
+    property var modelData
     required property int index
     readonly property bool current: ListView.isCurrentItem
     signal chosen

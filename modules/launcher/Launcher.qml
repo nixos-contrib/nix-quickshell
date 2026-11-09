@@ -115,11 +115,24 @@ Scope {
                 subtitle: e.genericName !== "" ? e.genericName : e.comment,
                 icon: root.iconUrl(e.icon),
                 score: s + Math.log(1 + (root.usage[e.id] ?? 0)) * 0.6,
+                used: (root.usage[e.id] ?? 0) > 0,
                 run: () => root.launch(e)
             });
         }
         out.sort((a, b) => b.score - a.score || a.title.localeCompare(b.title));
-        return out.slice(0, 60);
+        const shown = out.slice(0, 60);
+        // The sections: what is run most comes first as Suggestions, and a search is one section that says how many it found
+        let suggested = 0;
+        for (const it of shown) {
+            if (q !== "")
+                it.section = "Results (" + shown.length + ")";
+            else if (it.used && suggested < 5) {
+                it.section = "Suggestions";
+                suggested++;
+            } else
+                it.section = "Applications";
+        }
+        return shown;
     }
 
     function pickItems() {
@@ -135,6 +148,7 @@ Scope {
                 subtitle: f[1] ?? "",
                 icon: root.iconUrl(f[2] ?? ""),
                 score: s,
+                section: "",
                 run: () => {
                     root.answer("OK", line);
                     win.visible = false;
@@ -167,6 +181,8 @@ Scope {
             });
         }
         out.sort((a, b) => b.score - a.score);
+        for (const it of out)
+            it.section = q !== "" ? "Results (" + out.length + ")" : "Windows";
         return out;
     }
 
@@ -316,7 +332,8 @@ Scope {
             elevation: 2
             fillBody: true
             focus: true
-            footer: root.pickDir !== "" ? "↵ choose     esc cancel" : "↵ open     ⇥ " + (root.mode === "apps" ? "windows" : "apps") + "     esc close"
+
+            footer: root.pickDir !== "" ? "↵ choose     esc cancel" : "↵ open     ⇥ " + (root.mode === "apps" ? "windows" : "applications") + "     esc close"
 
             // the header is the search field, and the modes at its right. A pick has none
             header: RowLayout {
@@ -341,7 +358,7 @@ Scope {
                     Text {
                         visible: search.text === ""
                         anchors.verticalCenter: parent.verticalCenter
-                        text: root.pickDir !== "" ? root.pickPrompt : (root.mode === "apps" ? "Search apps" : "Search windows")
+                        text: root.pickDir !== "" ? root.pickPrompt : (root.mode === "apps" ? "Search applications" : "Search windows")
                         color: Theme.muted
                         font: search.font
                     }
@@ -369,7 +386,7 @@ Scope {
                     model: root.pickDir !== "" ? [] : root.modes
                     delegate: PillButton {
                         required property string modelData
-                        text: modelData === "apps" ? "Apps" : "Windows"
+                        text: modelData === "apps" ? "Applications" : "Windows"
                         active: root.mode === modelData
                         onClicked: {
                             root.setMode(modelData);
@@ -380,17 +397,49 @@ Scope {
                 }
             }
 
+            // the lines, one for each item with the section that it is in: a section is a role of a model, which a list of objects has not
+            ListModel { id: rows }
+            function rebuild() {
+                rows.clear();
+                const it = root.items;
+                for (let i = 0; i < it.length; i++)
+                    rows.append({ idx: i, section: it[i].section ?? "" });
+                list.currentIndex = 0;
+                list.positionViewAtBeginning();
+            }
+            Connections {
+                target: root
+                function onItemsChanged() { card.rebuild(); }
+            }
+            Component.onCompleted: card.rebuild()
+
             ListView {
                 id: list
                 anchors.fill: parent
                 clip: true
                 spacing: 2
-                model: root.items
+                model: rows
                 boundsBehavior: Flickable.StopAtBounds
                 highlightMoveDuration: 0
-                onModelChanged: currentIndex = 0
-                onCurrentIndexChanged: positionViewAtIndex(currentIndex, ListView.Contain)
+                onCurrentIndexChanged: currentIndex === 0 ? positionViewAtBeginning() : positionViewAtIndex(currentIndex, ListView.Contain)
+
+                section.property: "section"
+                section.criteria: ViewSection.FullString
+                section.delegate: Item {
+                    required property string section
+                    width: ListView.view.width
+                    height: section === "" ? 0 : Theme.spaceXl + Theme.spaceSm
+                    visible: section !== ""
+                    Label {
+                        anchors { left: parent.left; leftMargin: Theme.spaceMd; verticalCenter: parent.verticalCenter }
+                        role: "label"
+                        text: parent.section
+                    }
+                }
+
                 delegate: LauncherRow {
+                    required property int idx
+                    modelData: root.items[idx]
                     onChosen: modelData.run()
                 }
 
