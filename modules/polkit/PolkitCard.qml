@@ -13,13 +13,13 @@ Panel {
     readonly property bool onePassword: flow !== null && flow.actionId.startsWith("com.1password.")
 
     elevation: 2
-    padding: Theme.spaceXl
+    padding: Theme.spaceXl + 4
     focus: true
     Keys.onEscapePressed: if (card.flow) card.flow.cancelAuthenticationRequest()
 
     ColumnLayout {
         width: parent.width
-        spacing: Theme.spaceLg
+        spacing: Theme.spaceXl
 
         Label {
             Layout.fillWidth: true
@@ -38,38 +38,38 @@ Panel {
 
             Rectangle {
                 visible: card.onePassword
-                Layout.preferredWidth: 56
-                Layout.preferredHeight: 56
+                Layout.preferredWidth: 64
+                Layout.preferredHeight: 64
                 radius: Theme.radiusMd
                 color: Theme.surface
                 border { width: 1; color: Theme.border }
                 Image {
                     anchors.centerIn: parent
                     source: Quickshell.iconPath("yubioath", "dialog-password")
-                    sourceSize: Qt.size(72, 72)
-                    width: 36
-                    height: 36
+                    sourceSize: Qt.size(80, 80)
+                    width: 40
+                    height: 40
                 }
             }
             Rectangle {
                 visible: card.onePassword
-                Layout.preferredWidth: 40
+                Layout.preferredWidth: 48
                 Layout.preferredHeight: 2
                 radius: 1
                 color: Theme.border
             }
             Rectangle {
-                Layout.preferredWidth: 56
-                Layout.preferredHeight: 56
+                Layout.preferredWidth: 64
+                Layout.preferredHeight: 64
                 radius: Theme.radiusMd
                 color: Theme.surface
                 border { width: 1; color: Theme.border }
                 Image {
                     anchors.centerIn: parent
                     source: Quickshell.iconPath(card.onePassword ? "1password" : (card.flow ? card.flow.iconName : ""), "dialog-password")
-                    sourceSize: Qt.size(72, 72)
-                    width: 36
-                    height: 36
+                    sourceSize: Qt.size(80, 80)
+                    width: 40
+                    height: 40
                 }
             }
         }
@@ -77,7 +77,7 @@ Panel {
         // The status of the touch, as PAM says it, or the field for the password when PAM asks for one
         Rectangle {
             Layout.fillWidth: true
-            Layout.preferredHeight: 48
+            Layout.preferredHeight: 56
             radius: Theme.radiusMd
             color: Theme.surface
             border { width: 1; color: card.flow && card.flow.supplementaryIsError ? Theme.critical : Theme.border }
@@ -117,9 +117,6 @@ Panel {
                 }
             }
         }
-
-        // the room between the status and the buttons: the card is as tall as its content, so no band is left empty
-    Item { Layout.preferredHeight: Theme.spaceSm }
 
         RowLayout {
             Layout.alignment: Qt.AlignRight
