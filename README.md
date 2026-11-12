@@ -126,10 +126,9 @@ one: it is an X11 shell, and runs wherever i3 does.
   command for it. The keys are yours to bind, see [`docs/i3.md`](docs/i3.md).
 - **Polkit agent.** A card for the touch of the key or the password, with its
   own layout for 1Password unlocking with the system.
-- **Theme.** Two themes, `nixos-navy` (the blues of nixos.org) and
-  `nixos-graphite` (greys), each with a dark and a light mode. The bar is the
-  color of the windows on dark, and a blue (a dark grey in graphite) with white
-  text on light.
+- **Theme.** The blues of nixos.org, with a dark and a light mode. The bar is the
+  color of the windows on dark, and a blue with white text on light. Every role
+  can be changed, a palette of greys included.
   `nix-quickshell theme [dark|light|auto|toggle]` changes it live. The palettes are
   data, see [Theme](#theme).
 
@@ -200,15 +199,13 @@ with a band of font height and 4 px above the tabbed containers. See
   <img src="docs/img/bar-light.png" alt="The bar in the light mode" width="830">
 </p>
 
-The palettes are themes, files of the package: `themes/nixos-navy.json`
-(the default) and `themes/nixos-graphite.json`, each with the roles of a
-`dark` and a `light` palette. `~/.config/nix-quickshell/theme.json`, or the
+The palettes are a file of the package, `palette.json`, with the roles
+of a `dark` and a `light` palette. `~/.config/nix-quickshell/theme.json`, or the
 file of `NIX_QUICKSHELL_THEME`, is read over it, and the shell reads both again when
 they change:
 
 ```json
 {
-  "name": "nixos-navy",
   "mode": "dark",
   "font": "Route 159",
   "radius": 16,
@@ -219,7 +216,7 @@ they change:
 }
 ```
 
-Every key is optional. `name` is `nixos-navy` or `nixos-graphite`. `mode` is
+Every key is optional. `mode` is
 `dark`, `light` or `auto` (light from 07:00 to 19:00 by default; a choice of
 `nix-quickshell theme` is kept in `~/.local/state/nix-quickshell/theme.json` and lasts
 over it). `font` is the family: Route 159 by default, the typeface of NixOS,
@@ -245,7 +242,6 @@ programs.nix-quickshell = {
   enable = true;
 
   theme = {
-    name = "nixos-navy";
     mode = "auto";                  # dark | light | auto
     font = "SF Pro Text";         # and fontSize, 11: the text of the GTK apps and of zathura
     dark.primary = "#7ebae4";       # the roles of a palette to change
@@ -317,7 +313,7 @@ shell follows and where it deviates, the limits, and how it is tested.
 
 ```sh
 nix develop                      # shellcheck, actionlint and jq
-nix flake check -L               # builds the shell and the patched i3, checks the themes
+nix flake check -L               # builds the shell and the patched i3, checks the palette
 nix build .#i3                   # says if the patch of i3 still applies
 nix develop --command shellcheck bin/nix-quickshell scripts/preview
 nix develop --command actionlint

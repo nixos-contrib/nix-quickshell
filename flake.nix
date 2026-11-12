@@ -37,20 +37,16 @@
         };
       });
 
-      # `nix flake check` builds the shell and the patched i3 (the patch must apply), and checks that the themes are the same shape
+      # `nix flake check` builds the shell and the patched i3 (the patch must apply), and checks that the palette has the same roles in both modes
       checks = forEach (pkgs: {
         inherit (self.packages.${pkgs.stdenv.hostPlatform.system}) nix-quickshell i3;
-        themes =
-          pkgs.runCommand "nix-quickshell-themes" { nativeBuildInputs = [ pkgs.jq ]; }
+        palette =
+          pkgs.runCommand "nix-quickshell-palette" { nativeBuildInputs = [ pkgs.jq ]; }
             ''
-              for f in ${./themes}/*.json; do
-                # a dark and a light palette with the same roles, each a color of six hex digits, or eight with the alpha first
-                jq -e '(.dark | keys) == (.light | keys)
-                  and ([.dark, .light] | all(.[]; to_entries | all(.value | test("^#([0-9a-fA-F]{6}|[0-9a-fA-F]{8})$"))))' "$f" > /dev/null \
-                  || { echo "$f: the palettes are not the same shape, or a role is not a color"; exit 1; }
-              done
-              # the themes have the same roles as each other
-              test "$(jq -c '.dark | keys' ${./themes}/*.json | sort -u | wc -l)" = 1
+              # a dark and a light palette with the same roles, each a color of six hex digits, or eight with the alpha first
+              jq -e '(.dark | keys) == (.light | keys)
+                and ([.dark, .light] | all(.[]; to_entries | all(.value | test("^#([0-9a-fA-F]{6}|[0-9a-fA-F]{8})$"))))' ${./palette.json} > /dev/null \
+                || { echo "palette.json: the palettes are not the same shape, or a role is not a color"; exit 1; }
               touch $out
             '';
       });

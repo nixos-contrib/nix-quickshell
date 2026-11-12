@@ -8,9 +8,9 @@ import Quickshell.Io
 // not an element of its own, and on light it is a blue, a header over the white windows. The cards are a step up from the windows, and the blues of nixos.org are only for what is active or can be
 // pressed
 Singleton {
-    // The theme is data. A theme of the package, themes/<name>.json, has the roles of a dark and of a light palette: nixos-navy is the
-    // default, the dark blues of nixos.org and its white, and nixos-graphite is the same with greys. The file of the user is over it,
-    // ~/.config/nix-quickshell/theme.json or the one of NIX_QUICKSHELL_THEME: the name of the theme, the font, the radius, the hours of auto, and the roles
+    // The theme is data. The palettes of the package, palette.json, have the roles of a dark and of a light palette: the dark blues
+    // of nixos.org and its white. The file of the user is over it,
+    // ~/.config/nix-quickshell/theme.json or the one of NIX_QUICKSHELL_THEME: the font, the radius, the hours of auto, and the roles
     // of a palette to change. Both are read when the shell starts and again when they change
     readonly property string userPath: Quickshell.env("NIX_QUICKSHELL_THEME") || (Quickshell.env("XDG_CONFIG_HOME") || Quickshell.env("HOME") + "/.config") + "/nix-quickshell/theme.json"
     function readJson(view: var): var {
@@ -36,7 +36,7 @@ Singleton {
     }
     FileView {
         id: shippedFile
-        path: Quickshell.shellPath("themes/" + (Theme.user.name || "nixos-navy") + ".json")
+        path: Quickshell.shellPath("palette.json")
         blockLoading: true
         watchChanges: true
         onFileChanged: reload()
@@ -127,7 +127,7 @@ Singleton {
     // The room under the bar before the first card
     readonly property int gap: 12
 
-    // The bar has roles of its own: on dark it is the base, as the windows, and on light it is a blue (a grey in graphite) with white text, a
+    // The bar has roles of its own: on dark it is the base, as the windows, and on light it is a blue with white text, a
     // header over the white windows. The focus is the tile of the focused workspace and of an open menu, and the logomark is white on a dark bar
     readonly property color barBg: palette.barBg
     readonly property color barText: palette.barText

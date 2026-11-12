@@ -17,7 +17,7 @@ stdenvNoCC.mkDerivation {
     root = ./.;
     fileset = lib.fileset.unions [
       ./Theme.qml
-      ./themes
+      ./palette.json
       ./shell.qml
       ./assets
       ./modules
@@ -33,7 +33,7 @@ stdenvNoCC.mkDerivation {
     runHook preInstall
 
     mkdir -p $out/share/nix-quickshell $out/bin
-    cp -r Theme.qml shell.qml assets modules themes $out/share/nix-quickshell/
+    cp -r Theme.qml shell.qml assets modules palette.json $out/share/nix-quickshell/
     install -Dm755 bin/nix-quickshell $out/bin/nix-quickshell
     wrapProgram $out/bin/nix-quickshell \
       --set-default NIX_QUICKSHELL_PATH $out/share/nix-quickshell \

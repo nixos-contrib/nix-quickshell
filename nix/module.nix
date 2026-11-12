@@ -12,7 +12,8 @@ let
   cfg = config.programs.nix-quickshell;
   inherit (lib) mkEnableOption mkOption mkIf types;
 
-  themeData = builtins.fromJSON (builtins.readFile ../themes/${cfg.theme.name}.json);
+  # The palettes of the package, the dark blues and the white of nixos.org: theme.dark and theme.light are over them
+  themeData = builtins.fromJSON (builtins.readFile ../palette.json);
   modes = [
     "dark"
     "light"
@@ -61,7 +62,7 @@ let
     example = {
       primary = "#7ebae4";
     };
-    description = "Roles of the palette to change, by name, as in themes/*.json. A color is #rrggbb, or #aarrggbb with alpha.";
+    description = "Roles of the palette to change, by name, as in palette.json. A color is #rrggbb, or #aarrggbb with alpha.";
   };
 
   enableOption =
@@ -115,14 +116,6 @@ in
     };
 
     theme = {
-      name = mkOption {
-        type = types.enum [
-          "nixos-navy"
-          "nixos-graphite"
-        ];
-        default = "nixos-navy";
-        description = "The theme, a set of palettes of the package (themes/*.json): nixos-navy is the blues of nixos.org, nixos-graphite is the same with greys.";
-      };
       mode = mkOption {
         type = types.enum [
           "dark"
@@ -376,7 +369,6 @@ in
     } // {
       "nix-quickshell/theme.json".text = builtins.toJSON (
         lib.filterAttrs (_: v: v != null && v != { }) {
-          name = cfg.theme.name;
           mode = cfg.theme.mode;
           hours = cfg.theme.hours;
           inherit (cfg.theme) font radius dark light;

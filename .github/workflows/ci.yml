@@ -31,7 +31,7 @@ jobs:
         run: nix develop --command actionlint
 
   # Builds the shell and the i3 with its patch, which has to apply, and checks
-  # the themes, on both systems that the flake supports.
+  # the palette, on both systems that the flake supports.
   check:
     strategy:
       fail-fast: false
