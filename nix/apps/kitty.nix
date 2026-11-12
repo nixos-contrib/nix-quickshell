@@ -1,4 +1,4 @@
-# kitty: `include` it from kitty.conf, `include ~/.local/state/nix/quickshell/kitty.conf`: `nix-quickshell apps` sends SIGUSR1 to kitty when the file
+# kitty: `include` it from kitty.conf, `include ~/.local/state/nix-quickshell/kitty.conf`: `nix-quickshell apps` sends SIGUSR1 to kitty when the file
 # changes, which reads its config again in every window, so the open terminals follow the mode
 # `program` is the name under programs.<program> of Home Manager: when it is enabled the app is found, and `wire` puts the include in its
 # config. `target` is the name in the state folder, `reload` runs when the file there changed (or at each `nix-quickshell apps` when `always`), with the

@@ -202,7 +202,7 @@ with a band of font height and 4 px above the tabbed containers. See
 
 The palettes are themes, files of the package: `themes/nixos-navy.json`
 (the default) and `themes/nixos-graphite.json`, each with the roles of a
-`dark` and a `light` palette. `~/.config/nix/quickshell/theme.json`, or the
+`dark` and a `light` palette. `~/.config/nix-quickshell/theme.json`, or the
 file of `NIX_QUICKSHELL_THEME`, is read over it, and the shell reads both again when
 they change:
 
@@ -221,7 +221,7 @@ they change:
 
 Every key is optional. `name` is `nixos-navy` or `nixos-graphite`. `mode` is
 `dark`, `light` or `auto` (light from 07:00 to 19:00 by default; a choice of
-`nix-quickshell theme` is kept in `~/.local/state/nix/quickshell/theme.json` and lasts
+`nix-quickshell theme` is kept in `~/.local/state/nix-quickshell/theme.json` and lasts
 over it). `font` is the family: Route 159 by default, the typeface of NixOS,
 which has to be installed (nixpkgs has it as `route159`). It has the Latin
 letters and little more, so the module adds a fontconfig rule that makes
@@ -256,7 +256,7 @@ programs.nix-quickshell = {
     gtk.enable = true;              # the settings and the colors of the GTK apps (adw-gtk3), GTK 3 and 4
     wallpaper.enable = true;        # the wallpaper of the theme, for each mode
     zathura.enable = true;          # the colors of an app, see Apps below
-    i3.enable = true;               # the colors of the tabs, `include ~/.local/state/nix/quickshell/i3.conf` in the config of i3
+    i3.enable = true;               # the colors of the tabs, `include ~/.local/state/nix-quickshell/i3.conf` in the config of i3
   };
 
   calendar.weekStart = "monday";
@@ -269,7 +269,7 @@ programs.nix-quickshell = {
 |---|---|---|
 | `targets.gtk` | two GTK themes in `~/.local/share/themes`, `nix-quickshell-dark` and `nix-quickshell-light` (adw-gtk3 with the named colors of the palette after it), each with a twin of the same look (`-twin`), `gtk-3.0/settings.ini` and `gtk-4.0/gtk.css`, and `xsettings-<mode>.conf` and its twin for xsettingsd | `menuImages` (icons in the menus, on), `extraCss` (layout rules that can use the colors, as `@window_bg_color`), `xsettings` (as `Xft/DPI`), `iconTheme` (`dark`, `light` and `package`) |
 | `targets.wallpaper` | `wallpaper-<mode>.png`, the surface color of the palette, a step off the bar, with the logomark of NixOS, the one with the gradient, in the middle, and `nix-quickshell apps` sets the one of the mode with feh | `image`, an image of your own: one for both modes, or `{ dark = ./night.png; light = ./day.png; }` |
-| `targets.cursor` | the cursor theme (capitaine-cursors, the arrow of macOS, by default): its package, `icons/default/index.theme`, the cursor of GTK and `Xresources`, and `session.sh` | `. ~/.config/nix/quickshell/session.sh` in the session, and `size`: 24 by default, 48 on a screen with twice the pixels |
+| `targets.cursor` | the cursor theme (capitaine-cursors, the arrow of macOS, by default): its package, `icons/default/index.theme`, the cursor of GTK and `Xresources`, and `session.sh` | `. ~/.config/nix-quickshell/session.sh` in the session, and `size`: 24 by default, 48 on a screen with twice the pixels |
 | `targets.portal` | `portal`, a marker, and the package of dconf: `nix-quickshell apps` writes `prefer-dark` or `prefer-light` in org.gnome.desktop.interface color-scheme, which the XDG desktop portal answers to the apps that follow the appearance of the system (terminals as Rio and WezTerm, Brave, the apps of GTK 4), when the mode changes and at the start of the session | a GSettings backend that the portal reads, on NixOS `programs.dconf.enable` |
 | `targets.<app>` | one file of `nix/apps/` each, see below | |
 
@@ -288,16 +288,16 @@ targets.kitty.enable = false;  # I have my own theme
 targets.zathura.enable = true; # not a Home Manager program here: include the file yourself
 ```
 
-`nix-quickshell apps` copies the file of the mode to `~/.local/state/nix/quickshell/`
+`nix-quickshell apps` copies the file of the mode to `~/.local/state/nix-quickshell/`
 (`kitty.conf`, `zathurarc`, `alacritty.toml`, `wezterm.toml`, `xresources`) and runs what the app
 needs to read it again: kitty gets a SIGUSR1, i3 a `reload`, xterm's resources are
 merged with `xrdb`, and Alacritty, WezTerm and zathura need nothing. Without Home Manager's program
-the include is yours: `include ~/.local/state/nix/quickshell/kitty.conf`,
-`general.import = ["~/.local/state/nix/quickshell/alacritty.toml"]`,
+the include is yours: `include ~/.local/state/nix-quickshell/kitty.conf`,
+`general.import = ["~/.local/state/nix-quickshell/alacritty.toml"]`,
 `include` in `zathurarc`, and for WezTerm
 `config.colors = wezterm.color.load_scheme(path)` with
 `wezterm.add_to_config_reload_watch_list(path)` for the file
-`~/.local/state/nix/quickshell/wezterm.toml`.
+`~/.local/state/nix-quickshell/wezterm.toml`.
 
 WezTerm gets the colors of the terminal, the cursor, the selection and the tab bar of
 the plain kind. Its default tab bar is the fancy one, which takes the colors of

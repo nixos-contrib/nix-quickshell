@@ -1,4 +1,4 @@
-# WezTerm: its `colors` are the scheme file of the state folder, `~/.local/state/nix/quickshell/wezterm.toml`, in the format of a color scheme
+# WezTerm: its `colors` are the scheme file of the state folder, `~/.local/state/nix-quickshell/wezterm.toml`, in the format of a color scheme
 # of WezTerm. The config adds the file to the list that WezTerm watches, so the open terminals read it again when `nix-quickshell apps` puts the file of
 # the new mode there, and follow it. A file that is not there yet is no scheme, and the colors of WezTerm are its own
 # `program` is the name under programs.<program> of Home Manager: when it is enabled the app is found, and `wire` puts the colors in its
