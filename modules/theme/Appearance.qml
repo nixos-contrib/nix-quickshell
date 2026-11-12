@@ -38,7 +38,7 @@ Scope {
         return true;
     }
 
-    readonly property string statePath: (Quickshell.env("XDG_STATE_HOME") || Quickshell.env("HOME") + "/.local/state") + "/nix-quickshell/theme.json"
+    readonly property string statePath: (Quickshell.env("XDG_STATE_HOME") || Quickshell.env("HOME") + "/.local/state") + "/nix/quickshell/theme.json"
     function save() {
         store.setText(JSON.stringify({ mode: root.choice }));
     }

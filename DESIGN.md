@@ -58,8 +58,8 @@ merging it is what tags the first release (0.1.0 and not 1.0.0, as the options a
 | `nix-quickshell` | `bin/nix-quickshell` | the commands: the IPC of the shell, `apps` (the files of a mode into place), `theme`, `tabs list` |
 | Nix | `nix/`, `flake.nix` | the home-manager module, the GTK theme, the apps that follow the theme (the colors of i3 and its patch among them), the i3 patch as an overlay, the packages |
 
-Files: the module writes both modes into `~/.config/nix-quickshell`; `nix-quickshell apps` copies the ones of the current mode into the state folder
-(`~/.local/state/nix-quickshell`), which the configs of the apps include. The mode is saved there, and is only changed by `nix-quickshell theme`.
+Files: the module writes both modes into `~/.config/nix/quickshell`; `nix-quickshell apps` copies the ones of the current mode into the state folder
+(`~/.local/state/nix/quickshell`), which the configs of the apps include. The mode is saved there, and is only changed by `nix-quickshell theme`.
 
 ## Decisions
 

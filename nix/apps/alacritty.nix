@@ -1,4 +1,4 @@
-# alacritty: import it from the config, `general.import = ["~/.local/state/nix-quickshell/alacritty.toml"]`: Alacritty reads an imported file
+# alacritty: import it from the config, `general.import = ["~/.local/state/nix/quickshell/alacritty.toml"]`: Alacritty reads an imported file
 # again when it changes, so the open terminals follow the mode. The sixteen colors are the ones of xterm
 # `program` is the name under programs.<program> of Home Manager: when it is enabled the app is found, and `wire` puts the include in its
 # config. `target` is the name in the state folder, `reload` runs when the file there changed (or at each `nix-quickshell apps` when `always`), with the

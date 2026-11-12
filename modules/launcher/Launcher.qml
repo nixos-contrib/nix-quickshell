@@ -35,7 +35,7 @@ Scope {
     // launcher does not list it
     readonly property string terminal: Quickshell.env("TERMINAL") || ""
 
-    readonly property string statePath: (Quickshell.env("XDG_STATE_HOME") || Quickshell.env("HOME") + "/.local/state") + "/nix-quickshell/launcher.json"
+    readonly property string statePath: (Quickshell.env("XDG_STATE_HOME") || Quickshell.env("HOME") + "/.local/state") + "/nix/quickshell/launcher.json"
 
     // A key that is held a moment repeats, and the command it runs comes again and again, 25 ms apart: these commands toggle, so
     // the repeat would close what the first opened. Only the first of a burst counts, the ones that follow it within 400 ms are
