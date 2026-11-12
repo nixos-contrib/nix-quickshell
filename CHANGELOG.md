@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.4.0](https://github.com/nixos-contrib/nix-quickshell/compare/v0.3.0...v0.4.0) (2026-11-12)
+
+
+### ⚠ BREAKING CHANGES
+
+* one palette, palette.json, and no theme.name
+
+### Code Refactoring
+
+* one palette, palette.json, and no theme.name ([7c00f1b](https://github.com/nixos-contrib/nix-quickshell/commit/7c00f1b3a975191b9e797b17331aad899ebbe954))
+
 ## [0.3.0](https://github.com/nixos-contrib/nix-quickshell/compare/v0.2.0...v0.3.0) (2026-11-12)
 
 
