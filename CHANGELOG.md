@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.2.0](https://github.com/nixos-contrib/nix-quickshell/compare/v0.1.0...v0.2.0) (2026-11-12)
+
+
+### ⚠ BREAKING CHANGES
+
+* the command nshell is nix-quickshell, the variables NSHELL_* are NIX_QUICKSHELL_*, and the config and the state moved to nix/quickshell, with no alias. The window titles are unchanged.
+
+### Code Refactoring
+
+* rename nshell to nix-quickshell, and keep config and state under nix/quickshell ([757dcf6](https://github.com/nixos-contrib/nix-quickshell/commit/757dcf61107fe59bb0e7facf9b624ab26d43d0db))
+
 ## 0.1.0 (2026-11-09)
 
 
