@@ -24,7 +24,7 @@ let
     lib.filterAttrs (n: t: t == "regular" && lib.hasSuffix ".nix" n) (builtins.readDir ./apps)
   );
   enabledApps = lib.filterAttrs (n: _: cfg.targets.${n}.enable) appDefs;
-  # The mode the apps have until the shell says its own: the files that the shell copies when the mode changes, see `nshell apps`.
+  # The mode the apps have until the shell says its own: the files that the shell copies when the mode changes, see `nix-quickshell apps`.
   # Dark, unless the theme is light
   startMode = if cfg.theme.mode == "light" then "light" else "dark";
   stateDir = "${config.xdg.stateHome}/nix-quickshell";
@@ -32,7 +32,7 @@ let
   gtkTheme = m: "nix-quickshell-${m}";
   # The same theme under another name. Brave (Chromium) reads the colors of the GTK theme when its name changes, before GTK has loaded it, and
   # so it shows the mode before: the apps are told the name of the theme, and a moment later the name of its twin, which is when Brave
-  # reads the theme that was loaded. See `nshell apps`
+  # reads the theme that was loaded. See `nix-quickshell apps`
   gtkTwin = m: "nix-quickshell-${m}-twin";
   iconName = m: cfg.targets.gtk.iconTheme.${m};
   # The GTK theme of a mode: adw-gtk3 in that mode, with the named colors of the palette after it, which win over its own, and the
@@ -130,7 +130,7 @@ in
           "auto"
         ];
         default = "dark";
-        description = "dark, light, or auto, which follows the hours below. `nshell theme` changes it while the shell runs, and that choice lasts over this one.";
+        description = "dark, light, or auto, which follows the hours below. `nix-quickshell theme` changes it while the shell runs, and that choice lasts over this one.";
       };
       hours = {
         light = mkOption {
@@ -302,7 +302,7 @@ in
       wallpaper = {
         enable = enableOption ''
           The wallpaper of the theme: ~/.config/nix-quickshell/wallpaper-<mode>.png, the surface color of the palette (not the one of the bar) with the logomark of NixOS in the
-          middle, and `nshell apps` sets the one of the mode with feh, when the mode changes and at the start of the session
+          middle, and `nix-quickshell apps` sets the one of the mode with feh, when the mode changes and at the start of the session
         '';
         image = mkOption {
           type = types.nullOr (
@@ -331,7 +331,7 @@ in
 
       portal = {
         enable = enableOption ''
-          The appearance of the system: `nshell apps` writes `prefer-dark` or `prefer-light` in org.gnome.desktop.interface color-scheme, the setting that
+          The appearance of the system: `nix-quickshell apps` writes `prefer-dark` or `prefer-light` in org.gnome.desktop.interface color-scheme, the setting that
           the XDG desktop portal answers (org.freedesktop.appearance) to the apps that follow it, as terminals, Brave and the apps of GTK 4, when the mode
           changes and at the start of the session. It needs a GSettings backend that the portal reads: on NixOS `programs.dconf.enable`
         '';
@@ -343,7 +343,7 @@ in
         type = types.bool;
         default = cfg.targets.autoEnable && def.program != null && (config.programs.${def.program}.enable or false);
         defaultText = lib.literalMD "`programs.${name}.enable` when `targets.autoEnable` is on, otherwise false";
-        description = "~/.config/nix-quickshell/apps/${name}-<mode>, the colors of ${name}, which `nshell apps` puts in the state folder as ${def.target}, and the include of it in the config of ${name} when Home Manager has it.";
+        description = "~/.config/nix-quickshell/apps/${name}-<mode>, the colors of ${name}, which `nix-quickshell apps` puts in the state folder as ${def.target}, and the include of it in the config of ${name} when Home Manager has it.";
       };
     }) appDefs;
   };
@@ -441,9 +441,9 @@ in
         export XCURSOR_PATH=${config.home.profileDirectory}/share/icons:/run/current-system/sw/share/icons
       '';
     }
-    # the apps: the colors of each mode, and what `nshell apps` needs to know of the app, which is a file of shell variables
+    # the apps: the colors of each mode, and what `nix-quickshell apps` needs to know of the app, which is a file of shell variables
     // lib.optionalAttrs cfg.targets.portal.enable {
-      # tells `nshell apps` to write the appearance of the system
+      # tells `nix-quickshell apps` to write the appearance of the system
       "nix-quickshell/portal".text = "1\n";
     }
     // lib.concatMapAttrs (

@@ -24,7 +24,7 @@ Scope {
     // how many times each app was run, by the id of its desktop entry
     property var usage: ({})
 
-    // A pick: a script asked for a choice among its lines, see `nshell pick`. The folder holds the lines and the pipe where the
+    // A pick: a script asked for a choice among its lines, see `nix-quickshell pick`. The folder holds the lines and the pipe where the
     // answer goes, and the prompt takes the place of the modes
     property string pickDir: ""
     property string pickPrompt: ""

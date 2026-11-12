@@ -21,7 +21,7 @@ our tests Wayland under Parallels Desktop on Apple Silicon did not let the displ
 and i3. It is not tied to a VM: it is an X11 shell.
 
 It is a work in progress and has no release yet: release-please keeps the pull request for 0.1.0 open until the shell is stable, and
-merging it is what tags the first release (0.1.0 and not 1.0.0, as the options and the commands of `nshell` are not settled, see Decisions). The system that uses it pins a commit in its `flake.lock`.
+merging it is what tags the first release (0.1.0 and not 1.0.0, as the options and the commands of `nix-quickshell` are not settled, see Decisions). The system that uses it pins a commit in its `flake.lock`.
 
 ## Principles
 
@@ -51,15 +51,15 @@ merging it is what tags the first release (0.1.0 and not 1.0.0, as the options a
 | Bar | `modules/bar` | the logo and its menu, the workspaces with their windows, the tray, the player, the sound, the battery, the bell, the clock with its calendar, and the popups that hang from them |
 | Windows in the bar | `modules/tabs`, `modules/bar/Workspaces.qml` | an icon per window after the number of its workspace, a group per tabbed container, its list, a menu, a drag, the wheel |
 | Notifications | `modules/notifications` | the server, the toasts, the groups, the progress, the history, do not disturb, the quiet sound of chat apps |
-| Launcher | `modules/launcher` | apps, windows and the history of the clipboard, `nshell pick` for scripts |
+| Launcher | `modules/launcher` | apps, windows and the history of the clipboard, `nix-quickshell pick` for scripts |
 | Session, media | `modules/session`, `modules/common/Media.qml` | the card in the middle of the screen for the session and for About, and the players that speak MPRIS |
 | OSD, polkit | `modules/osd`, `modules/polkit` | the volume pill, the card for the key or the password |
 | Theme | `Theme.qml`, `modules/theme` | the tokens, the mode (dark, light, auto), the files of the apps |
-| `nshell` | `bin/nshell` | the commands: the IPC of the shell, `apps` (the files of a mode into place), `theme`, `tabs list` |
+| `nix-quickshell` | `bin/nix-quickshell` | the commands: the IPC of the shell, `apps` (the files of a mode into place), `theme`, `tabs list` |
 | Nix | `nix/`, `flake.nix` | the home-manager module, the GTK theme, the apps that follow the theme (the colors of i3 and its patch among them), the i3 patch as an overlay, the packages |
 
-Files: the module writes both modes into `~/.config/nix-quickshell`; `nshell apps` copies the ones of the current mode into the state folder
-(`~/.local/state/nix-quickshell`), which the configs of the apps include. The mode is saved there, and is only changed by `nshell theme`.
+Files: the module writes both modes into `~/.config/nix-quickshell`; `nix-quickshell apps` copies the ones of the current mode into the state folder
+(`~/.local/state/nix-quickshell`), which the configs of the apps include. The mode is saved there, and is only changed by `nix-quickshell theme`.
 
 ## Decisions
 
@@ -86,18 +86,18 @@ Files: the module writes both modes into `~/.config/nix-quickshell`; `nshell app
 | App icons, no thumbnails, in the lists | enough to tell windows apart, and cheap | thumbnails: heavy, and not needed in the first version |
 | 2026-11-06: the design pass is done | the tokens, the radius scale, the hairline edge and the shadows, a navy theme as the default and a graphite one, `theme.json` over the theme, and the home-manager module that writes the files of the apps | |
 | 2026-11-06: fields, the hover of a row and tips of GTK apps are tints of the palette | adw-gtk3 draws them as a veil of the text color (`alpha(currentColor, 0.1)`), which is grey on white and almost grey on the navy, and no named color changes it; the shell uses the `surface` role for its own fields and cards, so GTK does too | leaving the veils: a grey address field in a blue theme |
-| The mode is only written by `nshell theme` | the saved choice survives restarts and deploys | |
+| The mode is only written by `nix-quickshell theme` | the saved choice survives restarts and deploys | |
 | Brave gets the theme twice | Brave reads the colors of a GTK theme when its name changes, before GTK has loaded it, and so shows the mode before | one change; nudging other settings did nothing |
 | 2026-11-07: the logo opens a menu, as the Apple menu | About This Computer, the apps, the mode, Force Quit and the session are in one place, at the corner where the eye starts, and a bar that is full has no power icon | the logo as the launcher only; a power item at the right of the bar; a right click for the session |
 | 2026-11-07: icons for places and concepts, none for what is done | the Apple menu has them for its places and not for Sleep, Restart or Log Out, and Apple went back to that in macOS 27 after the icons of every item in Tahoe: see Icons | an icon on every line of the menu of the logo (built, shown, removed); a sun for the mode, which drew as a gear; the icon of the app on Force Quit |
 | 2026-11-07: the history of the notifications has no panel | a card inside a panel had five lines around it, and was not the card of the toast that came to the same corner before | the panel with the count of all of them in its header |
 | 2026-11-07: a group of notifications is a stack with a badge, opened by a click | the newest card says what is latest, the badge says how many, and the destructive Clear says what it does | a chevron and the count in the header of the card, and a round close button that cleared forty-four |
-| 2026-11-07: the apps with their own colors are files, off unless asked for | the shell does not overrule the terminal theme of the user (Catppuccin, which Neovim and tmux are made for), and `nshell` has no app in it | integrations for each app, on by default |
+| 2026-11-07: the apps with their own colors are files, off unless asked for | the shell does not overrule the terminal theme of the user (Catppuccin, which Neovim and tmux are made for), and `nix-quickshell` has no app in it | integrations for each app, on by default |
 | 2026-11-07: the options are `theme`, `targets` and the behavior of the shell | `theme` is only how it looks (`name`, `mode`, the font, the roles). What follows it is a target, whether it is a program or a part of the desktop: GTK, the wallpaper, the cursor, i3 and the colors of each app are `targets.<name>`, as in Stylix and Catppuccin, and `autoEnable` turns on the ones that Home Manager has. `calendar`, `session` and `network` are not look, and are not in `theme`. The old names are gone, with no aliases: there is no release | `integration` and `apps` as two groups, `theme.gtk`, a wallpaper inside `theme.dark`, `programs.nix.quickshell` (which reads as an option of Nix itself) | 
 | 2026-11-09: the launcher groups its list: Suggestions (the five most run), Applications, Windows, and Results (N) for a search | a long list of the same icons has no places to look at; the label of a section says where the eye is, with no line and no new color. The mode is called Applications | the key caps and a kind on every row, as Raycast and Vicinae have them: more to look at in a card that is quiet, and a second footer in a panel that has one hint |
-| 2026-11-09: the launcher has the history of the clipboard as a third mode, which reverses "No clipboard history" | the one thing that the history is for, a copy from a moment ago, is a list and a search, which the launcher is; a key (`nshell launcher clipboard`) and Tab reach it as the other two. The history is made by `clipmenud`, which the system runs, so the shell only reads a folder and carries no watcher of its own (`clipmenud` waits for the event of X with `clipnotify`, and a poll in the shell is what Reliable over clever rejects). The two reasons of the old row are answered by what the system sets: the folder is in the runtime directory, which is memory and goes with the session, with 50 entries and the clipboard only, and the windows of 1Password are not recorded. What is left is said in `docs/clipboard.md`: a password copied from the browser is in the history, and the clipboard that Parallels shares with the Mac is a copy like the others, and is in it | a watcher in the shell (polling), a persistent history on disk, a picker of its own (rofi, dmenu) next to the launcher |
+| 2026-11-09: the launcher has the history of the clipboard as a third mode, which reverses "No clipboard history" | the one thing that the history is for, a copy from a moment ago, is a list and a search, which the launcher is; a key (`nix-quickshell launcher clipboard`) and Tab reach it as the other two. The history is made by `clipmenud`, which the system runs, so the shell only reads a folder and carries no watcher of its own (`clipmenud` waits for the event of X with `clipnotify`, and a poll in the shell is what Reliable over clever rejects). The two reasons of the old row are answered by what the system sets: the folder is in the runtime directory, which is memory and goes with the session, with 50 entries and the clipboard only, and the windows of 1Password are not recorded. What is left is said in `docs/clipboard.md`: a password copied from the browser is in the history, and the clipboard that Parallels shares with the Mac is a copy like the others, and is in it | a watcher in the shell (polling), a persistent history on disk, a picker of its own (rofi, dmenu) next to the launcher |
 | 2026-11-09: a value of the network popup that is pasted elsewhere is copied by a click on its line | the address and the gateway are for a command (`ssh`, `curl`, `ping`), and a label cannot be selected in a popup that closes when it loses the focus. A click is one gesture and adds no control; the line takes `surfaceHigh` under the pointer as the lines of the Wi-Fi do, and says "Copied" in the primary color for a moment, with no toast. The address is copied without its prefix, as it is pasted and not read, and the line still shows it. Speed is not copied | a copy icon on each line (four controls more in a quiet popup), a right click (hidden, and a trackpad has none), a text that can be selected |
-| 2026-11-09: the first release is 0.1.0 | the shell is in daily use and has a feature set, which 0.0.1 would undersell as "not usable yet", but its interface is not settled: the options of the module were renamed with no aliases this month, it is only tried on X11 in one VM, and light mode and Wi-Fi are not tried on the new parts. In 0.x a minor version is a break and a patch is a fix. `release-as` in the config of release-please sets it, and **has to be removed once 0.1.0 is tagged**, or every release after it is forced to that number | 1.0.0 (it promises options and `nshell` commands that do not change), 0.0.1 (the number that release-please proposed from the manifest) |
+| 2026-11-09: the first release is 0.1.0 | the shell is in daily use and has a feature set, which 0.0.1 would undersell as "not usable yet", but its interface is not settled: the options of the module were renamed with no aliases this month, it is only tried on X11 in one VM, and light mode and Wi-Fi are not tried on the new parts. In 0.x a minor version is a break and a patch is a fix. `release-as` in the config of release-please sets it, and **has to be removed once 0.1.0 is tagged**, or every release after it is forced to that number | 1.0.0 (it promises options and `nix-quickshell` commands that do not change), 0.0.1 (the number that release-please proposed from the manifest) |
 | 2026-11-09: WezTerm is an app of the shell, off unless asked for | the package is to look as one piece in its terminal too, and a terminal is one file of colors like Alacritty and kitty. The file is a color scheme of WezTerm in the state folder, and the config adds it to the files that WezTerm watches, so the open terminals follow the mode with no signal to send. It is off unless asked for, or Home Manager has `programs.wezterm` on, as the others, and an `enable` of the user wins: the terminal theme of the user (Catppuccin, which Neovim and tmux are made for) is not overruled, see the row of 2026-11-07. The tab bar of the plain kind takes the colors, and the fancy one, the default of WezTerm, takes `window_frame`, which a scheme file cannot hold | a theme for Neovim (the highlight groups of its plugins are a project of their own, a recipe with `mini.base16` in the README is the most that it would be), `window_frame` written by the shell (it would overrule the settings of the user) |
 
 ## Other shells
@@ -373,9 +373,9 @@ tile of text would look further from its neighbour than a tile of an icon.
 
 ### Keys
 
-The commands that a key can run (`nshell launcher`, `center`, `bar`, `calendar`) toggle, and a key that is held a moment repeats: the command
+The commands that a key can run (`nix-quickshell launcher`, `center`, `bar`, `calendar`) toggle, and a key that is held a moment repeats: the command
 runs again and again, 25 ms apart, and the repeat would close what the first opened. The command itself catches it (`same_press` in
-`bin/nshell`): a run less than 400 ms after the one before is the same press and ends at once, and every run counts as the one
+`bin/nix-quickshell`): a run less than 400 ms after the one before is the same press and ends at once, and every run counts as the one
 before, so a key held for any time is one press. It has to be the command: starting the client of Quickshell takes long enough
 for the runs to pile up and reach the shell in bursts, and a late one looked like a new press. The shell keeps a check of its
 own for the commands that reach it by other ways.
@@ -428,8 +428,8 @@ exported as `overlays.i3` and checked by `nix build .#i3`. See `docs/i3.md`.
 - A drag in a model that is rebuilt on every change ends in the middle of it: keep the delegates (`ScriptModel` with `objectProp`).
 - adw-gtk3 takes the palette through named colors, but some states are `alpha(currentColor, x)`: those need a rule of their own (`nix/generators.nix`).
 - The menus of GTK 3 apps here are opaque windows (depth 24), so a rounded corner of the theme shows black outside the round: the menus of a menu bar are square, as the context menus are. Tooltips have an alpha channel and stay round.
-- A key that is held repeats the command: `nshell` catches a run less than 400 ms after the one before, so scripts need a pause between
-  two `nshell theme` calls.
+- A key that is held repeats the command: `nix-quickshell` catches a run less than 400 ms after the one before, so scripts need a pause between
+  two `nix-quickshell theme` calls.
 - A loss of focus is also reported when a key grab starts: ask i3 before closing a window (`FocusGuard`).
 - `i3-msg restart` drops the dock registration of the bar: restart the shell after it.
 - i3 moves a floating window that starts before the screen back to the edge, so a popup that hangs near the left edge has less room for its shadow there, and must not move its panel to make it.
@@ -441,8 +441,8 @@ exported as `overlays.i3` and checked by `nix build .#i3`. See `docs/i3.md`.
 
 ## How it is tested
 
-- A copy of the shell runs with `NSHELL_PATH` over the one that is installed, with a private state folder (`XDG_STATE_HOME`) and its
-  own theme file (`NSHELL_THEME`), so that the real history and the real mode are not touched.
+- A copy of the shell runs with `NIX_QUICKSHELL_PATH` over the one that is installed, with a private state folder (`XDG_STATE_HOME`) and its
+  own theme file (`NIX_QUICKSHELL_THEME`), so that the real history and the real mode are not touched.
 - Screenshots of the screen, cropped to what is being judged. A screenshot of a real window shows its content, so tests use windows of
   their own, with made-up titles, and close them by id.
 - A before and after of the rectangles of the windows, taken with their workspace in view, when anything touches the layout.
@@ -456,7 +456,7 @@ exported as `overlays.i3` and checked by `nix build .#i3`. See `docs/i3.md`.
   when the theme changes, so the windows are opened again after a change of mode and the shots are taken with the workspace in view for a few seconds; and a workspace that is
   itself tabbed (`layout tabbed` on a window that is alone in the workspace) has all its windows unmapped while a floating window has the focus, which is i3 and not the shell, so
   the tabs are in a container of their own (`split h` first).
-- A second copy of the shell on a private bus (`dbus-daemon`, `NSHELL_NO_BAR=1`, a private `XDG_STATE_HOME`) takes the notifications that a script sends, and a fake
+- A second copy of the shell on a private bus (`dbus-daemon`, `NIX_QUICKSHELL_NO_BAR=1`, a private `XDG_STATE_HOME`) takes the notifications that a script sends, and a fake
   player that speaks MPRIS (a few lines of `dbus-next`, which logs what it is asked) takes the controls of the media popup.
 - Clicks of a test are sent only when no window of the shell is open on the real screen, and the test works on an empty workspace.
 - Scripts are files: `pkill -f` in a command line matches the command line itself.

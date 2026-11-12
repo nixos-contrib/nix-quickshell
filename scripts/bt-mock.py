@@ -5,7 +5,7 @@
 #   dbus-daemon --config-file=/run/current-system/sw/share/dbus-1/session.conf --address=unix:path=/tmp/lab-sysbus --fork
 #   DBUS_SYSTEM_BUS_ADDRESS=unix:path=/tmp/lab-sysbus python3 -m dbusmock --system -t bluez5 &
 #   python3 scripts/bt-mock.py setup
-#   DBUS_SYSTEM_BUS_ADDRESS=unix:path=/tmp/lab-sysbus NSHELL_PATH=$PWD nshell
+#   DBUS_SYSTEM_BUS_ADDRESS=unix:path=/tmp/lab-sysbus NIX_QUICKSHELL_PATH=$PWD nix-quickshell
 #
 # setup adds the adapter hci0 and four devices: a pair of headphones that are paired and connected, with a battery, a keyboard that is paired, a mouse that
 # is in range, and a phone in range. Other commands: connect, disconnect and pair take the address of a device, off and on turn the adapter off and on.

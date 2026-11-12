@@ -10,7 +10,7 @@
 
 # The shell: the QML next to the command, which runs Quickshell on it
 stdenvNoCC.mkDerivation {
-  pname = "nshell";
+  pname = "nix-quickshell";
   version = "0.1.0"; # x-release-please-version
 
   src = lib.fileset.toSource {
@@ -21,7 +21,7 @@ stdenvNoCC.mkDerivation {
       ./shell.qml
       ./assets
       ./modules
-      ./bin/nshell
+      ./bin/nix-quickshell
     ];
   };
 
@@ -32,12 +32,12 @@ stdenvNoCC.mkDerivation {
   installPhase = ''
     runHook preInstall
 
-    mkdir -p $out/share/nshell $out/bin
-    cp -r Theme.qml shell.qml assets modules themes $out/share/nshell/
-    install -Dm755 bin/nshell $out/bin/nshell
-    wrapProgram $out/bin/nshell \
-      --set-default NSHELL_PATH $out/share/nshell \
-      --set-default NSHELL_BIN $out/bin/nshell \
+    mkdir -p $out/share/nix-quickshell $out/bin
+    cp -r Theme.qml shell.qml assets modules themes $out/share/nix-quickshell/
+    install -Dm755 bin/nix-quickshell $out/bin/nix-quickshell
+    wrapProgram $out/bin/nix-quickshell \
+      --set-default NIX_QUICKSHELL_PATH $out/share/nix-quickshell \
+      --set-default NIX_QUICKSHELL_BIN $out/bin/nix-quickshell \
       --prefix PATH : ${lib.makeBinPath [ quickshell xinput xdotool iproute2 ]}
 
     runHook postInstall
@@ -46,7 +46,7 @@ stdenvNoCC.mkDerivation {
   meta = {
     description = "A small desktop shell for NixOS on X11, in QML for Quickshell";
     license = lib.licenses.gpl3Plus;
-    mainProgram = "nshell";
+    mainProgram = "nix-quickshell";
     platforms = lib.platforms.linux;
   };
 }

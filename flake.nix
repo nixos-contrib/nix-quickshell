@@ -39,7 +39,7 @@
 
       # `nix flake check` builds the shell and the patched i3 (the patch must apply), and checks that the themes are the same shape
       checks = forEach (pkgs: {
-        inherit (self.packages.${pkgs.stdenv.hostPlatform.system}) nshell i3;
+        inherit (self.packages.${pkgs.stdenv.hostPlatform.system}) nix-quickshell i3;
         themes =
           pkgs.runCommand "nix-quickshell-themes" { nativeBuildInputs = [ pkgs.jq ]; }
             ''
@@ -56,8 +56,8 @@
       });
 
       packages = forEach (pkgs: rec {
-        nshell = pkgs.callPackage ./package.nix { };
-        default = nshell;
+        nix-quickshell = pkgs.callPackage ./package.nix { };
+        default = nix-quickshell;
         # the i3 of the pinned nixpkgs with the patch: `nix build .#i3` says if the patch still applies
         i3 = (pkgs.extend self.overlays.i3).i3;
       });

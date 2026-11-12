@@ -81,7 +81,7 @@ Popover {
         { text: "About This Computer", glyph: "\uf108", action: () => win.session.showAbout() },
         { sep: true },
         { text: "Applications…", glyph: "\uf009", action: () => win.launcher.show("apps") },
-        { text: Theme.dark ? "Switch to Light Mode" : "Switch to Dark Mode", glyph: "\uf042", action: () => Quickshell.execDetached(["nshell", "theme", "toggle"]) },
+        { text: Theme.dark ? "Switch to Light Mode" : "Switch to Dark Mode", glyph: "\uf042", action: () => Quickshell.execDetached(["nix-quickshell", "theme", "toggle"]) },
         { sep: true },
         { text: "Force Quit " + (target ? target.name : ""), show: target !== null, action: () => win.session.askForceQuit(win.target) },
         { sep: true, show: target !== null },

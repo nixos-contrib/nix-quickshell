@@ -4,10 +4,10 @@ import Quickshell.Io
 import qs
 
 // The mode of the theme, dark or light: the choice is dark, light or auto, and auto follows the hours of the day. It is kept in a
-// file of the state folder, so it is the same after the shell starts again, and it is changed from outside with `nshell theme`
+// file of the state folder, so it is the same after the shell starts again, and it is changed from outside with `nix-quickshell theme`
 Scope {
     id: root
-    // dark, light or auto: what the file of the theme says, until a choice of `nshell theme` kept in the state folder replaces it. A
+    // dark, light or auto: what the file of the theme says, until a choice of `nix-quickshell theme` kept in the state folder replaces it. A
     // shell that was not told is dark
     property string choice: Theme.user.mode || "dark"
     // auto is light from this hour of the day until the other
@@ -56,9 +56,9 @@ Scope {
             }
         }
     }
-    // The apps follow the mode: `nshell apps` puts the colors of the mode where they read them, and tells them to read them again
+    // The apps follow the mode: `nix-quickshell apps` puts the colors of the mode where they read them, and tells them to read them again
     function apply() {
-        Quickshell.execDetached([Quickshell.env("NSHELL_BIN") || "nshell", "apps", root.resolved]);
+        Quickshell.execDetached([Quickshell.env("NIX_QUICKSHELL_BIN") || "nix-quickshell", "apps", root.resolved]);
     }
     onResolvedChanged: apply()
     Component.onCompleted: {
@@ -66,10 +66,10 @@ Scope {
         apply();
     }
 
-    // nshell theme [dark|light|auto|toggle]: toggle flips what is shown, and an auto becomes the choice it showed
+    // nix-quickshell theme [dark|light|auto|toggle]: toggle flips what is shown, and an auto becomes the choice it showed
     IpcHandler {
         target: "theme"
-        function set(mode: string): string { return root.set(mode) ? root.choice : "usage: nshell theme [dark|light|auto|toggle]"; }
+        function set(mode: string): string { return root.set(mode) ? root.choice : "usage: nix-quickshell theme [dark|light|auto|toggle]"; }
         function toggle(): string {
             root.set(Theme.mode === "dark" ? "light" : "dark");
             return root.choice;

@@ -1,6 +1,6 @@
 # The clipboard history
 
-The launcher has a third mode, the history of the clipboard: `nshell launcher clipboard`, or Tab from the other two. It lists what
+The launcher has a third mode, the history of the clipboard: `nix-quickshell launcher clipboard`, or Tab from the other two. It lists what
 was copied, newest first, with when, and a search narrows it. Enter puts the copy back on the clipboard, and the window closes:
 the paste is yours, in the app that had the focus.
 
@@ -20,7 +20,7 @@ systemd.user.services.clipmenu.Service.Environment = [
 ];
 ```
 
-- A key in i3: `bindsym $mod+Shift+v exec --no-startup-id nshell launcher clipboard`.
+- A key in i3: `bindsym $mod+Shift+v exec --no-startup-id nix-quickshell launcher clipboard`.
 
 ## Where it is kept, and what it holds
 
