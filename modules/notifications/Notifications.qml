@@ -156,7 +156,7 @@ Scope {
     }
 
     // the file, in the state folder of the user: the entries without their raw pictures, which do not last, and do not disturb
-    readonly property string statePath: (Quickshell.env("XDG_STATE_HOME") || Quickshell.env("HOME") + "/.local/state") + "/nix/quickshell/history.json"
+    readonly property string statePath: (Quickshell.env("XDG_STATE_HOME") || Quickshell.env("HOME") + "/.local/state") + "/nix-quickshell/history.json"
     function save() {
         saver.restart();
     }

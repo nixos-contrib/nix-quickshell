@@ -27,7 +27,7 @@ let
   # The mode the apps have until the shell says its own: the files that the shell copies when the mode changes, see `nix-quickshell apps`.
   # Dark, unless the theme is light
   startMode = if cfg.theme.mode == "light" then "light" else "dark";
-  stateDir = "${config.xdg.stateHome}/nix/quickshell";
+  stateDir = "${config.xdg.stateHome}/nix-quickshell";
 
   gtkTheme = m: "nix-quickshell-${m}";
   # The same theme under another name. Brave (Chromium) reads the colors of the GTK theme when its name changes, before GTK has loaded it, and
@@ -278,7 +278,7 @@ in
       cursor = {
         enable = enableOption ''
           The mouse cursor: the package, a default theme for X (icons/default/index.theme), the cursor of GTK, the cursor of Xresources,
-          and nix/quickshell/session.sh, which the session sources for XCURSOR_THEME, XCURSOR_SIZE and XCURSOR_PATH. Xcursor on NixOS does
+          and nix-quickshell/session.sh, which the session sources for XCURSOR_THEME, XCURSOR_SIZE and XCURSOR_PATH. Xcursor on NixOS does
           not look into the profile of the user by itself
         '';
         name = mkOption {
@@ -301,7 +301,7 @@ in
 
       wallpaper = {
         enable = enableOption ''
-          The wallpaper of the theme: ~/.config/nix/quickshell/wallpaper-<mode>.png, the surface color of the palette (not the one of the bar) with the logomark of NixOS in the
+          The wallpaper of the theme: ~/.config/nix-quickshell/wallpaper-<mode>.png, the surface color of the palette (not the one of the bar) with the logomark of NixOS in the
           middle, and `nix-quickshell apps` sets the one of the mode with feh, when the mode changes and at the start of the session
         '';
         image = mkOption {
@@ -343,7 +343,7 @@ in
         type = types.bool;
         default = cfg.targets.autoEnable && def.program != null && (config.programs.${def.program}.enable or false);
         defaultText = lib.literalMD "`programs.${name}.enable` when `targets.autoEnable` is on, otherwise false";
-        description = "~/.config/nix/quickshell/apps/${name}-<mode>, the colors of ${name}, which `nix-quickshell apps` puts in the state folder as ${def.target}, and the include of it in the config of ${name} when Home Manager has it.";
+        description = "~/.config/nix-quickshell/apps/${name}-<mode>, the colors of ${name}, which `nix-quickshell apps` puts in the state folder as ${def.target}, and the include of it in the config of ${name} when Home Manager has it.";
       };
     }) appDefs;
   };
@@ -374,7 +374,7 @@ in
         </fontconfig>
       '';
     } // {
-      "nix/quickshell/theme.json".text = builtins.toJSON (
+      "nix-quickshell/theme.json".text = builtins.toJSON (
         lib.filterAttrs (_: v: v != null && v != { }) {
           name = cfg.theme.name;
           mode = cfg.theme.mode;
@@ -414,8 +414,8 @@ in
       }
       // lib.listToAttrs (
         lib.concatMap (m: [
-          (lib.nameValuePair "nix/quickshell/xsettings-${m}.conf" { text = xsettings m (gtkTheme m); })
-          (lib.nameValuePair "nix/quickshell/xsettings-${m}-twin.conf" { text = xsettings m (gtkTwin m); })
+          (lib.nameValuePair "nix-quickshell/xsettings-${m}.conf" { text = xsettings m (gtkTheme m); })
+          (lib.nameValuePair "nix-quickshell/xsettings-${m}-twin.conf" { text = xsettings m (gtkTwin m); })
         ]) modes
       )
     )
@@ -423,7 +423,7 @@ in
       lib.listToAttrs (
         map (
           m:
-          lib.nameValuePair "nix/quickshell/wallpaper-${m}.png" {
+          lib.nameValuePair "nix-quickshell/wallpaper-${m}.png" {
             source = wallpaperOf m;
           }
         ) modes
@@ -431,11 +431,11 @@ in
     )
     // lib.optionalAttrs cursor.enable {
       # mode-free, for `xrdb -merge` once, and the session
-      "nix/quickshell/Xresources".text = ''
+      "nix-quickshell/Xresources".text = ''
         Xcursor.theme: ${cursor.name}
         Xcursor.size: ${toString cursor.size}
       '';
-      "nix/quickshell/session.sh".text = ''
+      "nix-quickshell/session.sh".text = ''
         export XCURSOR_THEME=${cursor.name}
         export XCURSOR_SIZE=${toString cursor.size}
         export XCURSOR_PATH=${config.home.profileDirectory}/share/icons:/run/current-system/sw/share/icons
@@ -444,18 +444,18 @@ in
     # the apps: the colors of each mode, and what `nix-quickshell apps` needs to know of the app, which is a file of shell variables
     // lib.optionalAttrs cfg.targets.portal.enable {
       # tells `nix-quickshell apps` to write the appearance of the system
-      "nix/quickshell/portal".text = "1\n";
+      "nix-quickshell/portal".text = "1\n";
     }
     // lib.concatMapAttrs (
       name: def:
       {
-        "nix/quickshell/apps/${name}.app".text = ''
+        "nix-quickshell/apps/${name}.app".text = ''
           target=${lib.escapeShellArg def.target}
           reload=${lib.escapeShellArg (if def.reload == null then "" else def.reload)}
           always=${if def.always then "1" else "0"}
         '';
       }
-      // lib.listToAttrs (map (m: lib.nameValuePair "nix/quickshell/apps/${name}-${m}" { text = def.colors palettes.${m} + (def.font or (_: "")) { family = font; size = cfg.theme.fontSize; }; }) modes)
+      // lib.listToAttrs (map (m: lib.nameValuePair "nix-quickshell/apps/${name}-${m}" { text = def.colors palettes.${m} + (def.font or (_: "")) { family = font; size = cfg.theme.fontSize; }; }) modes)
     ) enabledApps;
 
     xdg.dataFile =
