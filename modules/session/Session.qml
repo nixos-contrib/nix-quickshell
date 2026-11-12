@@ -7,7 +7,7 @@ import qs
 import qs.modules.common
 
 // The card in the middle of the screen for the session, as the launcher is. It has three views in the same window: the menu of the session,
-// with Lock, Log out, Suspend, Reboot and Power off, from `nshell session`; the question that Reboot, Power off, Log out and Force Quit ask
+// with Lock, Log out, Suspend, Reboot and Power off, from `nix-quickshell session`; the question that Reboot, Power off, Log out and Force Quit ask
 // before they do it; and About This Computer. The menu of the logo opens it on the question or on the about. Each line has a key, the letter that
 // is underlined, and the arrows and Enter do the same. The commands are the `session` of the theme file: lock has none by default, and then it
 // is not there, as X11 has no lock screen for a shell to draw: it only runs the one of the user

@@ -17,10 +17,10 @@ ShellRoot {
     Osd { suppressed: center.popupOpen }
     Launcher { id: appLauncher }
     Session { id: sessionMenu }
-    // NSHELL_NO_BAR=1 runs the shell without its bar, to try the notifications beside another one
+    // NIX_QUICKSHELL_NO_BAR=1 runs the shell without its bar, to try the notifications beside another one
     Loader {
         id: barLoader
-        active: Quickshell.env("NSHELL_NO_BAR") !== "1"
+        active: Quickshell.env("NIX_QUICKSHELL_NO_BAR") !== "1"
         sourceComponent: Bar { notifications: center; launcher: appLauncher; session: sessionMenu; tabs: containerTabs }
     }
     // The windows of the workspaces and the tabs of i3, for the bar

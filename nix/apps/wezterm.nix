@@ -1,9 +1,9 @@
-# WezTerm: its `colors` are the scheme file of the state folder, `~/.local/state/nix-quickshell/wezterm.toml`, in the format of a color scheme
-# of WezTerm. The config adds the file to the list that WezTerm watches, so the open terminals read it again when `nshell apps` puts the file of
+# WezTerm: its `colors` are the scheme file of the state folder, `~/.local/state/nix/quickshell/wezterm.toml`, in the format of a color scheme
+# of WezTerm. The config adds the file to the list that WezTerm watches, so the open terminals read it again when `nix-quickshell apps` puts the file of
 # the new mode there, and follow it. A file that is not there yet is no scheme, and the colors of WezTerm are its own
 # `program` is the name under programs.<program> of Home Manager: when it is enabled the app is found, and `wire` puts the colors in its
-# config. `target` is the name in the state folder, `reload` runs when the file there changed (or at each `nshell apps` when `always`), with the
-# path of the file in $NSHELL_FILE. A file that is not here is not an app of nix-quickshell: add one, and `targets.<name>` is there
+# config. `target` is the name in the state folder, `reload` runs when the file there changed (or at each `nix-quickshell apps` when `always`), with the
+# path of the file in $NIX_QUICKSHELL_FILE. A file that is not here is not an app of nix-quickshell: add one, and `targets.<name>` is there
 {
   program = "wezterm";
   target = "wezterm.toml";

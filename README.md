@@ -44,7 +44,7 @@ one: it is an X11 shell, and runs wherever i3 does.
   for an app that sends the `value` hint (and updates the same card as it goes),
   more than two of one app as one card, with edges behind it and its count as a
   badge, which opens to the list, a field for the reply when the app offers one
-  (the `inline-reply` action of KDE), and a history (`nshell center`) that groups the
+  (the `inline-reply` action of KDE), and a history (`nix-quickshell center`) that groups the
   same way. Its bell is the switch of do not disturb. Do not disturb also mutes the sound
   effects of chat apps (Vesktop, Discord) while it is on, see
   `modules/notifications/QuietSound.qml`.
@@ -80,7 +80,7 @@ one: it is an X11 shell, and runs wherever i3 does.
     something came since the history was last opened, and the **clock**, which
     opens a calendar of the month: the week starts on Monday or Sunday, Left,
     Right and the wheel go from month to month, and Today is the way back
-    (`nshell calendar` opens it from a key).
+    (`nix-quickshell calendar` opens it from a key).
 
   <p align="center">
     <img src="docs/img/popups-1.png" alt="The calendar and the player" width="830"><br>
@@ -96,14 +96,14 @@ one: it is an X11 shell, and runs wherever i3 does.
     <img src="docs/img/menus.png" alt="The menu of the logo, and the card of the session" width="830">
   </p>
 - **Session.** That card, with Lock, Log out, Suspend, Reboot and Power off, each
-  with a key (the underlined letter), opens from a key with `nshell session`.
+  with a key (the underlined letter), opens from a key with `nix-quickshell session`.
   Lock is only there when `session.lock` is set: X11 has no lock screen
   for a shell to draw, so it runs yours.
 - **Windows in the bar.** After the number of every workspace, an icon for
   each of its windows, the one in front or with the focus lit, a title when the
   pointer stays on an icon, and a click takes the window to the front. Windows
   side by side are one group; a tabbed container of i3 is a group of its own
-  with a chevron, which, or `nshell tabs list`, opens the list of its tabs with
+  with a chevron, which, or `nix-quickshell tabs list`, opens the list of its tabs with
   titles and a filter. A group of more than five windows is one icon, the one in
   front, with the same chevron and its list: there are no counts in the bar. The
   right button on an icon opens a menu (close, and move a tab left or right), a
@@ -112,10 +112,10 @@ one: it is an X11 shell, and runs wherever i3 does.
   see [`docs/i3.md`](docs/i3.md).
 - **Launcher.** Apps (ordered by how often they are run), the windows of
   i3 and the history of the clipboard, Tab goes from one to the next
-  (`nshell launcher`, `nshell launcher windows`, `nshell launcher clipboard`;
+  (`nix-quickshell launcher`, `nix-quickshell launcher windows`, `nix-quickshell launcher clipboard`;
   the history is [`docs/clipboard.md`](docs/clipboard.md)). An app that has a window is focused and not
   started again, by the `StartupWMClass` of its desktop entry, also from a key:
-  `nshell launch brave-browser`. `nshell pick` is the same list for scripts.
+  `nix-quickshell launch brave-browser`. `nix-quickshell pick` is the same list for scripts.
 
   <p align="center">
     <img src="docs/img/launcher.png" alt="The launcher, on its list of windows" width="640">
@@ -130,7 +130,7 @@ one: it is an X11 shell, and runs wherever i3 does.
   `nixos-graphite` (greys), each with a dark and a light mode. The bar is the
   color of the windows on dark, and a blue (a dark grey in graphite) with white
   text on light.
-  `nshell theme [dark|light|auto|toggle]` changes it live. The palettes are
+  `nix-quickshell theme [dark|light|auto|toggle]` changes it live. The palettes are
   data, see [Theme](#theme).
 
 <p align="center">
@@ -154,9 +154,9 @@ an installed icon theme, for the icons of the apps, and `I3SOCK` has to be set
 when it runs outside i3. The windows of the toasts, the popups and the launcher
 are floated by i3, see the rules in [`docs/i3.md`](docs/i3.md).
 
-From a checkout, `NSHELL_PATH=. nshell` runs the shell, `scripts/preview` sends one
+From a checkout, `NIX_QUICKSHELL_PATH=. nix-quickshell` runs the shell, `scripts/preview` sends one
 of every kind of notification and `scripts/preview burst` a pile of them.
-`NSHELL_NO_BAR=1` runs it without the bar, to try the notifications beside
+`NIX_QUICKSHELL_NO_BAR=1` runs it without the bar, to try the notifications beside
 another one.
 
 The launcher lists programs that run in a terminal (Helix, Yazi, bottom…) only
@@ -202,8 +202,8 @@ with a band of font height and 4 px above the tabbed containers. See
 
 The palettes are themes, files of the package: `themes/nixos-navy.json`
 (the default) and `themes/nixos-graphite.json`, each with the roles of a
-`dark` and a `light` palette. `~/.config/nix-quickshell/theme.json`, or the
-file of `NSHELL_THEME`, is read over it, and the shell reads both again when
+`dark` and a `light` palette. `~/.config/nix/quickshell/theme.json`, or the
+file of `NIX_QUICKSHELL_THEME`, is read over it, and the shell reads both again when
 they change:
 
 ```json
@@ -221,7 +221,7 @@ they change:
 
 Every key is optional. `name` is `nixos-navy` or `nixos-graphite`. `mode` is
 `dark`, `light` or `auto` (light from 07:00 to 19:00 by default; a choice of
-`nshell theme` is kept in `~/.local/state/nix-quickshell/theme.json` and lasts
+`nix-quickshell theme` is kept in `~/.local/state/nix/quickshell/theme.json` and lasts
 over it). `font` is the family: Route 159 by default, the typeface of NixOS,
 which has to be installed (nixpkgs has it as `route159`). It has the Latin
 letters and little more, so the module adds a fontconfig rule that makes
@@ -256,7 +256,7 @@ programs.nix-quickshell = {
     gtk.enable = true;              # the settings and the colors of the GTK apps (adw-gtk3), GTK 3 and 4
     wallpaper.enable = true;        # the wallpaper of the theme, for each mode
     zathura.enable = true;          # the colors of an app, see Apps below
-    i3.enable = true;               # the colors of the tabs, `include ~/.local/state/nix-quickshell/i3.conf` in the config of i3
+    i3.enable = true;               # the colors of the tabs, `include ~/.local/state/nix/quickshell/i3.conf` in the config of i3
   };
 
   calendar.weekStart = "monday";
@@ -268,9 +268,9 @@ programs.nix-quickshell = {
 | Option | Writes | Yours to add |
 |---|---|---|
 | `targets.gtk` | two GTK themes in `~/.local/share/themes`, `nix-quickshell-dark` and `nix-quickshell-light` (adw-gtk3 with the named colors of the palette after it), each with a twin of the same look (`-twin`), `gtk-3.0/settings.ini` and `gtk-4.0/gtk.css`, and `xsettings-<mode>.conf` and its twin for xsettingsd | `menuImages` (icons in the menus, on), `extraCss` (layout rules that can use the colors, as `@window_bg_color`), `xsettings` (as `Xft/DPI`), `iconTheme` (`dark`, `light` and `package`) |
-| `targets.wallpaper` | `wallpaper-<mode>.png`, the surface color of the palette, a step off the bar, with the logomark of NixOS, the one with the gradient, in the middle, and `nshell apps` sets the one of the mode with feh | `image`, an image of your own: one for both modes, or `{ dark = ./night.png; light = ./day.png; }` |
-| `targets.cursor` | the cursor theme (capitaine-cursors, the arrow of macOS, by default): its package, `icons/default/index.theme`, the cursor of GTK and `Xresources`, and `session.sh` | `. ~/.config/nix-quickshell/session.sh` in the session, and `size`: 24 by default, 48 on a screen with twice the pixels |
-| `targets.portal` | `portal`, a marker, and the package of dconf: `nshell apps` writes `prefer-dark` or `prefer-light` in org.gnome.desktop.interface color-scheme, which the XDG desktop portal answers to the apps that follow the appearance of the system (terminals as Rio and WezTerm, Brave, the apps of GTK 4), when the mode changes and at the start of the session | a GSettings backend that the portal reads, on NixOS `programs.dconf.enable` |
+| `targets.wallpaper` | `wallpaper-<mode>.png`, the surface color of the palette, a step off the bar, with the logomark of NixOS, the one with the gradient, in the middle, and `nix-quickshell apps` sets the one of the mode with feh | `image`, an image of your own: one for both modes, or `{ dark = ./night.png; light = ./day.png; }` |
+| `targets.cursor` | the cursor theme (capitaine-cursors, the arrow of macOS, by default): its package, `icons/default/index.theme`, the cursor of GTK and `Xresources`, and `session.sh` | `. ~/.config/nix/quickshell/session.sh` in the session, and `size`: 24 by default, 48 on a screen with twice the pixels |
+| `targets.portal` | `portal`, a marker, and the package of dconf: `nix-quickshell apps` writes `prefer-dark` or `prefer-light` in org.gnome.desktop.interface color-scheme, which the XDG desktop portal answers to the apps that follow the appearance of the system (terminals as Rio and WezTerm, Brave, the apps of GTK 4), when the mode changes and at the start of the session | a GSettings backend that the portal reads, on NixOS `programs.dconf.enable` |
 | `targets.<app>` | one file of `nix/apps/` each, see below | |
 
 ### Apps
@@ -288,16 +288,16 @@ targets.kitty.enable = false;  # I have my own theme
 targets.zathura.enable = true; # not a Home Manager program here: include the file yourself
 ```
 
-`nshell apps` copies the file of the mode to `~/.local/state/nix-quickshell/`
+`nix-quickshell apps` copies the file of the mode to `~/.local/state/nix/quickshell/`
 (`kitty.conf`, `zathurarc`, `alacritty.toml`, `wezterm.toml`, `xresources`) and runs what the app
 needs to read it again: kitty gets a SIGUSR1, i3 a `reload`, xterm's resources are
 merged with `xrdb`, and Alacritty, WezTerm and zathura need nothing. Without Home Manager's program
-the include is yours: `include ~/.local/state/nix-quickshell/kitty.conf`,
-`general.import = ["~/.local/state/nix-quickshell/alacritty.toml"]`,
+the include is yours: `include ~/.local/state/nix/quickshell/kitty.conf`,
+`general.import = ["~/.local/state/nix/quickshell/alacritty.toml"]`,
 `include` in `zathurarc`, and for WezTerm
 `config.colors = wezterm.color.load_scheme(path)` with
 `wezterm.add_to_config_reload_watch_list(path)` for the file
-`~/.local/state/nix-quickshell/wezterm.toml`.
+`~/.local/state/nix/quickshell/wezterm.toml`.
 
 WezTerm gets the colors of the terminal, the cursor, the selection and the tab bar of
 the plain kind. Its default tab bar is the fancy one, which takes the colors of
@@ -319,7 +319,7 @@ shell follows and where it deviates, the limits, and how it is tested.
 nix develop                      # shellcheck, actionlint and jq
 nix flake check -L               # builds the shell and the patched i3, checks the themes
 nix build .#i3                   # says if the patch of i3 still applies
-nix develop --command shellcheck bin/nshell scripts/preview
+nix develop --command shellcheck bin/nix-quickshell scripts/preview
 nix develop --command actionlint
 ```
 
@@ -328,7 +328,7 @@ NetworkManager (`nm-mock.py`) and BlueZ (`bt-mock.py`), to try the network and t
 Bluetooth items without hardware. Each says how to run it at its top.
 
 To try a change, run a copy of the shell over the installed one with
-`NSHELL_PATH=$PWD nshell`, with `XDG_STATE_HOME` and `NSHELL_THEME` pointing at
+`NIX_QUICKSHELL_PATH=$PWD nix-quickshell`, with `XDG_STATE_HOME` and `NIX_QUICKSHELL_THEME` pointing at
 a scratch folder and file, so that the saved history and mode are not touched.
 Use made-up values in tests and screenshots, and no real identifiers: the ones of
 this page were taken in a separate X server with a made-up user and mocks of
@@ -341,6 +341,11 @@ Releases are managed by
 [Conventional Commits](https://www.conventionalcommits.org/). Every push to
 `main` is checked, and release-please keeps a release PR open. Merging that PR
 tags a release.
+
+The project is before 1.0.0, so a breaking change bumps the minor version and a
+new feature bumps the patch version. Mark breaking changes with `!` or a
+`BREAKING CHANGE:` footer, and move to 1.0.0 on purpose with a `Release-As: 1.0.0`
+footer.
 
 A weekly `chore(flake)` PR updates nixpkgs and merges automatically. These
 updates don't trigger a release by themselves.

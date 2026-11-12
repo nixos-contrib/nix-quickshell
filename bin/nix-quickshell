@@ -1,30 +1,30 @@
 #!/usr/bin/env bash
-# The command of the shell. NSHELL_PATH is the folder of the shell, set by the package, or by hand to run one from a checkout
+# The command of the shell. NIX_QUICKSHELL_PATH is the folder of the shell, set by the package, or by hand to run one from a checkout
 #
-#   nshell                  starts the shell
-#   nshell center [dnd]     opens and closes the history of the notifications, or toggles do not disturb
-#   nshell bar [audio|battery|calendar|media|logo|network|bluetooth|tray]  shows and hides the bar, or opens one of its popups
-#   nshell calendar         opens and closes the calendar under the clock
-#   nshell session          opens and closes the menu of the session: lock, log out, suspend, reboot, power off
-#   nshell launcher [windows]  opens the launcher, on the apps or on the windows
-#   nshell launch ID        an app by the id of its desktop entry (brave-browser): its window is focused when it has one, and it is
+#   nix-quickshell                  starts the shell
+#   nix-quickshell center [dnd]     opens and closes the history of the notifications, or toggles do not disturb
+#   nix-quickshell bar [audio|battery|calendar|media|logo|network|bluetooth|tray]  shows and hides the bar, or opens one of its popups
+#   nix-quickshell calendar         opens and closes the calendar under the clock
+#   nix-quickshell session          opens and closes the menu of the session: lock, log out, suspend, reboot, power off
+#   nix-quickshell launcher [windows]  opens the launcher, on the apps or on the windows
+#   nix-quickshell launch ID        an app by the id of its desktop entry (brave-browser): its window is focused when it has one, and it is
 #                           started when it has none
-#   nshell tabs list        opens the list of the windows of the tabbed container that has the focus, under its chevron in the bar
-#   nshell theme [dark|light|auto|toggle]  the mode of the theme, auto follows the hours of the day. Without an argument, says it
-#   nshell apps [dark|light]  puts the files of a mode where the apps read them, and tells the GTK apps and the apps of apps/ to read them again.
+#   nix-quickshell tabs list        opens the list of the windows of the tabbed container that has the focus, under its chevron in the bar
+#   nix-quickshell theme [dark|light|auto|toggle]  the mode of the theme, auto follows the hours of the day. Without an argument, says it
+#   nix-quickshell apps [dark|light]  puts the files of a mode where the apps read them, and tells the GTK apps and the apps of apps/ to read them again.
 #                           The shell runs it when the mode changes, and the session at its start. Without a mode it takes the saved one
-#   nshell pick [--prompt TEXT]  a choice for a script: it reads the lines on stdin, a line is "title", "title<TAB>subtitle" or
+#   nix-quickshell pick [--prompt TEXT]  a choice for a script: it reads the lines on stdin, a line is "title", "title<TAB>subtitle" or
 #                           "title<TAB>subtitle<TAB>icon", shows them in the style of the shell, and prints the line that was
 #                           chosen. The exit status is 0 for a choice and 1 when it was cancelled, 2 when the shell is not running
 set -eu
-: "${NSHELL_PATH:?NSHELL_PATH is not set}"
+: "${NIX_QUICKSHELL_PATH:?NIX_QUICKSHELL_PATH is not set}"
 
 # A key that is held a moment repeats, 40 times a second, and runs the command each time. These commands toggle, so the repeat would
 # close what the first opened. Starting the client of Quickshell takes long enough for the runs to pile up and reach the shell in
 # bursts, so the repeat is caught here: a run less than 400 ms after the one before is the same press, and ends at once. Every run
 # counts as the one before, so a key held for any time is one press
 same_press() {
-	local stamp="${XDG_RUNTIME_DIR:-/tmp}/nshell-key-press" now last
+	local stamp="${XDG_RUNTIME_DIR:-/tmp}/nix-quickshell-key-press" now last
 	now="$(date +%s%3N)"
 	last="$(cat "$stamp" 2>/dev/null || echo 0)"
 	printf '%s' "$now" >"$stamp"
@@ -35,13 +35,13 @@ case "${1:-}" in
 center | bar | calendar | session | launcher | launch | theme) same_press && exit 0 ;;
 esac
 
-# The apps follow the mode: nix-quickshell (the Nix module) writes the files of both modes in ~/.config/nix-quickshell, and this copies the ones
+# The apps follow the mode: nix-quickshell (the Nix module) writes the files of both modes in ~/.config/nix/quickshell, and this copies the ones
 # of a mode into the state folder, which the configs of the apps include, and asks the apps to read them again: xsettingsd (the GTK
 # apps change themselves, live), and each app of apps/ with its own reload
 # The location bar of an open Thunar keeps the small icon of the other mode until it goes to another folder: GTK does not draw it again, and
 # the only way to make it do so is to swap the bar for the path buttons and back, which flashes. The rest of Thunar follows the mode live
 apply_apps() {
-	local mode="${1:-}" cfg="${XDG_CONFIG_HOME:-$HOME/.config}/nix-quickshell" state="${XDG_STATE_HOME:-$HOME/.local/state}/nix-quickshell"
+	local mode="${1:-}" cfg="${XDG_CONFIG_HOME:-$HOME/.config}/nix/quickshell" state="${XDG_STATE_HOME:-$HOME/.local/state}/nix/quickshell"
 	if [ -z "$mode" ]; then
 		mode="$(grep -o '"mode" *: *"[a-z]*"' "$state/theme.json" 2>/dev/null | head -n1 | grep -o '"[a-z]*"$' | tr -d '"' || true)"
 	fi
@@ -93,27 +93,27 @@ apply_apps() {
 		elif [ "$always" != 1 ]; then
 			continue
 		fi
-		if [ -n "$reload" ]; then NSHELL_FILE="$dst" sh -c "$reload" 2>/dev/null || true; fi
+		if [ -n "$reload" ]; then NIX_QUICKSHELL_FILE="$dst" sh -c "$reload" 2>/dev/null || true; fi
 	done
 }
 
 case "${1:-}" in
-"") exec quickshell -p "$NSHELL_PATH" ;;
+"") exec quickshell -p "$NIX_QUICKSHELL_PATH" ;;
 apps) apply_apps "${2:-}" ;;
-center) exec quickshell -p "$NSHELL_PATH" ipc call center "${2:-toggle}" ;;
-bar) exec quickshell -p "$NSHELL_PATH" ipc call bar "${2:-toggle}" ;;
-calendar) exec quickshell -p "$NSHELL_PATH" ipc call bar calendar ;;
-session) exec quickshell -p "$NSHELL_PATH" ipc call session toggle ;;
-launcher) exec quickshell -p "$NSHELL_PATH" ipc call launcher "${2:-apps}" ;;
-tabs) exec quickshell -p "$NSHELL_PATH" ipc call tabs list ;;
+center) exec quickshell -p "$NIX_QUICKSHELL_PATH" ipc call center "${2:-toggle}" ;;
+bar) exec quickshell -p "$NIX_QUICKSHELL_PATH" ipc call bar "${2:-toggle}" ;;
+calendar) exec quickshell -p "$NIX_QUICKSHELL_PATH" ipc call bar calendar ;;
+session) exec quickshell -p "$NIX_QUICKSHELL_PATH" ipc call session toggle ;;
+launcher) exec quickshell -p "$NIX_QUICKSHELL_PATH" ipc call launcher "${2:-apps}" ;;
+tabs) exec quickshell -p "$NIX_QUICKSHELL_PATH" ipc call tabs list ;;
 theme)
 	case "${2:-}" in
-	"") exec quickshell -p "$NSHELL_PATH" ipc call theme get ;;
-	toggle) exec quickshell -p "$NSHELL_PATH" ipc call theme toggle ;;
-	*) exec quickshell -p "$NSHELL_PATH" ipc call theme set "$2" ;;
+	"") exec quickshell -p "$NIX_QUICKSHELL_PATH" ipc call theme get ;;
+	toggle) exec quickshell -p "$NIX_QUICKSHELL_PATH" ipc call theme toggle ;;
+	*) exec quickshell -p "$NIX_QUICKSHELL_PATH" ipc call theme set "$2" ;;
 	esac
 	;;
-launch) exec quickshell -p "$NSHELL_PATH" ipc call launcher launch "${2:?usage: nshell launch ID}" ;;
+launch) exec quickshell -p "$NIX_QUICKSHELL_PATH" ipc call launcher launch "${2:?usage: nix-quickshell launch ID}" ;;
 pick)
 	shift
 	prompt=""
@@ -124,17 +124,17 @@ pick)
 			shift 2
 			;;
 		*)
-			echo "usage: nshell pick [--prompt TEXT]" >&2
+			echo "usage: nix-quickshell pick [--prompt TEXT]" >&2
 			exit 1
 			;;
 		esac
 	done
-	dir="$(mktemp -d "${XDG_RUNTIME_DIR:-/tmp}/nshell-pick.XXXXXX")"
+	dir="$(mktemp -d "${XDG_RUNTIME_DIR:-/tmp}/nix-quickshell-pick.XXXXXX")"
 	trap 'rm -rf "$dir"' EXIT
 	# the lines, and the pipe that the shell answers on: reading it waits until it does
 	mkfifo "$dir/result"
 	cat >"$dir/items"
-	quickshell -p "$NSHELL_PATH" ipc call launcher pick "$dir" "$prompt" >/dev/null || exit 2
+	quickshell -p "$NIX_QUICKSHELL_PATH" ipc call launcher pick "$dir" "$prompt" >/dev/null || exit 2
 	answer="$(cat "$dir/result")"
 	if [ "${answer%%$'\n'*}" = "OK" ]; then
 		printf '%s\n' "${answer#*$'\n'}"
@@ -143,7 +143,7 @@ pick)
 	exit 1
 	;;
 *)
-	echo "usage: nshell [center [dnd] | bar | launcher [windows] | launch ID | tabs list | theme [dark|light|auto|toggle] | apps [dark|light] | pick [--prompt TEXT]]" >&2
+	echo "usage: nix-quickshell [center [dnd] | bar | launcher [windows] | launch ID | tabs list | theme [dark|light|auto|toggle] | apps [dark|light] | pick [--prompt TEXT]]" >&2
 	exit 1
 	;;
 esac
