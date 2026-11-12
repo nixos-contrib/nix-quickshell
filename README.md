@@ -342,6 +342,11 @@ Releases are managed by
 `main` is checked, and release-please keeps a release PR open. Merging that PR
 tags a release.
 
+The project is before 1.0.0, so a breaking change bumps the minor version and a
+new feature bumps the patch version. Mark breaking changes with `!` or a
+`BREAKING CHANGE:` footer, and move to 1.0.0 on purpose with a `Release-As: 1.0.0`
+footer.
+
 A weekly `chore(flake)` PR updates nixpkgs and merges automatically. These
 updates don't trigger a release by themselves.
 
