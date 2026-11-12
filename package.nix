@@ -11,7 +11,7 @@
 # The shell: the QML next to the command, which runs Quickshell on it
 stdenvNoCC.mkDerivation {
   pname = "nix-quickshell";
-  version = "0.3.0"; # x-release-please-version
+  version = "0.4.0"; # x-release-please-version
 
   src = lib.fileset.toSource {
     root = ./.;
