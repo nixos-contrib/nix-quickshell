@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.3.0](https://github.com/nixos-contrib/nix-quickshell/compare/v0.2.0...v0.3.0) (2026-11-12)
+
+
+### ⚠ BREAKING CHANGES
+
+* the config and the state are back in nix-quickshell, from nix/quickshell of 0.2.0, with no alias.
+
+### Code Refactoring
+
+* keep the config and the state in nix-quickshell, flat ([b51c449](https://github.com/nixos-contrib/nix-quickshell/commit/b51c449587ddc52110d7b2cf531ede55e13fc3df))
+
 ## [0.2.0](https://github.com/nixos-contrib/nix-quickshell/compare/v0.1.0...v0.2.0) (2026-11-12)
 
 
