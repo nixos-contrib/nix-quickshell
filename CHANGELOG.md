@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.1](https://github.com/nixos-contrib/nix-quickshell/compare/v0.4.0...v0.4.1) (2026-11-15)
+
+
+### Bug Fixes
+
+* a tap 200 ms after the one before is a new press, not the repeat of a held key ([8aac5a2](https://github.com/nixos-contrib/nix-quickshell/commit/8aac5a20aed192c1a875228a9a599629fe983286))
+
 ## [0.4.0](https://github.com/nixos-contrib/nix-quickshell/compare/v0.3.0...v0.4.0) (2026-11-12)
 
 
