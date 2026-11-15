@@ -21,14 +21,14 @@ set -eu
 
 # A key that is held a moment repeats, 40 times a second, and runs the command each time. These commands toggle, so the repeat would
 # close what the first opened. Starting the client of Quickshell takes long enough for the runs to pile up and reach the shell in
-# bursts, so the repeat is caught here: a run less than 400 ms after the one before is the same press, and ends at once. Every run
+# bursts, so the repeat is caught here: a run less than 200 ms after the one before is the same press, and ends at once. Every run
 # counts as the one before, so a key held for any time is one press
 same_press() {
 	local stamp="${XDG_RUNTIME_DIR:-/tmp}/nix-quickshell-key-press" now last
 	now="$(date +%s%3N)"
 	last="$(cat "$stamp" 2>/dev/null || echo 0)"
 	printf '%s' "$now" >"$stamp"
-	[ $((now - last)) -lt 400 ]
+	[ $((now - last)) -lt 200 ]
 }
 
 case "${1:-}" in

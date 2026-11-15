@@ -377,7 +377,7 @@ tile of text would look further from its neighbour than a tile of an icon.
 
 The commands that a key can run (`nix-quickshell launcher`, `center`, `bar`, `calendar`) toggle, and a key that is held a moment repeats: the command
 runs again and again, 25 ms apart, and the repeat would close what the first opened. The command itself catches it (`same_press` in
-`bin/nix-quickshell`): a run less than 400 ms after the one before is the same press and ends at once, and every run counts as the one
+`bin/nix-quickshell`): a run less than 200 ms after the one before is the same press and ends at once, and every run counts as the one
 before, so a key held for any time is one press. It has to be the command: starting the client of Quickshell takes long enough
 for the runs to pile up and reach the shell in bursts, and a late one looked like a new press. The shell keeps a check of its
 own for the commands that reach it by other ways.
@@ -430,7 +430,7 @@ exported as `overlays.i3` and checked by `nix build .#i3`. See `docs/i3.md`.
 - A drag in a model that is rebuilt on every change ends in the middle of it: keep the delegates (`ScriptModel` with `objectProp`).
 - adw-gtk3 takes the palette through named colors, but some states are `alpha(currentColor, x)`: those need a rule of their own (`nix/generators.nix`).
 - The menus of GTK 3 apps here are opaque windows (depth 24), so a rounded corner of the theme shows black outside the round: the menus of a menu bar are square, as the context menus are. Tooltips have an alpha channel and stay round.
-- A key that is held repeats the command: `nix-quickshell` catches a run less than 400 ms after the one before, so scripts need a pause between
+- A key that is held repeats the command: `nix-quickshell` catches a run less than 200 ms after the one before, so scripts need a pause between
   two `nix-quickshell theme` calls.
 - A loss of focus is also reported when a key grab starts: ask i3 before closing a window (`FocusGuard`).
 - `i3-msg restart` drops the dock registration of the bar: restart the shell after it.
