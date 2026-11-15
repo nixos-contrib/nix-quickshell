@@ -47,7 +47,7 @@ Scope {
     property double lastIpc: 0
     function fresh(): bool {
         const now = Date.now();
-        const first = now - root.lastIpc > 400;
+        const first = now - root.lastIpc > 200;
         root.lastIpc = now;
         return first;
     }
