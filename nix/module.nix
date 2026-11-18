@@ -20,6 +20,10 @@ let
   ];
   palettes = lib.genAttrs modes (m: themeData.${m} // cfg.theme.${m});
   gtkColors = lib.mapAttrs (_: import ./gtk.nix) palettes;
+  # The rules of the scrollbars, when they are on. They use @window_fg_color, so they follow the mode
+  gtkScrollbars = lib.optionalString cfg.targets.gtk.overlayScrollbars.enable (
+    import ./gtk-scrollbars.nix cfg.targets.gtk.overlayScrollbars
+  );
   # The apps that follow the theme: each file of apps/ is one, see there. Enabled when Home Manager has the program enabled, or when the user says so
   appDefs = lib.mapAttrs' (n: _: lib.nameValuePair (lib.removeSuffix ".nix" n) (import ./apps/${n})) (
     lib.filterAttrs (n: t: t == "regular" && lib.hasSuffix ".nix" n) (builtins.readDir ./apps)
@@ -41,6 +45,7 @@ let
   gtkThemeCss = m: ''
     @import url("file://${pkgs.adw-gtk3}/share/themes/${if m == "light" then "adw-gtk3" else "adw-gtk3-dark"}/gtk-3.0/gtk.css");
     ${gtkColors.${m}}
+    ${gtkScrollbars}
     ${cfg.targets.gtk.extraCss}
   '';
   # What xsettingsd tells the GTK apps, which then draw themselves again: the theme of the mode, and the rest of the look
@@ -50,6 +55,7 @@ let
     Gtk/FontName "${font} ${fontSize}"
     Gtk/ApplicationPreferDarkTheme ${if m == "light" then "0" else "1"}
     Gtk/MenuImages ${if cfg.targets.gtk.menuImages then "1" else "0"}
+    ${lib.optionalString cfg.targets.gtk.overlayScrollbars.enable "Gtk/OverlayScrolling 1"}
     ${lib.optionalString cursor.enable ''
       Gtk/CursorThemeName "${cursor.name}"
       Gtk/CursorThemeSize ${toString cursor.size}
@@ -255,6 +261,22 @@ in
           default = true;
           description = "Icons in the menus of the GTK apps, as in the context menu of Thunar. GTK 3 draws none unless it is told to.";
         };
+        overlayScrollbars = {
+          enable = enableOption ''
+            The scrollbars of the GTK apps as on macOS: Gtk/OverlayScrolling for xsettingsd, and rules for a thin round thumb on the content,
+            with no track, that is wider under the pointer. The scrollbars of an app that draws its own, as a browser or an Electron app, are not changed
+          '';
+          thickness = mkOption {
+            type = types.ints.positive;
+            default = 7;
+            description = "The width of the thumb at rest, in pixels of the screen: double it on a screen that has twice the pixels of the points.";
+          };
+          hoverThickness = mkOption {
+            type = types.ints.positive;
+            default = 11;
+            description = "The width of the thumb under the pointer, and while it is dragged, in pixels of the screen.";
+          };
+        };
         extraCss = mkOption {
           type = types.lines;
           default = "";
@@ -401,6 +423,7 @@ in
         '';
         "gtk-4.0/gtk.css".text = ''
           ${gtkColors.${startMode}}
+          ${gtkScrollbars}
           ${cfg.targets.gtk.extraCss}
         '';
       }
