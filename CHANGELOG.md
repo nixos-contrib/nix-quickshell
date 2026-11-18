@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.2](https://github.com/nixos-contrib/nix-quickshell/compare/v0.4.1...v0.4.2) (2026-11-18)
+
+
+### Features
+
+* **nix:** overlayScrollbars for the GTK apps, as on macOS ([8bcf883](https://github.com/nixos-contrib/nix-quickshell/commit/8bcf8837a63d7ccff26dbdb185d073855ea24f19))
+
 ## [0.4.1](https://github.com/nixos-contrib/nix-quickshell/compare/v0.4.0...v0.4.1) (2026-11-15)
 
 
