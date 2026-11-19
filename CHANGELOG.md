@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.3](https://github.com/nixos-contrib/nix-quickshell/compare/v0.4.2...v0.4.3) (2026-11-19)
+
+
+### Bug Fixes
+
+* **tabs:** the filter of the list keeps the keyboard, the popover gave it to its panel ([b21740d](https://github.com/nixos-contrib/nix-quickshell/commit/b21740dc8d5873d350aef01227e9c93e397b61f4))
+
 ## [0.4.2](https://github.com/nixos-contrib/nix-quickshell/compare/v0.4.1...v0.4.2) (2026-11-18)
 
 
