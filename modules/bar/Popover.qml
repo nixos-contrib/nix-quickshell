@@ -13,6 +13,9 @@ FloatingWindow {
     // the top of the window, in points of the screen: under the bar when it is not set, or where a container asks for it
     property real anchorY: -1
     property int panelWidth: Theme.popupWidth
+    // the item that takes the keyboard when the popup is placed, the panel when it is not set: a popup with a field sets it, as the
+    // panel would take the focus from the field a moment after it opened
+    property Item focusTarget: null
     property string heading: ""
     property string headerValue: ""
     // the room around the content: less for a menu, whose lines have room of their own
@@ -74,7 +77,7 @@ FloatingWindow {
         interval: 60
         onTriggered: {
             win.place();
-            panel.forceActiveFocus();
+            (win.focusTarget ?? panel).forceActiveFocus();
             revealTimer.restart();
         }
     }

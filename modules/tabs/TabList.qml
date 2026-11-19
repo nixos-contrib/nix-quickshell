@@ -16,6 +16,7 @@ Popover {
     heading: "Tabs"
     headerValue: container ? container.tabs.length + (container.tabs.length === 1 ? " tab" : " tabs") : ""
     panelWidth: 380
+    focusTarget: filter
 
     property int index: 0
     readonly property string query: filter.text.toLowerCase()
